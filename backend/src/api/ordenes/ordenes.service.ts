@@ -23,6 +23,8 @@ export class OrdenesService {
   //tarea que sirve para automatizar la descarga de dota del toa
   @Cron('0 */15 6-20 * * *')
   async obtenerOrdenesToa() {
+    console.log('iniciado');
+    
     return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then((res) => {
       console.log(res.data, ' - ', new Date());
     }).catch((err) => console.log(err));
