@@ -5,13 +5,16 @@ export type TOrdenToa = {
   bucket?: string,
   subtipo_actividad?: string,
   fecha_cita?: string,
+  tipo_agenda?:string,
+  motivo_no_realizado: string,
   sla_inicio?: string,
   sla_fin?: string
 };
 
-const carnetAdmitido = ['LY','LX']
+const carnetAdmitido:Array<string> = ['LY','LX']
 
 export function valoresToa(data:any):TOrdenToa {
+  console.log(data['Time Slot']);
   return ({
     requerimiento: data['Número de Petición'],
     tecnico: carnetAdmitido.includes(String(data['Técnico']).substring(0,2)) ? String(data['Técnico']).substring(0,6) : null,
@@ -19,6 +22,8 @@ export function valoresToa(data:any):TOrdenToa {
     bucket: data['Bucket Inicial'],
     subtipo_actividad: data['Subtipo de Actividad'],
     fecha_cita: data['Fecha de Cita'],
+    tipo_agenda: data['Time Slot'],
+    motivo_no_realizado: data['Motivo no realizado instalación'],
     sla_inicio: data['SLA Inicio'],
     sla_fin: data['SLA Fin']
   })

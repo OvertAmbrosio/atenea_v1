@@ -32,6 +32,8 @@ export interface IOrden extends Document {
   readonly bucket: string,
   readonly subtipo_actividad?: string,
   readonly fecha_cita: Date,
+  readonly tipo_agenda: string,
+  readonly motivo_no_realizado: string,
   readonly sla_inicio: Date,
   readonly sla_fin: Date,
   //
