@@ -1,0 +1,46 @@
+import { Schema } from 'mongoose';
+import * as mongoosePaginate from 'mongoose-paginate-v2';
+import { estado_asistencia } from 'src/constants/enum';
+
+export const AsistenciaSchema = new Schema({
+  tecnico: {
+    type: Schema.Types.ObjectId,
+    ref: 'Empleado',
+    required: true
+  },
+  gestor: {
+    type: Schema.Types.ObjectId,
+    ref: 'Empleado'
+  },
+  estado: {
+    type: String,
+    trim: true,
+    enum: [
+      estado_asistencia.ASISTIO,
+      estado_asistencia.DESCANSO,
+      estado_asistencia.DESCANSO_MEDICO,
+      estado_asistencia.EXAMEN_MEDICO,
+      estado_asistencia.FALTA,
+      estado_asistencia.PERMISO,
+      estado_asistencia.SUSPENDIDO
+    ],
+    default: 'F'
+  },
+  iniciado: {
+    type: Boolean,
+    default: false,
+  },
+  fecha_iniciado: {
+    type: Date,
+    default: null
+  },
+  observacion: {
+    type: String,
+    trim: true,
+    default: '-'
+  }
+}, {
+  timestamps: true
+});
+
+AsistenciaSchema.plugin(mongoosePaginate);
