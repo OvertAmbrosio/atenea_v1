@@ -1,0 +1,15 @@
+const cargos = {
+  TODO: [1,2,3,4,5,6,7,8],
+  ADMINISTRADOR: 1,
+  JEFE_OPERACIONES: 2,
+  JEFE_LOGISTICA: 3,
+  LIDER_GESTION: 4,
+  ASISTENTE_LOGISTICA: 5,
+  JEFE_CONTRATA: 6,
+  GESTOR: 7,
+  ALMACENERO: 8,
+  AUDITOR: 9,
+  TECNICO: 10
+};
+
+export default cargos;

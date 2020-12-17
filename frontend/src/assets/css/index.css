@@ -1,0 +1,46 @@
+@import './login.css';
+@import './sider.css';
+@import './header.css';
+@import './listaPersonal.css';
+
+.ant-menu{
+  color: rgba(0, 0, 0, 0.70);
+}
+.ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-item-active) a{
+  color: rgba(0, 0, 0, 0.70);
+}
+.spin-container{
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100000;
+  position: fixed;
+  min-height: 100vh !important;
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
+.cuerpo-principal{
+  padding-left: 24px;
+}
+.boton-none {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  size: 0
+}
+.boton-none > span {
+  cursor: pointer;
+}
+
+.boton-none:hover,
+.boton-none:focus {
+  text-decoration: none;
+  outline: none;
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "empleado": {
+      "nombre": "juan",
+      "apellidos": "alcachofas"
+    },
+    "fecha": "17-05",
+    "estado": "A"
+  },
+  {
+    "empleado": {
+      "nombre": "juan",
+      "apellidos": "alcachofas"
+    },
+    "fecha": "18-05",
+    "estado": "F"
+  },
+  {
+    "empleado": {
+      "nombre": "carlos",
+      "apellidos": "malandro"
+    },
+    "fecha": "17-05",
+    "estado": "A"
+  },
+  {
+    "empleado": {
+      "nombre": "carlos",
+      "apellidos": "malandro"
+    },
+    "fecha": "18-05",
+    "estado": "F"
+  }
+]

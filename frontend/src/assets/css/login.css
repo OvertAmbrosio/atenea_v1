@@ -1,0 +1,24 @@
+.contenedor-padre {
+  background: #FBFBFB;
+  padding: 8px 0;
+  height: 19rem;
+  box-shadow: 2px 2px 7px -1px rgba(24, 24, 24, 0.25);
+  border-radius: 5px;
+}
+.logoForm{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  height: 45px;
+  background-image: url("../images/iconL.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.login-form{
+  padding: 1.6rem 2.5rem;
+}
+.login-form-button{
+  width: 100%;
+}
