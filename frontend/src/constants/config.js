@@ -1,6 +1,6 @@
 const variables = {
-  urlApi: 'http://192.168.100.124:5000/api',
-  public: 'http://192.168.100.124:3000/',
+  urlApi: 'http://192.168.100.90:5000/api',
+  public: 'http://192.168.100.90:5000/',
   TOKEN_STORAGE_KEY: 'atenea.authToken',
   logoPath: '/icon.png',
   logoFull: '/iconL.png',
