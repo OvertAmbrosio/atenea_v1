@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import {
   Chart,
   Axis,
@@ -22,12 +23,12 @@ const getTypeColor = (type, gestores=[]) => {
   };
 };
 
-export default function ChartIndicadorGpon({data, loading, llave, gestores}) {
+export default function ChartGponGestor({data, loading, gestores}) {
   if (loading) {
     return <div>cargando...</div>
   } else {
     return (
-      <Chart height={250} data={data} autoFit padding={[20, 5, 10, 75]} key={llave}>
+      <Chart height={250} data={data} autoFit padding={[20, 5, 10, 75]}>
         <Legend visible={false}/>
         <Tooltip showMarkers={true}/>
         <Axis name="ordenes" />
@@ -76,4 +77,10 @@ export default function ChartIndicadorGpon({data, loading, llave, gestores}) {
       </Chart>
     );
   }
+};
+
+ChartGponGestor.propTypes = {
+  data: PropTypes.array,
+  loading: PropTypes.bool,
+  gestores: PropTypes.array
 };

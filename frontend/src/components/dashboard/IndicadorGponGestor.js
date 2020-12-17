@@ -6,7 +6,7 @@ import ChartGponGestor from './ChartGponGestor';
 import { tipoOrdenes } from "../../constants/tipoOrden";
 import { getIndicadores } from "../../services/apiOrden";
 import { gpon } from "../../constants/valoresGpon";
-import { separarGestor } from "../../libraries/separarBucket";
+import { separarGestor } from "../../libraries/separarField";
 
 const { Title } = Typography;
 
@@ -60,7 +60,7 @@ const IndicadorGponGestor = React.memo(({prueba}) => {
       <Title level={2} style={{ marginTop: '1rem' }}>Indicador Gestores Gpon</Title>
       <Row style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
         <Col sm={24}>
-          <ChartGponGestor data={dataOrdenes} loading={loadingOrdenes} llave="gestores" gestores={gestores}/>
+          <ChartGponGestor data={dataOrdenes} loading={loadingOrdenes} gestores={gestores}/>
         </Col>
       </Row>
       <Row>

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import {
   Chart,
   Axis,
@@ -14,12 +15,12 @@ const getTypeColor = type => {
   if (type === 'BK_SJ_SAN_JOSE') { return '#14E9FA'; }
 };
 
-export default function ChartGponBucket({data, loading, llave}) {
+export default function ChartGponBucket({data, loading}) {
   if (loading) {
     return <div>cargando...</div>
   } else {
     return (
-      <Chart height={250} data={data} autoFit padding={[20, 40, 20, 100]} key={llave}>
+      <Chart height={250} data={data} autoFit padding={[20, 40, 20, 100]}>
         <Legend visible={false}/>
         <Tooltip showMarkers={true}/>
         <Axis name="ordenes" />
@@ -68,4 +69,9 @@ export default function ChartGponBucket({data, loading, llave}) {
       </Chart>
     );
   }
+};
+
+ChartGponBucket.propTypes = {
+  data: PropTypes.array,
+  loading: PropTypes.bool
 };

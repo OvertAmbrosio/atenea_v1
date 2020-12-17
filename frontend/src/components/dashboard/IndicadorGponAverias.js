@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Button, Col, Row, Statistic, Typography } from "antd";
 import moment from 'moment';
+import { useJsonToCsv } from 'react-json-csv';
 
 import ChartGponBucket from './ChartGponBucket';
 import { tipoOrdenes } from "../../constants/tipoOrden";
 import { getIndicadores } from "../../services/apiOrden";
 import { gpon } from "../../constants/valoresGpon";
-import { separarBucket } from "../../libraries/separarBucket";
+import { separarBucket } from "../../libraries/separarField";
+import extraerDatosTecnico from "../../libraries/extraerDatosTecnico";
 
 const { Title } = Typography;
 
@@ -16,6 +18,7 @@ const IndicadorGponAverias = React.memo(({prueba}) => {
   const [loadingAverias, setLoadingAverias] = useState(false);
   const [bucketsAverias, setBucketsAverias] = useState([]);
   const [horaActualizado, setHoraActualizado] = useState(null);
+  const { saveAsCsv } = useJsonToCsv();
 
   useEffect(() => {
     setLoadingAverias(true);
@@ -36,7 +39,7 @@ const IndicadorGponAverias = React.memo(({prueba}) => {
     await getIndicadores(true, { tipo: tipoOrdenes.AVERIAS})
     .then(({data}) => {
       let gponAux = data.filter((d) => gpon.includes(d.subtipo_actividad));
-      setTotalAverias(gponAux);
+      setTotalAverias(extraerDatosTecnico(gponAux));
       return gponAux
     }).then((gponData) => separarBucket(gponData))
       .then(({ordenes, buckets}) => {
@@ -49,12 +52,29 @@ const IndicadorGponAverias = React.memo(({prueba}) => {
       });
   };
 
+  const fieldsExcel = {
+    bucket: "Bucket", 
+    requerimiento: "Requerimiento",
+    estado: "Estado",
+    fecha_cita: "Fecha Cita",
+    motivo_no_realizado: "Motivo No Realizado",
+    subtipo_actividad: "Subtipo Actividad",
+    carnet: "Carnet",
+    tecnico: "Tecnico",
+    gestor: "Gestor",
+    auditor: "auditor",
+    contrata: "Contrata",
+    tipo_agenda: "Time Slot",
+    sla_inicio: "SLA_INICIO",
+    sla_fin: "SLA_FIN"
+  };
+
   return (
     <div>
     <Title level={2} style={{ marginTop: '1rem' }}>Indicador Averias Gpon</Title>
       <Row style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
         <Col sm={16}>
-          <ChartGponBucket data={dataAverias} loading={loadingAverias} llave="averias"/>
+          <ChartGponBucket data={dataAverias} loading={loadingAverias}/>
         </Col>
         <Col sm={8}>
           <Row>
@@ -72,7 +92,16 @@ const IndicadorGponAverias = React.memo(({prueba}) => {
           }
           </Row>
           <Row>
-            <Button onClick={cargarAverias}>Click</Button>
+            <Button onClick={cargarAverias} style={{ marginRight: '.5rem' }}>Click</Button>
+            <Button onClick={() => 
+                saveAsCsv({ 
+                  data:totalAverias, 
+                  fields: fieldsExcel, 
+                  filename: `data_altas_gpon_${moment().format('DD_MM_YY_HH_mm')}`
+                })
+            }>
+              Exportar
+            </Button>
           </Row>
         </Col>
       </Row>

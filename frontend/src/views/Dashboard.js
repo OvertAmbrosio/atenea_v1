@@ -6,6 +6,7 @@ import IndicadorGponAverias from '../components/dashboard/IndicadorGponAverias';
 import IndicadorGponAltas from '../components/dashboard/IndicadorGponAltas';
 import IndicadorGponGestor from '../components/dashboard/IndicadorGponGestor';
 import Prueba from '../components/dashboard/Prueba';
+import IndicadorGponDevoluciones from '../components/dashboard/IndicadorGponDevoluciones';
 
 export default function Dashboard() {
   const [cambiar, setCambiar] = useState(0)
@@ -20,6 +21,8 @@ export default function Dashboard() {
         <IndicadorGponAltas prueba={cambiar%2 === 0 ? cambiar:0}/>
         {/* INDICADOR DE GESTORES */}
         <IndicadorGponGestor prueba={cambiar%2 === 0 ? cambiar:0}/>
+        {/* INDICADORES DEVOLUCIONES X GESTOR */}
+        <IndicadorGponDevoluciones/>
         {/* <Prueba/> */}
         <button onClick={() => setCambiar(cambiar+1)}>hola</button>
         <Prueba/>
