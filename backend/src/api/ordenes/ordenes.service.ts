@@ -21,7 +21,7 @@ export class OrdenesService {
     private httpService: HttpService
   ) {}
   //tarea que sirve para automatizar la descarga de dota del toa
-  @Cron('0 */15 19-20 * * *')
+  @Cron('0 */15 6-20 * * *')
   async obtenerOrdenesToa() {
     console.log('iniciado');
     
