@@ -178,6 +178,16 @@ export const OrdenSchema = new Schema({
     trim: true,
     default: null
   },
+  tipo_agenda: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  motivo_no_realizado: {
+    type: String,
+    trim: true,
+    default: true
+  },
   sla_inicio: {
     type: Date,
     trim: true,
