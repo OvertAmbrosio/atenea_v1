@@ -86,7 +86,15 @@ export class OrdenesService {
         [...averias,...altas].map((o) => ({
           updateOne: {
             filter: { codigo_requerimiento: o.requerimiento },
-            update: { $set: o },
+            update: { 
+              $set: {
+                ...o,
+                fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+                fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
+                sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+                sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
+              }
+            },
             upsert: true
           }
         }))
