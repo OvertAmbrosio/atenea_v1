@@ -77,7 +77,7 @@ export class OrdenesService {
     let strAverias = JSON.stringify(averias);
     let strAltas = JSON.stringify(altas);
     let strSpeedy = JSON.stringify(speedy);
-    let ordenesTotal: TOrdenesToa[];
+    let ordenesTotal: TOrdenesToa[] = [];
     await Promise.all([...averias, ...altas].map(async(o) => {
       await this.empleadoModel.findOne({carnet: o.tecnico}).select('_id').then((empleado) => {
         ordenesTotal.push({
@@ -96,11 +96,11 @@ export class OrdenesService {
       .then(async () => await this.redisService.set(cache_keys.ORDENES_ALTAS, strAltas, 3600))
       .then(async () => await this.redisService.set(cache_keys.ORDENES_SPEEDY, strSpeedy, 3600))
       .then(async () => await this.ordenModel.bulkWrite(
-        [...averias,...altas].map((o) => ({
+        ordenesTotal.map((o,i) => ({
           updateOne: {
             filter: { codigo_requerimiento: o.requerimiento },
             update: { 
-              $set: ordenesTotal
+              $set: o
             },
             upsert: true
           }
