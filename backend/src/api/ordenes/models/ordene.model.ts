@@ -178,6 +178,11 @@ export const OrdenSchema = new Schema({
     trim: true,
     default: null
   },
+  fecha_cancelado: {
+    type: Date,
+    trim: true,
+    default: null
+  },
   tipo_agenda: {
     type: String,
     trim: true,
@@ -197,6 +202,11 @@ export const OrdenSchema = new Schema({
     type: Date,
     trim: true,
     default: null,
+  },
+  observacion_toa: {
+    type: String,
+    trim: true,
+    default: '-'
   },
   //datos de asignacion
   tecnico: {

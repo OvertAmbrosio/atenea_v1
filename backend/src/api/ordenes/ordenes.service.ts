@@ -11,6 +11,7 @@ import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
 import { IOrden } from './interfaces/ordene.interface';
 import { IEmpleado } from '../empleados/interfaces/empleados.interface';
+import { estado_empresa, tipos_usuario } from 'src/constants/enum';
 
 @Injectable()
 export class OrdenesService {
@@ -22,9 +23,7 @@ export class OrdenesService {
   ) {}
   //tarea que sirve para automatizar la descarga de dota del toa
   @Cron('0 */15 6-20 * * *')
-  async obtenerOrdenesToa() {
-    console.log('iniciado');
-    
+  async obtenerOrdenesToa() {    
     return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then((res) => {
       console.log(res.data, ' - ', new Date());
     }).catch((err) => console.log(err));
@@ -73,7 +72,7 @@ export class OrdenesService {
     });
   };
   // funcion que guarda la data que envia el servidor de scraping
-  async guardarDataToa(rutas:Array<any>, averias:Array<any>, altas:Array<any>, speedy:Array<any>) {
+  async guardarDataToa(rutas:Array<any>, averias:Array<TOrdenesToa>, altas:Array<TOrdenesToa>, speedy:Array<TOrdenesToa>) {
     let strRrutas = JSON.stringify(rutas)
     let strAverias = JSON.stringify(averias);
     let strAltas = JSON.stringify(altas);
@@ -82,7 +81,16 @@ export class OrdenesService {
     return await this.redisService.set(cache_keys.RUTAS_TOA, strRrutas, 3600)
       .then(async () => await this.redisService.set(cache_keys.ORDENES_AVERIAS, strAverias, 3600))
       .then(async () => await this.redisService.set(cache_keys.ORDENES_ALTAS, strAltas, 3600))
-      .then(async () => await this.redisService.set(cache_keys.ORDENES_SPEEDY, strSpeedy, 3600));
+      .then(async () => await this.redisService.set(cache_keys.ORDENES_SPEEDY, strSpeedy, 3600))
+      .then(async () => await this.ordenModel.bulkWrite(
+        [...averias,...altas].map((o) => ({
+          updateOne: {
+            filter: { codigo_requerimiento: o.requerimiento },
+            update: { $set: o },
+            upsert: true
+          }
+        }))
+      ));
   };
   //funcion que recorre las ordenes del toa, actualiza el tecnico y actualiza la data que se subio del cms
   async cruzarOrdenes(cacheKey: string) {
@@ -142,8 +150,28 @@ export class OrdenesService {
   //funcion para obtener la data del toa actualizada con los empleados
   async obtenerIndicadorToa(cacheKey: string) {
     const ordenes:Array<TOrdenesToa> = await this.redisService.get(cacheKey).then((data) => JSON.parse(data));
-    const tecnicos:Array<IEmpleado> = await this.redisService.get(cache_keys.TECNICOS_GLOBAL).then((data) => JSON.parse(data));
-    if (ordenes && ordenes.length > 0 && tecnicos && tecnicos.length > 0) {
+    let tecnicos:Array<IEmpleado> = await this.redisService.get(cache_keys.TECNICOS_GLOBAL).then((data) => JSON.parse(data));
+    if (!tecnicos || tecnicos.length < 0) {
+      this.empleadoModel.find({
+        'usuario.cargo': tipos_usuario.TECNICO, 
+        'estado_empresa': { $ne: estado_empresa.INACTIVO }
+      }).populate({
+        path: 'gestor',
+        select: 'nombre apellidos'
+      }).populate({
+        path: 'auditor',
+        select: 'nombre apellidos'
+      }).populate({
+        path: 'contrata',
+        select: 'nombre'
+      }).select('nombre apellidos gestor auditor contrata carnet').sort('contrata nombre').then(async(data) => {
+        const string = JSON.stringify(data);
+        return await this.redisService.set(cache_keys.TECNICOS_GLOBAL, string, variables.redis_ttl)
+          .then(() => tecnicos = data);
+      });
+    }
+
+    if (ordenes && ordenes.length > 0) {
       return Promise.all(ordenes.map(async(orden) => {
         if (orden.tecnico && orden.tecnico.length === 6) {
           const iTecnico = tecnicos.findIndex((e) => e.carnet === orden.tecnico);

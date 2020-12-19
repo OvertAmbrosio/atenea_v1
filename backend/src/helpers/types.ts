@@ -31,14 +31,23 @@ export type TPayload = {
 };
 
 export type TOrdenesToa = {
-  readonly requerimiento: string,
-  readonly tecnico?: string,
-  readonly estado: string,
-  readonly bucket: string,
-  readonly subtipo_actividad?: string,
-  readonly fecha_cita: string,
-  readonly sla_inicio: string,
-  readonly sla_fin: string
+  requerimiento: string,
+
+  codigo_cliente?: string,
+  nombre_cliente?: string,
+  direccion?: string,
+  fecha_cancelado?: string,
+  observacion_toa?: string,
+
+  tecnico?: string|null,
+  estado?: string,
+  bucket?: string,
+  subtipo_actividad?: string,
+  fecha_cita?: string,
+  tipo_agenda?:string,
+  motivo_no_realizado: string,
+  sla_inicio?: string,
+  sla_fin?: string
 };
 
 type TImagenRegistro = {
