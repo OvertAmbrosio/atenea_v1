@@ -21,7 +21,6 @@ export type TOrdenToa = {
 const carnetAdmitido:Array<string> = ['LY','LX']
 
 export function valoresToa(data:any):TOrdenToa {
-  console.log(data['Time Slot']);
   return ({
     requerimiento: data['Número de Petición'],
 
