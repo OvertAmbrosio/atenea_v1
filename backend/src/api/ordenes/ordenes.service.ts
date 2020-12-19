@@ -82,6 +82,7 @@ export class OrdenesService {
       await this.empleadoModel.findOne({carnet: o.tecnico}).select('_id').then((empleado) => {
         ordenesTotal.push({
           ...o,
+          estado_toa: o.estado,
           tecnico: empleado && empleado ._id,
           fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
           fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,

@@ -41,6 +41,7 @@ export type TOrdenesToa = {
 
   tecnico?: string|null,
   estado?: string,
+  estado_toa?: string,
   bucket?: string,
   subtipo_actividad?: string,
   fecha_cita?: string|Date,
