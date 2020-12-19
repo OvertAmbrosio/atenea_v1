@@ -77,6 +77,19 @@ export class OrdenesService {
     let strAverias = JSON.stringify(averias);
     let strAltas = JSON.stringify(altas);
     let strSpeedy = JSON.stringify(speedy);
+    let ordenesTotal: TOrdenesToa[];
+    await Promise.all([...averias, ...altas].map(async(o) => {
+      await this.empleadoModel.findOne({carnet: o.tecnico}).select('_id').then((empleado) => {
+        ordenesTotal.push({
+          ...o,
+          tecnico: empleado._id,
+          fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+          fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
+          sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+          sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
+        })
+      })
+    }))
 
     return await this.redisService.set(cache_keys.RUTAS_TOA, strRrutas, 3600)
       .then(async () => await this.redisService.set(cache_keys.ORDENES_AVERIAS, strAverias, 3600))
@@ -87,13 +100,7 @@ export class OrdenesService {
           updateOne: {
             filter: { codigo_requerimiento: o.requerimiento },
             update: { 
-              $set: {
-                ...o,
-                fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-                fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
-                sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-                sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
-              }
+              $set: ordenesTotal
             },
             upsert: true
           }

@@ -36,18 +36,18 @@ export type TOrdenesToa = {
   codigo_cliente?: string,
   nombre_cliente?: string,
   direccion?: string,
-  fecha_cancelado?: string,
+  fecha_cancelado?: string|Date,
   observacion_toa?: string,
 
   tecnico?: string|null,
   estado?: string,
   bucket?: string,
   subtipo_actividad?: string,
-  fecha_cita?: string,
+  fecha_cita?: string|Date,
   tipo_agenda?:string,
   motivo_no_realizado: string,
-  sla_inicio?: string,
-  sla_fin?: string
+  sla_inicio?: string|Date,
+  sla_fin?: string|Date
 };
 
 type TImagenRegistro = {
