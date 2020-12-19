@@ -60,7 +60,10 @@ export class OrdenesController {
 
     this.logger.info(estado);
 
-    return await this.ordenesService.guardarDataToa(rutas, averias, altas, speedy).then(() => {
+    return await this.ordenesService.guardarDataToa(rutas, averias, altas, speedy).then((data) => {
+      console.log("----------ordenes guardadas----------");
+      console.log(data);
+      console.log("-------fin ordenes guardadas----------");
       return({
         status: 'success',
         message: 'Todo ok'
