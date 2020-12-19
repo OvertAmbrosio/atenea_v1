@@ -78,20 +78,19 @@ export class OrdenesService {
     let strAltas = JSON.stringify(altas);
     let strSpeedy = JSON.stringify(speedy);
 
-    await this.ordenModel.bulkWrite(
-      [...averias,...altas].map((o) => ({
-        updateOne: {
-          filter: { codigo_requerimiento: o.requerimiento },
-          update: { $set: o },
-          upsert: true
-        }
-      }))
-    )
-
     return await this.redisService.set(cache_keys.RUTAS_TOA, strRrutas, 3600)
       .then(async () => await this.redisService.set(cache_keys.ORDENES_AVERIAS, strAverias, 3600))
       .then(async () => await this.redisService.set(cache_keys.ORDENES_ALTAS, strAltas, 3600))
-      .then(async () => await this.redisService.set(cache_keys.ORDENES_SPEEDY, strSpeedy, 3600));
+      .then(async () => await this.redisService.set(cache_keys.ORDENES_SPEEDY, strSpeedy, 3600))
+      .then(async () => await this.ordenModel.bulkWrite(
+        [...averias,...altas].map((o) => ({
+          updateOne: {
+            filter: { codigo_requerimiento: o.requerimiento },
+            update: { $set: o },
+            upsert: true
+          }
+        }))
+      ));
   };
   //funcion que recorre las ordenes del toa, actualiza el tecnico y actualiza la data que se subio del cms
   async cruzarOrdenes(cacheKey: string) {
