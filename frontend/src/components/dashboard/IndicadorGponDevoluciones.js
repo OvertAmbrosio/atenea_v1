@@ -35,7 +35,6 @@ const IndicadorGponDevoluciones = React.memo(() => {
       // console.log(ordenes)
       setGestores(gestores.filter((g) => g !== '-'));
       setDataOrdenes(ordenes.filter((o) => o.gestor !== '-' && o.motivo));
-      console.log(ordenes);
       setHoraActualizado(moment(new Date()).format('HH:mm'));
     }).catch((err) => console.log(err)).finally(() => setLoadingOrdenes(false));
     
@@ -59,7 +58,6 @@ const IndicadorGponDevoluciones = React.memo(() => {
                 <Statistic
                   title={b} 
                   value={totalOrdenes.length > 0 ? totalOrdenes.filter((e) => {
-                    console.log(e)
                     if (e.tecnico === '-') {
                       return e.tecnico === b
                     } else if (e.tecnico !== undefined && e.tecnico.gestor && e.tecnico.gestor.nombre) {
