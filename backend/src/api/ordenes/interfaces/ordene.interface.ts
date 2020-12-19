@@ -36,6 +36,8 @@ export interface IOrden extends Document {
   readonly motivo_no_realizado: string,
   readonly sla_inicio: Date,
   readonly sla_fin: Date,
+  readonly observacion_toa: string,
+  readonly orden_devuelta: boolean,
   //
   readonly tecnico: IEmpleado['_id'],
   readonly gestor: IEmpleado['_id'],

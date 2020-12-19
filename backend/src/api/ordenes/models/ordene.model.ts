@@ -208,6 +208,10 @@ export const OrdenSchema = new Schema({
     trim: true,
     default: '-'
   },
+  orden_devuelta: {
+    type: Boolean,
+    default: false,
+  },
   //datos de asignacion
   tecnico: {
     type: Types.ObjectId,

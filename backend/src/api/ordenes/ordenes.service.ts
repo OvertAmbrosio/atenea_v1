@@ -13,6 +13,8 @@ import { IOrden } from './interfaces/ordene.interface';
 import { IEmpleado } from '../empleados/interfaces/empleados.interface';
 import { estado_empresa, tipos_usuario } from 'src/constants/enum';
 
+const estadosToa = ['Pendiente','Iniciado']
+
 @Injectable()
 export class OrdenesService {
   constructor (
@@ -24,8 +26,31 @@ export class OrdenesService {
   //tarea que sirve para automatizar la descarga de dota del toa
   @Cron('0 */15 6-20 * * *')
   async obtenerOrdenesToa() {    
-    return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then((res) => {
+    return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
+      //{ status: success | error }
       console.log(res.data, ' - ', new Date());
+      await this.redisService.get(cache_keys.ORDENES_ALTAS).then((data) => data.JSON).then(async(ordenes:TOrdenesToa[]) => {
+        if (ordenes && ordenes.length > 0) {
+          ordenes.forEach(async (o) => {
+            if (estadosToa.includes(o.estado)) {
+              await this.ordenModel.findOneAndUpdate({ 
+                $and: [
+                  { $or: [
+                    { codigo_cliente: o.codigo_cliente},
+                    { direccion: o.direccion }
+                  ] },
+                  { $or: [
+                    { estado_toa: 'Cancelado' },
+                    { estado_toa: 'No Realizada' }
+                  ] },
+                  { orden_devuelta: false }
+                ]
+              }, { orden_devuelta: true });
+            }
+          })
+        }
+      })
+
     }).catch((err) => console.log(err));
   };
   //subir la data del excel convertido en json y guardarla en la base de datos
