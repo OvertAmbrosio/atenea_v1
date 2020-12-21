@@ -40,8 +40,8 @@ export class OrdenesService {
                     { direccion: o.direccion }
                   ] },
                   { $or: [
-                    { estado_toa: 'Cancelado' },
-                    { estado_toa: 'No Realizada' }
+                    { estado_toa: 'cancelado' },
+                    { estado_toa: 'no realizada' }
                   ] },
                   { orden_devuelta: false }
                 ]
@@ -193,7 +193,7 @@ export class OrdenesService {
     const ordenes:Array<TOrdenesToa> = await this.redisService.get(cacheKey).then((data) => JSON.parse(data));
     let tecnicos:Array<IEmpleado> = await this.redisService.get(cache_keys.TECNICOS_GLOBAL).then((data) => JSON.parse(data));
     if (!tecnicos || tecnicos.length < 0) {
-      this.empleadoModel.find({
+      await this.empleadoModel.find({
         'usuario.cargo': tipos_usuario.TECNICO, 
         'estado_empresa': { $ne: estado_empresa.INACTIVO }
       }).populate({
