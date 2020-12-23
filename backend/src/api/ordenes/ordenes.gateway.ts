@@ -31,7 +31,8 @@ export class OrdenesGateway implements OnGatewayInit, OnGatewayConnection, OnGat
 
   @SubscribeMessage('suscribirseOrdenesGpon')
   enviarOrdenes(client: Socket, data: string) {
-    return this.prueba();
+    // return this.prueba();
+    return;
   };
 
   public async prueba() {
