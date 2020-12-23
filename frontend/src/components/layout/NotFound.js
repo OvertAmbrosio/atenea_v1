@@ -11,7 +11,7 @@ export default function NotFound() {
         status="403"
         title="403"
         subTitle="Lo sentimos, no tienes autorizacion para entrar a esta página."
-        extra={<Button type="primary" onClick={() => window.location.pathname = rutas.dashboard}>Inicio</Button>}
+        extra={<Button type="primary" onClick={() => window.location.pathname = rutas.indicadoresGpon}>Inicio</Button>}
       />
     </Contenedor>
   )

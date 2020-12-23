@@ -58,10 +58,12 @@ export class OrdenesController {
     @Body('registro') estado:string
   ):Promise<TRespuesta> {
 
-    this.logger.info(estado);
+    this.logger.info({
+      message: estado,
+      service: 'actividades'
+    });
 
-    return await this.ordenesService.guardarDataToa(rutas, averias, altas, speedy).then((data) => {
-      this.logger.info(`(${data.insertedCount}) ordenes insertadas.`)
+    return await this.ordenesService.guardarDataToa(rutas, averias, altas, speedy).then(() => {
       return({
         status: 'success',
         message: 'Todo ok'
@@ -123,27 +125,7 @@ export class OrdenesController {
     };
   };
 
-  // PRUEBA
-  @Get('actividades')
-  async getInicadores(@Query('tipo') tipo:string): Promise<TRespuesta> {
-    const key = tipo === tipos_orden.AVERIAS ? cache_keys.ORDENES_AVERIAS : 
-                tipo === tipos_orden.ALTAS ? cache_keys.ORDENES_ALTAS :
-                tipo === tipos_orden.SPEEDY ? cache_keys.ORDENES_SPEEDY :
-                '-'
-    return this.ordenesService.obtenerIndicadorToa(key).then((data) => {
-      return ({
-        status: 'success',
-        message: 'Data obtenido con exito.',
-        data,
-      })
-    }).catch((e) => {
-      return({
-        status: 'error',
-        message: e.message,
-        data: null
-      })
-    })
-  };
+
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

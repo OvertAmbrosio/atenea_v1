@@ -3,5 +3,16 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "webpack": true
+  },
+  "projects": {
+    "update-data": {
+      "type": "library",
+      "root": "libs/update-data",
+      "entryFile": "index",
+      "sourceRoot": "libs/update-data/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/update-data/tsconfig.lib.json"
+      }
+    }
   }
 }

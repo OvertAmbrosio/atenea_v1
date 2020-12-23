@@ -1,4 +1,4 @@
-import { averias } from '../../constants/valores';
+import { averias } from '../../constants/valoresOrdenes';
 import { pendientesAverias } from './asignarAverias'
 
 export default async function asignarValores(obj, tipo, estado) {

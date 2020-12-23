@@ -3,10 +3,10 @@ import { Button, Col, Row, Statistic, Typography } from "antd";
 import moment from 'moment';
 
 import ChartDevolucionesGpon from './ChartDevolucionesGpon';
-import { tipoOrdenes } from "../../constants/tipoOrden";
-import { getIndicadores } from "../../services/apiOrden";
-import { gpon } from "../../constants/valoresGpon";
-import { separarMotivo } from "../../libraries/separarField";
+import { tipoOrdenes } from "../../../constants/tipoOrden";
+import { getIndicadores } from "../../../services/apiOrden";
+import { gpon } from "../../../constants/valoresToa";
+import { separarMotivo } from "../../../libraries/separarField";
 
 const { Title } = Typography;
 const estados = ['Cancelado','No Realizada']

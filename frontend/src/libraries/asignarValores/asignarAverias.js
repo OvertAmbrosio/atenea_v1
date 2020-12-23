@@ -1,7 +1,7 @@
 import numeroFecha from '../numeroFecha';
 import isEmpty from 'is-empty';
 
-import { averias } from '../../constants/valores';
+import { averias } from '../../constants/valoresOrdenes';
 
 const codctrArray = ["470","476"] ;
 

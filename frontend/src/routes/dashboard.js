@@ -1,16 +1,16 @@
 import { rutas as listaRutas, permisos } from '../constants/listaRutas';
-import ListaPersonal from "../views/GestionPersonal/ListaPersonal";
+import IndicadoresGpon from "../views/Dashboard/IndicadoresGpon";
 import ListaContratas from '../views/GestionPersonal/ListaContratas';
 
 const rutas = [
   {
-    path: listaRutas.listaPersonal,
+    path: listaRutas.indicadoresGpon,
     exact: true,
-    component: ListaPersonal,
+    component: IndicadoresGpon,
     nivel: permisos.todos
   },
   {
-    path: listaRutas.listaContratas,
+    path: listaRutas.indicadoresHfc,
     exact: true,
     component: ListaContratas,
     nivel: permisos.listaContratas

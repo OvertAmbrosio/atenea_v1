@@ -35,11 +35,23 @@ const items = [
     titulo: 'Panel de Control',
     children: [
       {
-        grupo: false,
-        ruta: rutas.dashboard,
+        grupo: true,
+        key: 'sub100',
         icon: DashboardOutlined,
-        permisos: permisos.todos,
         titulo: 'Dashboard',
+        permisos: permisos.todos,
+        children: [
+          {
+            ruta: rutas.indicadoresGpon,
+            icon: DashboardOutlined,
+            titulo: 'Indicadores GPON'
+          },
+          {
+            ruta: rutas.indicadoresHfc,
+            icon: DashboardOutlined,
+            titulo: 'Indicadores HFC'
+          },
+        ]
       }
     ]
   },
@@ -76,7 +88,7 @@ const items = [
       },
       {
         grupo: true,
-        key: 'sub1',
+        key: 'sub98',
         icon: FileSearchOutlined,
         titulo: 'Administrar ordenes',
         permisos: permisos.administrarOrdenes,
@@ -105,7 +117,7 @@ const items = [
       },
       {
         grupo: true,
-        key: 'sub2',
+        key: 'sub97',
         icon: ScheduleOutlined,
         titulo: 'Gestionar ordenes',
         permisos: permisos.gestionarOrdenes,
@@ -145,7 +157,7 @@ function MenuUsuario({cargo}) {
         <ItemGroup title='Panel de Control'>
           <Divider/>
           <Item key="dashboard">
-            <Link to={rutas.dashboard}>
+            <Link to={rutas.indicadoresGpon}>
             <DashboardOutlined />
             <span>Dashboard</span>
             </Link>
@@ -201,7 +213,7 @@ function MenuUsuario({cargo}) {
   //     <ItemGroup title='Panel de Control'>
   //       <Divider/>
   //       <Item key="dashboard">
-  //         <Link to={rutas.dashboard}>
+  //         <Link to={rutas.indicadoresGpon}>
   //         <DashboardOutlined />
   //         <span>Dashboard</span>
   //         </Link>

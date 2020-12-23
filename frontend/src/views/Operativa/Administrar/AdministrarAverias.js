@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs } from 'antd';
 import { CloudUploadOutlined, CheckCircleOutlined, ScheduleOutlined } from '@ant-design/icons'
 
-import { averias } from '../../../constants/valores';
+import { averias } from '../../../constants/valoresOrdenes';
 import TituloContent from '../../../components/common/TituloContent';
 import Contenedor from '../../../components/common/Contenedor';
 import ActualizarOrdenes from '../../../components/operativa/administrarOrdenes/ActualizarOrdenes';

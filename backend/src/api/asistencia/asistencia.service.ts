@@ -38,7 +38,7 @@ export class AsistenciaService {
     return await this.asistenciaModel.insertMany(nuevaAsistencia);
   };
 
-  @Cron('0 */5 7-8 * * *')
+  @Cron('0 */5 7-9 * * *')
   async comprobarRuta() {
     try {
       const strRutas:Array<string> = await this.redisService.get(cache_keys.RUTAS_TOA).then((e) => JSON.parse(e));

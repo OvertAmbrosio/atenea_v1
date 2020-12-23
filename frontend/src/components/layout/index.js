@@ -53,6 +53,7 @@ function Index({children, spinLoading, cargo}) {
         <Sider collapsed={collapsed} cargo={cargo}/>
         <Layout className="site-layout">
           <Layout.Header 
+            style={{ minWidth: collapsed && 'calc(100vw - 95px)'}}
             className={classnames("header", {
               "collapsed": collapsed,
             })}

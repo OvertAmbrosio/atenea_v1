@@ -11,5 +11,13 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
+    "paths": {
+      "@localLibs/update-data": [
+        "libs/update-data/src"
+      ],
+      "@localLibs/update-data/*": [
+        "libs/update-data/src/*"
+      ]
+    }
   }
 }

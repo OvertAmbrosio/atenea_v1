@@ -39,7 +39,7 @@ export type TOrdenesToa = {
   fecha_cancelado?: string|Date,
   observacion_toa?: string,
 
-  tecnico?: string|null,
+  tecnico?: string|any,
   estado?: string,
   estado_toa?: string,
   bucket?: string,

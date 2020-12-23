@@ -13,7 +13,12 @@ import { IOrden } from './interfaces/ordene.interface';
 import { IEmpleado } from '../empleados/interfaces/empleados.interface';
 import { estado_empresa, tipos_usuario } from 'src/constants/enum';
 
-const estadosToa = ['Pendiente','Iniciado']
+import { OrdenesGateway } from './ordenes.gateway';
+import { UpdateDataService } from '@localLibs/update-data'
+
+const estadosToa = ['pendiente','iniciado'];
+
+
 
 @Injectable()
 export class OrdenesService {
@@ -21,36 +26,17 @@ export class OrdenesService {
     @InjectModel('Ordene') private readonly ordenModel: PaginateModel<IOrden>,
     @InjectModel('Empleado') private readonly empleadoModel: Model<IEmpleado>,
     private readonly redisService: RedisService,
-    private httpService: HttpService
+    private readonly ordenesGateway: OrdenesGateway,
+    private httpService: HttpService,
+    private readonly updateDataService:UpdateDataService
   ) {}
   //tarea que sirve para automatizar la descarga de dota del toa
   @Cron('0 */15 6-20 * * *')
-  async obtenerOrdenesToa() {    
+  async obtenerOrdenesToa() { 
     return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
       //{ status: success | error }
       console.log(res.data, ' - ', new Date());
-      await this.redisService.get(cache_keys.ORDENES_ALTAS).then((data) => data.JSON).then(async(ordenes:TOrdenesToa[]) => {
-        if (ordenes && ordenes.length > 0) {
-          ordenes.forEach(async (o) => {
-            if (estadosToa.includes(o.estado)) {
-              await this.ordenModel.findOneAndUpdate({ 
-                $and: [
-                  { $or: [
-                    { codigo_cliente: o.codigo_cliente},
-                    { direccion: o.direccion }
-                  ] },
-                  { $or: [
-                    { estado_toa: 'cancelado' },
-                    { estado_toa: 'no realizada' }
-                  ] },
-                  { orden_devuelta: false }
-                ]
-              }, { orden_devuelta: true });
-            }
-          })
-        }
-      })
-
+      await this.ordenesGateway.prueba()
     }).catch((err) => console.log(err));
   };
   //subir la data del excel convertido en json y guardarla en la base de datos
@@ -96,42 +82,25 @@ export class OrdenesService {
       };
     });
   };
-  // funcion que guarda la data que envia el servidor de scraping
+  // funcion que guarda la data que envia el servidor de scraping (INSERTA SOLO LAS NUEVAS)
   async guardarDataToa(rutas:Array<any>, averias:Array<TOrdenesToa>, altas:Array<TOrdenesToa>, speedy:Array<TOrdenesToa>) {
-    let strRrutas = JSON.stringify(rutas)
-    let strAverias = JSON.stringify(averias);
-    let strAltas = JSON.stringify(altas);
-    let strSpeedy = JSON.stringify(speedy);
-    let ordenesTotal: TOrdenesToa[] = [];
-    await Promise.all([...averias, ...altas].map(async(o) => {
-      await this.empleadoModel.findOne({carnet: o.tecnico}).select('_id').then((empleado) => {
-        ordenesTotal.push({
-          ...o,
-          estado_toa: o.estado,
-          tecnico: empleado && empleado ._id,
-          fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-          fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
-          sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-          sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
-        })
-      })
-    }))
 
-    return await this.redisService.set(cache_keys.RUTAS_TOA, strRrutas, 3600)
-      .then(async () => await this.redisService.set(cache_keys.ORDENES_AVERIAS, strAverias, 3600))
-      .then(async () => await this.redisService.set(cache_keys.ORDENES_ALTAS, strAltas, 3600))
-      .then(async () => await this.redisService.set(cache_keys.ORDENES_SPEEDY, strSpeedy, 3600))
-      .then(async () => await this.ordenModel.bulkWrite(
-        ordenesTotal.map((o,i) => ({
-          updateOne: {
-            filter: { codigo_requerimiento: o.requerimiento },
-            update: { 
-              $set: o
-            },
-            upsert: true
-          }
-        }))
-      ));
+    let strRrutas = JSON.stringify(rutas)
+    await this.redisService.set(cache_keys.RUTAS_TOA, strRrutas, 3600);
+
+    await this.updateDataService.actualizarTecnicosToa(averias)
+      .then((data) => JSON.stringify(data))
+      .then(async(strData) => await this.redisService.set(cache_keys.ORDENES_AVERIAS, strData, 3600));
+
+    await this.updateDataService.actualizarTecnicosToa(altas)
+      .then((data) => JSON.stringify(data))
+      .then(async(strData) => await this.redisService.set(cache_keys.ORDENES_ALTAS, strData, 3600));
+
+    await this.updateDataService.actualizarTecnicosToa(speedy)
+      .then((data) => JSON.stringify(data))
+      .then(async(strData) => await this.redisService.set(cache_keys.ORDENES_SPEEDY, strData, 3600));
+    
+    return;
   };
   //funcion que recorre las ordenes del toa, actualiza el tecnico y actualiza la data que se subio del cms
   async cruzarOrdenes(cacheKey: string) {
@@ -187,71 +156,4 @@ export class OrdenesService {
       .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_cliente distrito bucket estado_toa contrata gestor fecha_registro numero_reiterada')
       .sort('bucket estado_toa contrata');
   };
-  // ------------->TEMPORAL<------------------
-  //funcion para obtener la data del toa actualizada con los empleados
-  async obtenerIndicadorToa(cacheKey: string) {
-    const ordenes:Array<TOrdenesToa> = await this.redisService.get(cacheKey).then((data) => JSON.parse(data));
-    let tecnicos:Array<IEmpleado> = await this.redisService.get(cache_keys.TECNICOS_GLOBAL).then((data) => JSON.parse(data));
-    if (!tecnicos || tecnicos.length < 0) {
-      await this.empleadoModel.find({
-        'usuario.cargo': tipos_usuario.TECNICO, 
-        'estado_empresa': { $ne: estado_empresa.INACTIVO }
-      }).populate({
-        path: 'gestor',
-        select: 'nombre apellidos'
-      }).populate({
-        path: 'auditor',
-        select: 'nombre apellidos'
-      }).populate({
-        path: 'contrata',
-        select: 'nombre'
-      }).select('nombre apellidos gestor auditor contrata carnet').sort('contrata nombre').then(async(data) => {
-        const string = JSON.stringify(data);
-        return await this.redisService.set(cache_keys.TECNICOS_GLOBAL, string, variables.redis_ttl)
-          .then(() => tecnicos = data);
-      });
-    }
-
-    if (ordenes && ordenes.length > 0) {
-      return Promise.all(ordenes.map(async(orden) => {
-        if (orden.tecnico && orden.tecnico.length === 6) {
-          const iTecnico = tecnicos.findIndex((e) => e.carnet === orden.tecnico);
-          if (iTecnico !== -1) {
-            return {
-              ...orden,
-              tecnico: tecnicos[iTecnico]
-            };
-          } else {
-            return {
-              ...orden,
-              tecnico: '-'
-            };
-          }
-        } else {
-          return {
-            ...orden,
-            tecnico: '-'
-          };
-        } 
-      }))
-    } else {
-      throw new HttpException('No se encontró data del toa', HttpStatus.NOT_FOUND);
-    }
-  };
-
-  // create(createOrdeneDto: CreateOrdeneDto) {
-  //   return 'This action adds a new ordene';
-  // };
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} ordene`;
-  // };
-
-  // update(id: number, updateOrdeneDto: UpdateOrdeneDto) {
-  //   return `This action updates a #${id} ordene`;
-  // };
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} ordene`;
-  // };
-}
+};

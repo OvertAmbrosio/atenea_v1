@@ -15,7 +15,7 @@ export default function Login() {
   useEffect(() => {
     const auth = new AuthToken(Cookie.get(variables.TOKEN_STORAGE_KEY));
     if (auth.isValid) {
-      history.push(rutas.dashboard);
+      history.push(rutas.indicadoresGpon);
     };
   },[history]);
 
@@ -23,7 +23,7 @@ export default function Login() {
     await login(values).then((data) => {
       if (data.data && !data.errors) {
         Cookie.set(variables.TOKEN_STORAGE_KEY, data.data);
-        history.push(rutas.dashboard);
+        history.push(rutas.indicadoresGpon);
       }
     }).catch((error) => {
       console.log('error');

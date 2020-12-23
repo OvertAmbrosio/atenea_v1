@@ -109,6 +109,10 @@
     "roots": [
       "<rootDir>/src/",
       "<rootDir>/libs/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "@localLibs/update-data/(.*)": "<rootDir>/libs/update-data/src/$1",
+      "@localLibs/update-data": "<rootDir>/libs/update-data/src"
+    }
   }
 }
