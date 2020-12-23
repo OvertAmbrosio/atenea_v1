@@ -5,12 +5,13 @@ import TituloContent from '../../components/common/TituloContent';
 import Contenedor from '../../components/common/Contenedor';
 import IndicadorGponBucket from '../../components/dashboard/indicadoresGpon/IndicadorGponBucket';
 import IndicadorGponGestor from '../../components/dashboard/indicadoresGpon/IndicadorGponGestor';
+import variables from '../../constants/config';
 // import IndicadorGponDevoluciones from '../../components/dashboard/indicadoresGpon/IndicadorGponDevoluciones';
 
 export default function Dashboard() {
   const [averias, setAverias] = useState([]);
   const [altas, setAltas] = useState([]);
-  const socket = window.io("http://localhost:5000");
+  const socket = window.io(variables.public);
 
   useEffect(() => {
     socket.on('connect', function() {
