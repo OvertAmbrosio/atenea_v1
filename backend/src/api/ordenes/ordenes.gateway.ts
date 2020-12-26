@@ -29,17 +29,24 @@ export class OrdenesGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     return client.id
   };
 
-  @SubscribeMessage('suscribirseOrdenesGpon')
-  enviarOrdenes(client: Socket, data: string) {
-    // return this.prueba();
-    return;
-  };
-
-  public async prueba() {
-    const ordenes = await this.redisService.get(cache_keys.ORDENES_ALTAS).then(async(altas) => {
+  @SubscribeMessage('obtenerOrdenes')
+  async enviarOrdenes(client: Socket, data: string) {
+    let ordenes = {};
+    await this.redisService.get(cache_keys.ORDENES_ALTAS).then(async(altas) => {
       const averias = await this.redisService.get(cache_keys.ORDENES_AVERIAS);
       return ({altas, averias});
-    }).catch((err) => console.log(err))
+    }).then((data) => ordenes = data).catch((err) => console.log(err))
+    console.log(client.id);
+    
+    return client.emit('ordenesGpon', ordenes);
+  };
+
+  public async enviarOdenesToa() {
+    let ordenes = {};
+    await this.redisService.get(cache_keys.ORDENES_ALTAS).then(async(altas) => {
+      const averias = await this.redisService.get(cache_keys.ORDENES_AVERIAS);
+      return ({altas, averias});
+    }).then((data) => ordenes = data).catch((err) => console.log(err))
     return this.server.emit('ordenesGpon',  ordenes);
   };  
 

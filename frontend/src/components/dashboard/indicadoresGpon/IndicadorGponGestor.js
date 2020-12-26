@@ -29,7 +29,7 @@ function IndicadorGponGestor({data, titulo}) {
       try {
         if (data.length > 0) {
           const dataGpon = data.filter((d) => gpon.includes(d.subtipo_actividad))
-          setTotalOrdenes(dataGpon);
+          setTotalOrdenes(dataGpon.filter((d) => d.tecnico && d.tecnico.gestor));
           return resolve(dataGpon)
         } else {
           return reject([])
@@ -49,9 +49,9 @@ function IndicadorGponGestor({data, titulo}) {
   return (
     <div>
       <Title level={2} style={{ marginTop: '1rem' }}>{titulo} / Actualizado: {horaActualizado ? horaActualizado : '-'}</Title>
-      <Row style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
+      <Row style={{ marginTop: '2rem', marginBottom: '1rem' }}>
         <Col sm={24}>
-          <ChartGponGestor data={dataOrdenes} loading={loadingOrdenes} gestores={gestores}/>
+          <ChartGponGestor data={dataOrdenes} loading={loadingOrdenes}/>
         </Col>
       </Row>
       <Row>
@@ -59,11 +59,11 @@ function IndicadorGponGestor({data, titulo}) {
         <Row>
           {
             gestores && gestores.length > 0 ?
-            gestores.map((b, i) => (
+            gestores.filter((e) => e !== '-').map((g, i) => (
               <Col key={i} style={{ margin: '1rem' }}>
                 <Statistic
-                  title={b} 
-                  value={totalOrdenes.length > 0 ? totalOrdenes.filter((e) => e.gestor === b).length : 0} 
+                  title={g} 
+                  value={totalOrdenes.length > 0 ? totalOrdenes.filter((e) => e.tecnico.gestor.nombre === g).length : 0} 
                   suffix={`/ ${totalOrdenes.length} total`}
                 />
               </Col>

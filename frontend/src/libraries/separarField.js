@@ -8,7 +8,6 @@ export function separarBucket(data=[]) {
     buckets.forEach((b) => {
       estados.forEach((e) => {
         let numOrdenes = data.filter((d) => d.bucket === b && d.estado === e).length;
-
         newData.push({
           bucket: String(b).substring(6),
           estado: e,
@@ -28,7 +27,7 @@ export function separarGestor(data=[]) {
     let estados = [];
     let newData = [];
     data.forEach((o) => {
-      if (o.tecnico !== '-' && o.tecnico.gestor && o.tecnico.gestor.nombre) {
+      if (o.tecnico && o.tecnico !== '-' && o.tecnico.gestor && o.tecnico.gestor.nombre) {
         if (!gestores.includes(o.tecnico.gestor.nombre)) gestores.push(o.tecnico.gestor.nombre)
       } else {
         if (!gestores.includes('-')) gestores.push('-')
@@ -50,7 +49,6 @@ export function separarGestor(data=[]) {
           gestor: g,
           estado: e,
           ordenes: numOrdenes,
-          type: 1
         });
       })
     });
@@ -64,11 +62,9 @@ export function separarMotivo(data=[]) {
   let gestores = [];
   if (data && data.length !== 0) {
     let motivos = [];
-    let numMayor = 0;
     let newData = [];
-    let aux = [];
     data.forEach((o) => {
-      if (o.tecnico !== '-' && o.tecnico.gestor && o.tecnico.gestor.nombre) {
+      if (o.tecnico && o.tecnico !== '-' && o.tecnico.gestor && o.tecnico.gestor.nombre) {
         if (!gestores.includes(o.tecnico.gestor.nombre)) gestores.push(o.tecnico.gestor.nombre)
       } else {
         if (!gestores.includes('-')) gestores.push('-')
@@ -86,26 +82,14 @@ export function separarMotivo(data=[]) {
             return false;
           }
         }).length;
-        if (numMayor < numOrdenes) numMayor = numOrdenes;
         newData.push({
           gestor: g,
           motivo: m,
           ordenes: numOrdenes,
-          type: 1
         });
       })
     });
-    newData.forEach((d) => {
-      let a = {
-        gestor: d.gestor,
-        motivo: d.motivo,
-        ordenes: numMayor - d.ordenes,
-        type: 2
-      };
-      aux.push(d);
-      aux.push(a);
-    });
-    return {ordenes: aux, gestores};
+    return {ordenes: newData, gestores};
   } else {
     return {ordenes: [], gestores} ;
   };

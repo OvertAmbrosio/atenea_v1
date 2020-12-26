@@ -73,7 +73,15 @@ function IndicadorGponBucket({data, titulo, tipo}) {
           <Row>
             <Button onClick={() => 
                 saveAsCsv({ 
-                  data:totalOrdenes, 
+                  data: totalOrdenes.map((o) => {
+                    return ({
+                      ...o,
+                      tecnico: o.tecnico && o.tecnico.nombre ? o.tecnico.nombre + ' ' + o.tecnico.apellidos : '-',
+                      gestor: o.tecnico && o.tecnico.gestor ? o.tecnico.gestor.nombre + ' ' + o.tecnico.gestor.apellidos : '-',
+                      auditor: o.tecnico && o.tecnico.auditor ? o.tecnico.auditor.nombre + ' ' + o.tecnico.auditor.apellidos : '-',
+                      contrata: o.tecnico && o.tecnico.contrata ? o.tecnico.contrata.nombre : '-'
+                    })
+                  }), 
                   fields: valoresExcelToa, 
                   filename: `data_${tipo}_gpon_${moment().format('DD_MM_YY_HH_mm')}`
                 })

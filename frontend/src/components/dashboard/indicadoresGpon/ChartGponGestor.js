@@ -20,7 +20,7 @@ export default function ChartGponGestor({data, loading}) {
       <div 
         style={{ 
           width: '100%', 
-          height: 300,
+          height: 400,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -30,8 +30,8 @@ export default function ChartGponGestor({data, loading}) {
       </div>)
   } else {
     return (
-      <Chart height={300} padding={[30, 20, 60, 40]} data={data} autoFit filter={[
-        ['ordenes', val => val != null] // 图表将会只渲染过滤后的数据
+      <Chart height={400} padding={[30, 20, 140, 40]} data={data.filter((d) => d.gestor !== '-')} autoFit filter={[
+        ['ordenes', val => val != null]
       ]}>
         <Interval
           adjust={[
@@ -74,6 +74,5 @@ export default function ChartGponGestor({data, loading}) {
 
 ChartGponGestor.propTypes = {
   data: PropTypes.array,
-  loading: PropTypes.bool,
-  gestores: PropTypes.array
+  loading: PropTypes.bool
 };

@@ -13,7 +13,7 @@ export class UpdateDataService {
   ) {}
 
   public async actualizarTecnicosToa(ordenes:TOrdenesToa[]):Promise<TOrdenesToa[]> {
-    return await Promise.all(ordenes.map(async(o) => await this.empleadoModel.findOne({carnet: o.tecnico})
+    return await Promise.all(ordenes.map(async(o) => await this.empleadoModel.findOne({ $and: [{carnet: o.tecnico},{carnet: { $ne: null}}]})
       .select('_id nombre apellidos gestor auditor contrata').populate('gestor', 'nombre apellidos').populate('auditor', 'nombre apellidos').populate('contrata', 'nombre')
       .then((empleado) => {
         return({

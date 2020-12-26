@@ -1,4 +1,5 @@
 const variables = {
+  // 192.168.100.90
   urlApi: 'http://192.168.100.90:5000/api',
   public: 'http://192.168.100.90:5000/',
   TOKEN_STORAGE_KEY: 'atenea.authToken',

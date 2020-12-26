@@ -34,9 +34,9 @@ export class OrdenesService {
   @Cron('0 */15 6-20 * * *')
   async obtenerOrdenesToa() { 
     return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
-      //{ status: success | error }
+      // { status: success | error }
       console.log(res.data, ' - ', new Date());
-      await this.ordenesGateway.prueba()
+      await this.ordenesGateway.enviarOdenesToa()
     }).catch((err) => console.log(err));
   };
   //subir la data del excel convertido en json y guardarla en la base de datos
