@@ -3,15 +3,21 @@ import PropTypes from 'prop-types';
 import { Spin } from 'antd'
 import { Chart, Tooltip, Interval, Interaction } from "bizcharts";
 
-import colores from '../../../constants/colores';
+// import colores from '../../../constants/colores';
 
 const getTypeColor = estado => {
-  if (estado === 'Pendiente') { return colores.warning; }
-  if (estado === 'Completado') { return colores.success; }
+  if (estado === 'Pendiente') { return '#FF351F' }
+  if (estado === 'Completado') { return '#9BB6C2'; }
   if (estado === 'Iniciado') { return '#1890ff'; }
-  if (estado === 'Suspendido') { return colores.error; }
-  if (estado === 'Cancelado') { return '#940000'; }
-  if (estado === 'No Realizada') { return '#A5A5A5'; }
+  if (estado === 'Suspendido') { return '#ABFFBC' }
+  if (estado === 'Cancelado') { return '#80FF80'; }
+  if (estado === 'No Realizada') { return '#1414FF'; }
+  // if (estado === 'Pendiente') { return colores.warning; }
+  // if (estado === 'Completado') { return colores.success; }
+  // if (estado === 'Iniciado') { return '#1890ff'; }
+  // if (estado === 'Suspendido') { return colores.error; }
+  // if (estado === 'Cancelado') { return '#940000'; }
+  // if (estado === 'No Realizada') { return '#A5A5A5'; }
 };
 
 export default function ChartGponGestor({data, loading}) {
