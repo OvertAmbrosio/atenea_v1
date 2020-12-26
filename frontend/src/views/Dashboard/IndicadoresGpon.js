@@ -46,7 +46,7 @@ export default function Dashboard() {
       } else {
         i= i+1
       }
-    }, 15000);
+    }, 30000);
   }
 
   return (
