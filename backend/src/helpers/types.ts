@@ -1,3 +1,5 @@
+import { PartialType } from '@nestjs/mapped-types';
+
 import { IContrata } from "src/api/contratas/interfaces/contrata.interface";
 import { IEmpleado } from "src/api/empleados/interfaces/empleados.interface";
 
@@ -39,7 +41,7 @@ export type TOrdenesToa = {
   fecha_cancelado?: string|Date,
   observacion_toa?: string,
 
-  tecnico?: string|IEmpleado,
+  tecnico?: string|Partial<IEmpleado>,
   gestor?: string|IEmpleado,
   auditor?: string|IEmpleado,
   contrata?: string|IContrata,
