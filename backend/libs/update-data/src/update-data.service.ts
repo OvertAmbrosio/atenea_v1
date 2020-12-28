@@ -15,23 +15,22 @@ export class UpdateDataService {
   public async actualizarTecnicosToa(ordenes:TOrdenesToa[]):Promise<TOrdenesToa[]> {
     return await Promise.all(ordenes.map(async(o) => {
       if (o.tecnico && typeof o.tecnico === 'string' && String(o.tecnico).length === 6) {
-        await this.empleadoModel.findOne({ $and: [{carnet: o.tecnico},{carnet: { $ne: null}}]})
-        .select('_id nombre apellidos gestor auditor contrata').populate('gestor', 'nombre apellidos').populate('auditor', 'nombre apellidos').populate('contrata', 'nombre')
-        .then((empleado) => {
-          return({
-            ...o,
-            estado_toa: o.estado,
-            tecnico: empleado && empleado,
-            gestor: empleado && empleado.gestor ? empleado.gestor : null,
-            auditor: empleado && empleado.auditor ? empleado.auditor : null,
-            contrata: empleado && empleado.contrata ? empleado.contrata : null,
-            fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-            fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
-            sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-            sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
+        return await this.empleadoModel.findOne({ $and: [{carnet: o.tecnico},{carnet: { $ne: null}}]})
+          .select('_id nombre apellidos gestor auditor contrata').populate('gestor', 'nombre apellidos').populate('auditor', 'nombre apellidos').populate('contrata', 'nombre')
+          .then((empleado) => {
+            return({
+              ...o,
+              estado_toa: o.estado,
+              tecnico: empleado && empleado,
+              gestor: empleado && empleado.gestor ? empleado.gestor : null,
+              auditor: empleado && empleado.auditor ? empleado.auditor : null,
+              contrata: empleado && empleado.contrata ? empleado.contrata : null,
+              fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+              fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
+              sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+              sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
+            })
           })
-        })
-      
       } else {
         return({
           ...o,
