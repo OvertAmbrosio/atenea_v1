@@ -221,6 +221,10 @@ export const OrdenSchema = new Schema({
     type: Types.ObjectId,
     ref: 'Empleado',
   },
+  auditor: {
+    type: Types.ObjectId,
+    ref: 'Empleado',
+  },
   contrata: {
     type: Types.ObjectId,
     ref: 'Contrata'

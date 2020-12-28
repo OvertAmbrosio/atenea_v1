@@ -18,8 +18,6 @@ import { UpdateDataService } from '@localLibs/update-data'
 
 const estadosToa = ['pendiente','iniciado'];
 
-
-
 @Injectable()
 export class OrdenesService {
   constructor (
@@ -82,7 +80,7 @@ export class OrdenesService {
       };
     });
   };
-  // funcion que guarda la data que envia el servidor de scraping (INSERTA SOLO LAS NUEVAS)
+  // funcion que guarda la data que envia el servidor de scraping
   async guardarDataToa(rutas:Array<any>, averias:Array<TOrdenesToa>, altas:Array<TOrdenesToa>, speedy:Array<TOrdenesToa>) {
 
     let strRrutas = JSON.stringify(rutas)
@@ -112,18 +110,17 @@ export class OrdenesService {
       } else {
         return await Promise.all(ordenesJson.map(async(o) => {
           if (o.tecnico) {
-            return this.empleadoModel.findOne({carnet: o.tecnico}).then(async(emp) => {
-              return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, {
-                bucket: o.bucket,
-                subtipo_actividad: o.subtipo_actividad,
-                estado_toa: o.estado,
-                fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
-                sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-                sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-                tecnico: emp && emp._id,
-                gestor: emp && emp.gestor,
-                contrata: emp && emp.contrata
-              });
+            return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, {
+              bucket: o.bucket,
+              subtipo_actividad: o.subtipo_actividad,
+              estado_toa: o.estado,
+              fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
+              sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+              sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+              tecnico: o.tecnico && typeof o.tecnico !== 'string' ? o.tecnico._id : null,
+              gestor: o.gestor && typeof o.gestor !== 'string' ? o.gestor._id : null,
+              auditor: o.auditor && typeof o.auditor !== 'string' ? o.auditor._id : null,
+              contrata: o.contrata && typeof o.contrata !== 'string' ? o.contrata._id : null,
             });
           } else {
             return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, {

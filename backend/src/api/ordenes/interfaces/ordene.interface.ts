@@ -41,5 +41,6 @@ export interface IOrden extends Document {
   //
   readonly tecnico: IEmpleado['_id'],
   readonly gestor: IEmpleado['_id'],
+  readonly auditor: IEmpleado['_id'],
   readonly contrata: IContrata['_id'],
 };
