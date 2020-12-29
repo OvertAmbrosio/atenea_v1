@@ -30,15 +30,27 @@ export class OrdenesGateway implements OnGatewayInit, OnGatewayConnection, OnGat
 
   @SubscribeMessage('obtenerOrdenes')
   async enviarOrdenes(client: Socket) {
-    let averias = await this.redisService.get(cache_keys.ORDENES_AVERIAS).catch((err) => console.log(err))
-    let altas = await this.redisService.get(cache_keys.ORDENES_ALTAS).catch((err) => console.log(err))
+    let averias = {};
+    let altas = {} ;
+    try {
+      averias = await this.redisService.get(cache_keys.ORDENES_AVERIAS).catch((err) => console.log(err))
+      altas = await this.redisService.get(cache_keys.ORDENES_ALTAS).catch((err) => console.log(err))
+    } catch (error) {
+      console.log(error);
+    };
     
     return client.emit('ordenesGraficos', {averias, altas});
   };
 
   public async enviarOdenesToa() {
-    const averias =  await this.redisService.get(cache_keys.ORDENES_AVERIAS).catch((err) => console.log(err));
-    const altas =  await this.redisService.get(cache_keys.ORDENES_ALTAS).catch((err) => console.log(err));
+    let averias = {};
+    let altas = {} ;
+    try {
+      averias =  await this.redisService.get(cache_keys.ORDENES_AVERIAS).catch((err) => console.log(err));
+      altas =  await this.redisService.get(cache_keys.ORDENES_ALTAS).catch((err) => console.log(err));
+    } catch (error) {
+      console.log(error);
+    };
 
     return this.server.emit('ordenesGraficos',  {averias, altas});
   };  

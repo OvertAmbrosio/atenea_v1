@@ -136,6 +136,19 @@ export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtro
       )
     },
     {
+      title: 'Tecnico',
+      dataIndex: 'tecnico',
+      width: 200,
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (t) => (
+        <Tooltip placement="topLeft" title={t ? t.nombre+' '+t.apellidos:'-'}>
+          {t ? t.nombre+' '+t.apellidos:'-'}
+        </Tooltip>
+      )
+    },
+    {
       title: 'Fecha Registro',
       dataIndex: 'fecha_registro',
       width: 150,
@@ -152,6 +165,15 @@ export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtro
       dataIndex: 'fecha_registro',
       width: 80,
       align: 'center',
+      sorter: (a, b) => {
+        if (moment().diff(a.fecha_registro, 'hours') < moment().diff(b.fecha_registro, 'hours')) {
+          return -1;
+        }
+        if (moment().diff(a.fecha_registro, 'hours') > moment().diff(b.fecha_registro, 'hours')) {
+          return 1;
+        }
+        return 0;
+      },
       render: (fecha) => {
         if (fecha) {
           return <Tag>{moment().diff(fecha, 'hours')}</Tag>

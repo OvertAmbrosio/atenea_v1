@@ -35,3 +35,19 @@ export const averias = {
   // CODIGO_ORDEN: 'codordtrab',
   // CODIGO_INCIDENCIA: 'codinc',
 };
+
+export const valoresExcelAdministrar = {
+  codigo_requerimiento: "Requerimiento",
+  codigo_ctr: "CTR",
+  codigo_nodo: "Nodo",
+  codigo_troba: "Troba",
+  numero_reiterada: "Reiterada",
+  distrito: "Distrito",
+  bucket: "Bucket",
+  estado_toa: "Estado Toa",
+  contrata: "Contrata",
+  gestor: "Gestor",
+  auditor: "auditor",
+  tecnico: "Tecnico",
+  fecha_registro: "FechaRegistro"
+};

@@ -76,7 +76,6 @@ function IndicadorBucket({data, titulo, tipo, tecnologia}) {
                   data: totalOrdenes.map((o) => {
                     return ({
                       ...o,
-                      carnet: o.tecnico && o.tecnico.carnet,
                       tecnico: o.tecnico && o.tecnico.nombre ? o.tecnico.nombre + ' ' + o.tecnico.apellidos : '-',
                       gestor: o.gestor ? o.gestor.nombre + ' ' + o.gestor.apellidos : '-',
                       auditor: o.auditor ? o.auditor.nombre + ' ' + o.auditor.apellidos : '-',

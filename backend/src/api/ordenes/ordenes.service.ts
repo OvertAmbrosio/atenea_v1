@@ -31,13 +31,13 @@ export class OrdenesService {
   //tarea que sirve para automatizar la descarga de dota del toa
   @Cron('0 */15 6-20 * * *')
   async obtenerOrdenesToa() { 
-    return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
+    // return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
       // { status: success | error }
-      console.log(res.data, ' - ', new Date());
-      // setTimeout(async() => {
+      // console.log(res.data, ' - ', new Date());
+      setTimeout(async() => {
         await this.ordenesGateway.enviarOdenesToa()
-      // }, timeout);
-    }).catch((err) => console.log(err));
+      }, 120000);
+    // }).catch((err) => console.log(err));
   };
   //subir la data del excel convertido en json y guardarla en la base de datos
   async subirData(createOrdenesDto:CreateOrdeneDto[], usuario:string):Promise<TRespuesta> {
@@ -111,9 +111,9 @@ export class OrdenesService {
         throw new HttpException('No se encontró data(TOA) disponible para realizar el cruce.', HttpStatus.NOT_FOUND);
       } else {
         return await Promise.all(ordenesJson.map(async(o) => {
-          if (o.tecnico) {            
+          if (o.tecnico && String(o.tecnico).length > 1) {            
             return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, {
-              tipo: tipos_orden.AVERIAS,
+              tipo: o.tipo,
               fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
               observacion_toa: o.observacion_toa,
               tecnico: o.tecnico && typeof o.tecnico !== 'string' ? o.tecnico._id : null,
@@ -129,21 +129,7 @@ export class OrdenesService {
               sla_inicio: o.sla_inicio ? new Date(String(o.sla_inicio).trim()): null,
               sla_fin: o.sla_fin ? new Date(String(o.sla_fin).trim()): null,
             });
-          } else {
-            return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, {
-              tipo: tipos_orden.AVERIAS,
-              fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-              observacion_toa: o.observacion_toa,
-              estado_toa: o.estado,
-              bucket: o.bucket,
-              subtipo_actividad: o.subtipo_actividad,
-              fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
-              tipo_agenda: o.tipo_agenda,
-              motivo_no_realizado: o.motivo_no_realizado,
-              sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-              sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-            });
-          };
+          } 
         }));  
       };
     });
@@ -165,6 +151,7 @@ export class OrdenesService {
     })
       .populate('contrata', 'nombre')
       .populate('gestor', 'nombre apellidos')
+      .populate('tecnico', 'nombre apellidos carnet')
       .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_cliente distrito bucket estado_toa contrata gestor fecha_registro numero_reiterada')
       .sort('bucket estado_toa contrata');
   };
