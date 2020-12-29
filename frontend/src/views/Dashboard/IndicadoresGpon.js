@@ -6,11 +6,12 @@ import IndicadorBucket from '../../components/dashboard/IndicadorBucket';
 import IndicadorGestor from '../../components/dashboard/IndicadorGestor';
 import IndicadorDevoluciones from '../../components/dashboard/IndicadorDevoluciones';
 import variables from '../../constants/config';
+import cogoToast from 'cogo-toast';
 
 export default function Dashboard() {
   const [averias, setAverias] = useState([]);
   const [altas, setAltas] = useState([]);
-  const socket = window.io(variables.public);
+  const socket = window.io(variables.socket, { transports: ['websocket'], secure: true, reconnection: true });
   const indicadorRef1 = useRef(null);
   const indicadorRef2 = useRef(null);
   const indicadorRef3 = useRef(null);
@@ -19,7 +20,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     scrollAutomatico();
-    socket.on('connect', function(s) {
+    socket.on('connect', function() {
       socket.on('ordenesGraficos', ({averias, altas}) => {
         const jsonAverias = new Array(JSON.parse(averias));
         const jsonAltas = new Array(JSON.parse(altas));
@@ -28,6 +29,10 @@ export default function Dashboard() {
       });
       socket.emit('obtenerOrdenes')
     });
+    socket.on('error', (e) => {
+      console.log(e);
+      cogoToast.error('Error conectando al servidor.', { position: 'top-left' })
+    })
     return () => socket.close();
     // eslint-disable-next-line
   },[]);
@@ -71,7 +76,7 @@ export default function Dashboard() {
         </div>
         {/* INDICADORES DEVOLUCIONES X GESTOR */}
         <div ref={indicadorRef5}>
-          <IndicadorDevoluciones data={altas} tecnologia={true}/>
+          <IndicadorDevoluciones data={altas} titulo="Indicador Devoluciones GPON" tecnologia={true}/>
         </div>
       </Contenedor>
     </div>

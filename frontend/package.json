@@ -21,6 +21,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "resize-observer-polyfill": "^1.5.1",
+    "socket.io-client": "^3.0.4",
     "warning": "^4.0.3",
     "web-vitals": "^0.2.4",
     "workbox-background-sync": "^5.1.4",

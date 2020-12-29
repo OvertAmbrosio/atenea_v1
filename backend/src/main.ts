@@ -3,7 +3,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io'
 import { ConfigService } from '@nestjs/config';
 import * as helmet from 'helmet';
 import * as compression from 'compression';
-import * as bodyParser from 'body-parser'
+import { json, urlencoded } from 'body-parser'
 
 import { AppModule } from './app.module';
 import { variables } from './config/variables';
@@ -30,8 +30,8 @@ async function bootstrap() {
     },
   }))
   app.use(compression({level: 9}));
-  app.use(bodyParser.json({limit: '5mb'}));
-  app.use(bodyParser.urlencoded({ extended: true, limit: '5mb'}));
+  app.use(json({limit: '5mb'}));
+  app.use(urlencoded({ extended: true, limit: '5mb'}));
 
   await app.listen(port);
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react';
 
 import TituloContent from '../../components/common/TituloContent';
 import Contenedor from '../../components/common/Contenedor';
@@ -10,7 +10,7 @@ import variables from '../../constants/config';
 export default function Dashboard() {
   const [averias, setAverias] = useState([]);
   const [altas, setAltas] = useState([]);
-  const socket = window.io(variables.public);
+  const socket = window.io(variables.socket, { transports: ['websocket'], secure: true, reconnection: true });
   const indicadorRef1 = useRef(null);
   const indicadorRef2 = useRef(null);
   const indicadorRef3 = useRef(null);
@@ -71,7 +71,7 @@ export default function Dashboard() {
         </div>
         {/* INDICADORES DEVOLUCIONES X GESTOR */}
         <div ref={indicadorRef5}>
-          <IndicadorDevoluciones data={altas} tecnologia={false}/>
+          <IndicadorDevoluciones data={altas} titulo="Indicador Devoluciones HFC" tecnologia={false}/>
         </div>
       </Contenedor>
     </div>

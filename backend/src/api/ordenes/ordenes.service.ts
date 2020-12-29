@@ -29,13 +29,15 @@ export class OrdenesService {
     private readonly updateDataService:UpdateDataService
   ) {}
   //tarea que sirve para automatizar la descarga de dota del toa
-  @Cron('0 */15 6-20 * * *')
+  @Cron('0 */5 6-20 * * *')
   async obtenerOrdenesToa() { 
-    // return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
+    return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
       // { status: success | error }
-      // console.log(res.data, ' - ', new Date());
-      await this.ordenesGateway.enviarOdenesToa()
-    // }).catch((err) => console.log(err));
+      console.log(res.data, ' - ', new Date());
+      // setTimeout(async() => {
+        await this.ordenesGateway.enviarOdenesToa()
+      // }, timeout);
+    }).catch((err) => console.log(err));
   };
   //subir la data del excel convertido en json y guardarla en la base de datos
   async subirData(createOrdenesDto:CreateOrdeneDto[], usuario:string):Promise<TRespuesta> {

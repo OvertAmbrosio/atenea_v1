@@ -29,15 +29,11 @@ export class OrdenesGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   };
 
   @SubscribeMessage('obtenerOrdenes')
-  async enviarOrdenes(client: Socket, data: string) {
-    let ordenes = {};
-    await this.redisService.get(cache_keys.ORDENES_ALTAS).then(async(altas) => {
-      const averias = await this.redisService.get(cache_keys.ORDENES_AVERIAS);
-      return ({altas, averias});
-    }).then((data) => ordenes = data).catch((err) => console.log(err))
-    console.log(client.id);
+  async enviarOrdenes(client: Socket) {
+    let averias = await this.redisService.get(cache_keys.ORDENES_AVERIAS).catch((err) => console.log(err))
+    let altas = await this.redisService.get(cache_keys.ORDENES_ALTAS).catch((err) => console.log(err))
     
-    return client.emit('ordenesGraficos', ordenes);
+    return client.emit('ordenesGraficos', {averias, altas});
   };
 
   public async enviarOdenesToa() {
@@ -48,7 +44,7 @@ export class OrdenesGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   };  
 
   public afterInit(server: Server): void {
-    console.log('Init');
+    console.log('-------------Socket iniciado---------');
   }
 
   public handleDisconnect(client: Socket): void {
