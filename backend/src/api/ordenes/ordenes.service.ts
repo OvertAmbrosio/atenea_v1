@@ -38,7 +38,7 @@ export class OrdenesService {
     }).catch((err) => console.log(err));
   };
   //subir la data del excel convertido en json y guardarla en la base de datos
-  async subirData(createOrdenesDto:CreateOrdeneDto[], usuario:string):Promise<TRespuesta> {
+  async subirData(createOrdenesDto:any[], usuario:string):Promise<TRespuesta> {
     const entrada = {
       usuario_entrada: usuario,
       observacion: 'Ordenes exportadas desde telefonica.',
