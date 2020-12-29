@@ -21,7 +21,7 @@ export class UpdateDataService {
             return({
               ...o,
               estado_toa: o.estado,
-              tecnico: empleado ? {_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos} : null,
+              tecnico: empleado ? JSON.stringify({_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos}) : null,
               gestor: empleado && empleado.gestor ? empleado.gestor : null,
               auditor: empleado && empleado.auditor ? empleado.auditor : null,
               contrata: empleado && empleado.contrata ? empleado.contrata : null,

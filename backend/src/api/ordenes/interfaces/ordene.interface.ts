@@ -1,5 +1,4 @@
 import { Document } from 'mongoose';
-
 import { IContrata } from 'src/api/contratas/interfaces/contrata.interface';
 import { IEmpleado } from 'src/api/empleados/interfaces/empleados.interface';
 import { THistorial } from 'src/helpers/types';
