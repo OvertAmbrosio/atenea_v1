@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from 'prop-types';
 import { Col, Row, Statistic, Typography } from "antd";
 import moment from 'moment';
 
-import ChartGponGestor from './ChartGponGestor';
-import { gpon } from "../../../constants/valoresToa";
-import { separarGestor } from "../../../libraries/separarField";
+import ChartDevolucionesGpon from './ChartDevoluciones';
+import { gpon } from "../../constants/valoresToa";
+import { separarMotivo } from "../../libraries/separarField";
 
 const { Title } = Typography;
+const estados = ['Cancelado','No Realizada']
 
-function IndicadorGponGestor({data, titulo}) {
+function IndicadorGponDevoluciones({data, titulo, tecnologia}){
   const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
@@ -28,16 +28,16 @@ function IndicadorGponGestor({data, titulo}) {
     return new Promise((resolve, reject) => {
       try {
         if (data.length > 0) {
-          const dataGpon = data.filter((d) => gpon.includes(d.subtipo_actividad))
-          setTotalOrdenes(dataGpon.filter((d) => d.tecnico && d.tecnico.gestor));
-          return resolve(dataGpon)
+          const ordenesFiltradas = data.filter((d) => gpon.includes(d.subtipo_actividad) && estados.includes(d.estado));
+          setTotalOrdenes(ordenesFiltradas.filter((d) => d.tecnico && d.gestor));
+          return resolve(ordenesFiltradas)
         } else {
           return reject([])
         }
       } catch (error) {
         return reject(error)
       }
-    }).then((dataGpon) => separarGestor(dataGpon)).then(({ordenes, gestores}) => {
+    }).then((ordenesFiltradas) => separarMotivo(ordenesFiltradas)).then(({ordenes, gestores}) => {
       setGestores(gestores);
       setDataOrdenes(ordenes)
     }).catch((err) => console.log(err)).finally(() => {
@@ -51,7 +51,7 @@ function IndicadorGponGestor({data, titulo}) {
       <Title level={2} style={{ marginTop: '1rem' }}>{titulo} / Actualizado: {horaActualizado ? horaActualizado : '-'}</Title>
       <Row style={{ marginTop: '2rem', marginBottom: '1rem' }}>
         <Col sm={24}>
-          <ChartGponGestor data={dataOrdenes} loading={loadingOrdenes}/>
+          <ChartDevolucionesGpon data={dataOrdenes} loading={loadingOrdenes}/>
         </Col>
       </Row>
       <Row>
@@ -63,7 +63,7 @@ function IndicadorGponGestor({data, titulo}) {
               <Col key={i} style={{ margin: '1rem' }}>
                 <Statistic
                   title={g} 
-                  value={totalOrdenes.length > 0 ? totalOrdenes.filter((e) => e.tecnico.gestor.nombre === g).length : 0} 
+                  value={totalOrdenes.length > 0 ? totalOrdenes.filter((e) => e.gestor.nombre === g).length : 0} 
                   suffix={`/ ${totalOrdenes.length} total`}
                 />
               </Col>
@@ -73,12 +73,9 @@ function IndicadorGponGestor({data, titulo}) {
         </Col>
       </Row>
     </div>
-  );
+  )
 };
 
-IndicadorGponGestor.propTypes = {
-  data: PropTypes.array,
-  titulo: PropTypes.string
-};
+export default IndicadorGponDevoluciones;
+  
 
-export default IndicadorGponGestor

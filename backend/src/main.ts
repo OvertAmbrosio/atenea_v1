@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { IoAdapter } from '@nestjs/platform-socket.io'
 import { ConfigService } from '@nestjs/config';
 import * as helmet from 'helmet';
 import * as compression from 'compression';
@@ -14,14 +15,16 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get(variables.puerto);
 
+  app.useWebSocketAdapter(new IoAdapter(app))
+
   app.setGlobalPrefix('api')
 
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: [`'self'`],
+        defaultSrc: [`'self'`, 'https: *',],
         styleSrc: [`'self'`, `'unsafe-inline'`],
-        imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+        imgSrc: [`'self'`, 'data:', 'https: *', 'validator.swagger.io'],
         scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
       },
     },

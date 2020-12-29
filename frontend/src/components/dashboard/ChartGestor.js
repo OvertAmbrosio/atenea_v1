@@ -12,15 +12,21 @@ const getTypeColor = estado => {
   if (estado === 'Suspendido') { return '#ABFFBC' }
   if (estado === 'Cancelado') { return '#80FF80'; }
   if (estado === 'No Realizada') { return '#1414FF'; }
+  // if (estado === 'Pendiente') { return colores.warning; }
+  // if (estado === 'Completado') { return colores.success; }
+  // if (estado === 'Iniciado') { return '#1890ff'; }
+  // if (estado === 'Suspendido') { return colores.error; }
+  // if (estado === 'Cancelado') { return '#940000'; }
+  // if (estado === 'No Realizada') { return '#A5A5A5'; }
 };
 
-export default function ChartGponBucket({data, loading}) {
+export default function ChartGestor({data, loading}) {
   if (loading) {
     return (
       <div 
         style={{ 
           width: '100%', 
-          height: 300,
+          height: 400,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -30,7 +36,7 @@ export default function ChartGponBucket({data, loading}) {
       </div>)
   } else {
     return (
-      <Chart height={300} padding={[30, 20, 60, 40]} data={data} autoFit filter={[
+      <Chart height={400} padding={[30, 20, 140, 40]} data={data.filter((d) => d.gestor !== '-')} autoFit filter={[
         ['ordenes', val => val != null]
       ]}>
         <Interval
@@ -44,7 +50,7 @@ export default function ChartGponBucket({data, loading}) {
             fields: ["estado"],
             callback: (a) => getTypeColor(a)
           }}
-          position="bucket*ordenes"
+          position="gestor*ordenes"
           label={{
             fields: ['ordenes', 'estado'],
             callback: (a,b) => {
@@ -72,7 +78,7 @@ export default function ChartGponBucket({data, loading}) {
   }
 };
 
-ChartGponBucket.propTypes = {
+ChartGestor.propTypes = {
   data: PropTypes.array,
   loading: PropTypes.bool
 };

@@ -1,6 +1,6 @@
 import { 
-  Controller, Get, Post, Body, Put, 
-  Param, Delete, Req, UseGuards, Inject, Query 
+  Controller, Get, Post, Body, Put, Patch, 
+  Param, Delete, Req, UseGuards, Inject, Query
 } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
@@ -11,7 +11,7 @@ import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { tipos_orden, tipos_usuario } from 'src/constants/enum';
-import { TRespuesta } from 'src/helpers/types';
+import { TBodyUpdateOrden, TRespuesta } from 'src/helpers/types';
 import { cache_keys } from 'src/config/variables';
 
 @Controller('ordenes/')
@@ -125,7 +125,17 @@ export class OrdenesController {
     };
   };
 
-
+  @Patch()
+  @UseGuards(JwtAuthGuard)
+  async actualizarOrden(
+    @Req() req:Request, 
+    @Body() data:TBodyUpdateOrden,
+  ): Promise<TRespuesta> {
+    return ({
+      status: 'success',
+      message: 'hola'
+    })
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

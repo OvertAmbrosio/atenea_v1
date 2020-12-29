@@ -12,16 +12,18 @@ export class UpdateDataService {
     @InjectModel('Empleado') private readonly empleadoModel: Model<IEmpleado>,
   ) {}
 
-  public async actualizarTecnicosToa(ordenes:TOrdenesToa[]):Promise<TOrdenesToa[]> {
+  public async actualizarTecnicosToa(ordenes:TOrdenesToa[], tipo:string):Promise<TOrdenesToa[]> {
     return await Promise.all(ordenes.map(async(o) => {
       if (o.tecnico && typeof o.tecnico === 'string' && String(o.tecnico).length === 6) {
         return await this.empleadoModel.findOne({ $and: [{carnet: o.tecnico},{carnet: { $ne: null}}]})
-          .select('_id nombre apellidos gestor auditor contrata').populate('gestor', 'nombre apellidos').populate('auditor', 'nombre apellidos').populate('contrata', 'nombre')
+          .select('_id nombre apellidos gestor auditor contrata carnet').populate('gestor', 'nombre apellidos').populate('auditor', 'nombre apellidos').populate('contrata', 'nombre')
           .then((empleado) => {
             return({
               ...o,
+              tipo: o.tipo,
               estado_toa: o.estado,
-              tecnico: empleado ? JSON.stringify({_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos}) : null,
+              tecnico: empleado ? {_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos} : null,
+              carnet: empleado && empleado.carnet,
               gestor: empleado && empleado.gestor ? empleado.gestor : null,
               auditor: empleado && empleado.auditor ? empleado.auditor : null,
               contrata: empleado && empleado.contrata ? empleado.contrata : null,
@@ -36,6 +38,7 @@ export class UpdateDataService {
           ...o,
           estado_toa: o.estado,
           tecnico: null,
+          carnet: '-',
           gestor: null,
           auditor: null,
           contrata: null,

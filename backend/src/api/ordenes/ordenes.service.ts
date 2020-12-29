@@ -11,7 +11,7 @@ import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
 import { IOrden } from './interfaces/ordene.interface';
 import { IEmpleado } from '../empleados/interfaces/empleados.interface';
-import { estado_empresa, tipos_usuario } from 'src/constants/enum';
+import { estado_empresa, tipos_orden, tipos_usuario } from 'src/constants/enum';
 
 import { OrdenesGateway } from './ordenes.gateway';
 import { UpdateDataService } from '@localLibs/update-data'
@@ -31,14 +31,14 @@ export class OrdenesService {
   //tarea que sirve para automatizar la descarga de dota del toa
   @Cron('0 */15 6-20 * * *')
   async obtenerOrdenesToa() { 
-    return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
+    // return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
       // { status: success | error }
-      console.log(res.data, ' - ', new Date());
+      // console.log(res.data, ' - ', new Date());
       await this.ordenesGateway.enviarOdenesToa()
-    }).catch((err) => console.log(err));
+    // }).catch((err) => console.log(err));
   };
   //subir la data del excel convertido en json y guardarla en la base de datos
-  async subirData(createOrdenesDto:any[], usuario:string):Promise<TRespuesta> {
+  async subirData(createOrdenesDto:CreateOrdeneDto[], usuario:string):Promise<TRespuesta> {
     const entrada = {
       usuario_entrada: usuario,
       observacion: 'Ordenes exportadas desde telefonica.',
@@ -86,15 +86,15 @@ export class OrdenesService {
     let strRrutas = JSON.stringify(rutas)
     await this.redisService.set(cache_keys.RUTAS_TOA, strRrutas, 3600);
 
-    await this.updateDataService.actualizarTecnicosToa(averias)
+    await this.updateDataService.actualizarTecnicosToa(averias, tipos_orden.AVERIAS)
       .then((data) => JSON.stringify(data))
       .then(async(strData) => await this.redisService.set(cache_keys.ORDENES_AVERIAS, strData, 3600));
 
-    await this.updateDataService.actualizarTecnicosToa(altas)
+    await this.updateDataService.actualizarTecnicosToa(altas, tipos_orden.ALTAS)
       .then((data) => JSON.stringify(data))
       .then(async(strData) => await this.redisService.set(cache_keys.ORDENES_ALTAS, strData, 3600));
 
-    await this.updateDataService.actualizarTecnicosToa(speedy)
+    await this.updateDataService.actualizarTecnicosToa(speedy, tipos_orden.SPEEDY)
       .then((data) => JSON.stringify(data))
       .then(async(strData) => await this.redisService.set(cache_keys.ORDENES_SPEEDY, strData, 3600));
     
@@ -109,25 +109,37 @@ export class OrdenesService {
         throw new HttpException('No se encontró data(TOA) disponible para realizar el cruce.', HttpStatus.NOT_FOUND);
       } else {
         return await Promise.all(ordenesJson.map(async(o) => {
-          if (o.tecnico) {
+          if (o.tecnico) {            
             return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, {
-              bucket: o.bucket,
-              subtipo_actividad: o.subtipo_actividad,
-              estado_toa: o.estado,
-              fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
-              sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-              sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+              tipo: tipos_orden.AVERIAS,
+              fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+              observacion_toa: o.observacion_toa,
               tecnico: o.tecnico && typeof o.tecnico !== 'string' ? o.tecnico._id : null,
               gestor: o.gestor && typeof o.gestor !== 'string' ? o.gestor._id : null,
               auditor: o.auditor && typeof o.auditor !== 'string' ? o.auditor._id : null,
               contrata: o.contrata && typeof o.contrata !== 'string' ? o.contrata._id : null,
+              estado_toa: o.estado,
+              bucket: o.bucket,
+              subtipo_actividad: o.subtipo_actividad,
+              fecha_cita: o.fecha_cita ? new Date(String(o.fecha_cita).trim()): null,
+              tipo_agenda: o.tipo_agenda,
+              motivo_no_realizado: o.motivo_no_realizado,
+              sla_inicio: o.sla_inicio ? new Date(String(o.sla_inicio).trim()): null,
+              sla_fin: o.sla_fin ? new Date(String(o.sla_fin).trim()): null,
             });
           } else {
             return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, {
-              bucket: o.bucket,
+              tipo: tipos_orden.AVERIAS,
+              fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+              observacion_toa: o.observacion_toa,
               estado_toa: o.estado,
+              bucket: o.bucket,
+              subtipo_actividad: o.subtipo_actividad,
+              fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
+              tipo_agenda: o.tipo_agenda,
+              motivo_no_realizado: o.motivo_no_realizado,
               sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-              sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
+              sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
             });
           };
         }));  
@@ -138,6 +150,7 @@ export class OrdenesService {
   async obtenerOrdenesHoy(tipo: string) {
     let now = new Date();
     let startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());    
+    
     return await this.ordenModel.find({
       $and: [
         {$or: [

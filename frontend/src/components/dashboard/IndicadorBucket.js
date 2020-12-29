@@ -4,13 +4,13 @@ import { Button, Col, Row, Statistic, Typography } from "antd";
 import moment from 'moment';
 import { useJsonToCsv } from 'react-json-csv';
 
-import ChartGponBucket from './ChartGponBucket';
-import { gpon, valoresExcelToa } from "../../../constants/valoresToa";
-import { separarBucket } from "../../../libraries/separarField";
+import ChartBucket from './ChartBucket';
+import { gpon, valoresExcelToa } from "../../constants/valoresToa";
+import { separarBucket } from "../../libraries/separarField";
 
 const { Title } = Typography;
 
-function IndicadorGponBucket({data, titulo, tipo}) {
+function IndicadorBucket({data, titulo, tipo, tecnologia}) {
   const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
@@ -30,16 +30,16 @@ function IndicadorGponBucket({data, titulo, tipo}) {
     return new Promise((resolve, reject) => {
      try {
       if (data.length > 0) {
-        const dataGpon = data.filter((d) => gpon.includes(d.subtipo_actividad))
-        setTotalOrdenes(dataGpon);
-        return resolve(dataGpon)
+        const ordenesFiltradas = data.filter((d) => gpon.includes(d.subtipo_actividad) === tecnologia)
+        setTotalOrdenes(ordenesFiltradas);
+        return resolve(ordenesFiltradas)
       } else {
         return reject([])
       }
      } catch (error) {
        return reject(error)
      }
-    }).then((dataGpon) => separarBucket(dataGpon)).then(({ordenes, buckets}) => {
+    }).then((ordenesFiltradas) => separarBucket(ordenesFiltradas)).then(({ordenes, buckets}) => {
       setBucketsOrdenes(buckets);
       setDataOrdenes(ordenes)
     }).catch((err) => console.log(err)).finally(() => {
@@ -53,7 +53,7 @@ function IndicadorGponBucket({data, titulo, tipo}) {
       <Title level={2} style={{ marginTop: '1rem' }}>{titulo} / Actualizado: {horaActualizado ? horaActualizado : '-'}</Title>
       <Row style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
         <Col sm={16}>
-          <ChartGponBucket data={dataOrdenes} loading={loadingOrdenes}/>
+          <ChartBucket data={dataOrdenes} loading={loadingOrdenes}/>
         </Col>
         <Col sm={8}>
           <Row>
@@ -76,14 +76,15 @@ function IndicadorGponBucket({data, titulo, tipo}) {
                   data: totalOrdenes.map((o) => {
                     return ({
                       ...o,
+                      carnet: o.tecnico && o.tecnico.carnet,
                       tecnico: o.tecnico && o.tecnico.nombre ? o.tecnico.nombre + ' ' + o.tecnico.apellidos : '-',
-                      gestor: o.tecnico && o.tecnico.gestor ? o.tecnico.gestor.nombre + ' ' + o.tecnico.gestor.apellidos : '-',
-                      auditor: o.tecnico && o.tecnico.auditor ? o.tecnico.auditor.nombre + ' ' + o.tecnico.auditor.apellidos : '-',
-                      contrata: o.tecnico && o.tecnico.contrata ? o.tecnico.contrata.nombre : '-'
+                      gestor: o.gestor ? o.gestor.nombre + ' ' + o.gestor.apellidos : '-',
+                      auditor: o.auditor ? o.auditor.nombre + ' ' + o.auditor.apellidos : '-',
+                      contrata: o.contrata ? o.contrata.nombre : '-'
                     })
                   }), 
                   fields: valoresExcelToa, 
-                  filename: `data_${tipo}_gpon_${moment().format('DD_MM_YY_HH_mm')}`
+                  filename: `data_${tipo}_${tecnologia ? 'gpon':'hfc'}_${moment().format('DD_MM_YY_HH_mm')}`
                 })
             }>
               Exportar
@@ -95,9 +96,11 @@ function IndicadorGponBucket({data, titulo, tipo}) {
   );
 };
 
-IndicadorGponBucket.propTypes = {
+IndicadorBucket.propTypes = {
   data: PropTypes.array,
-  titulo: PropTypes.string
+  titulo: PropTypes.string,
+  tipo: PropTypes.string,
+  tecnologia: PropTypes.bool
 }
 
-export default IndicadorGponBucket
+export default IndicadorBucket

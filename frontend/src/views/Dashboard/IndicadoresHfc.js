@@ -51,27 +51,27 @@ export default function Dashboard() {
 
   return (
     <div>
-      <TituloContent titulo="Indicadores GPON" subtitulo="Dashboard"/>
+      <TituloContent titulo="Indicadores HFC" subtitulo="Dashboard"/>
       <Contenedor>
-        {/* INDICADOR AVERIAS GPON */}
+        {/* INDICADOR AVERIAS HFC */}
         <div ref={indicadorRef1}>
-          <IndicadorBucket data={averias} titulo="Indicador Averias GPON" tipo="averias" tecnologia={true}/>
+          <IndicadorBucket data={averias} titulo="Indicador Averias HFC" tipo="averias" tecnologia={false}/>
         </div>
-        {/* INDICADOR DE ALTAS GPON */}
+        {/* INDICADOR DE ALTAS HFC */}
         <div ref={indicadorRef2}>
-          <IndicadorBucket data={altas} titulo="Indicador Altas GPON" tipo="altas" tecnologia={true}/>
+          <IndicadorBucket data={altas} titulo="Indicador Altas HFC" tipo="altas" tecnologia={false}/>
         </div>
         {/* INDICADOR DE GESTORES AVERIAS */}
         <div ref={indicadorRef3}>
-          <IndicadorGestor data={averias} titulo="Indicador Gestores GPON (Averias)" tecnologia={true}/>
+          <IndicadorGestor data={averias} titulo="Indicador Gestores HFC (Averias)" tecnologia={false}/>
         </div>
         {/* INDICADOR DE GESTORES ALTAS */}
         <div ref={indicadorRef4}>
-          <IndicadorGestor data={altas} titulo="Indicador Gestores GPON (Altas)" tecnologia={true}/>
+          <IndicadorGestor data={altas} titulo="Indicador Gestores HFC (Altas)" tecnologia={false}/>
         </div>
         {/* INDICADORES DEVOLUCIONES X GESTOR */}
         <div ref={indicadorRef5}>
-          <IndicadorDevoluciones data={altas} tecnologia={true}/>
+          <IndicadorDevoluciones data={altas} tecnologia={false}/>
         </div>
       </Contenedor>
     </div>

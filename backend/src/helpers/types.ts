@@ -1,3 +1,5 @@
+import { PartialType } from '@nestjs/mapped-types';
+
 import { IContrata } from "src/api/contratas/interfaces/contrata.interface";
 import { IEmpleado } from "src/api/empleados/interfaces/empleados.interface";
 
@@ -31,6 +33,7 @@ export type TPayload = {
 };
 
 export type TOrdenesToa = {
+  tipo: string,
   requerimiento: string,
 
   codigo_cliente?: string,
@@ -39,7 +42,7 @@ export type TOrdenesToa = {
   fecha_cancelado?: string|Date,
   observacion_toa?: string,
 
-  tecnico?: string|IEmpleado,
+  tecnico?: string|Partial<IEmpleado>,
   gestor?: string|IEmpleado,
   auditor?: string|IEmpleado,
   contrata?: string|IContrata,
@@ -57,7 +60,8 @@ export type TOrdenesToa = {
 type TImagenRegistro = {
   readonly url: string
   readonly public_id: string
-}
+};
+
 export type THistorial = {
   readonly fecha_entrada?: Date,
   readonly estado_orden?: string,
@@ -67,4 +71,14 @@ export type THistorial = {
   readonly imagenes?: Array<TImagenRegistro>,
   readonly observacion: string,
   readonly grupo_entrada: number
-}
+};
+
+export type TBodyUpdateOrden = {
+  metodo?: string,
+  ordenes?: string[],
+  bucket?: string,
+  tecnico?: string,
+  gestor?: string,
+  contrata?: string,
+  estado?: string
+};

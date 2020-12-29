@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Spin } from 'antd'
 import { Chart, Tooltip, Interval, Interaction } from "bizcharts";
 
-export default function ChartDevolucionesGpon({data, loading}) {
+export default function ChartDevoluciones({data, loading}) {
   if (loading) {
     return (
       <div 
@@ -44,7 +44,7 @@ export default function ChartDevolucionesGpon({data, loading}) {
   }
 };
 
-ChartDevolucionesGpon.propTypes = {
+ChartDevoluciones.propTypes = {
   data: PropTypes.array,
   loading: PropTypes.bool
 };

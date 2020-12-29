@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+
 import { IContrata } from 'src/api/contratas/interfaces/contrata.interface';
 import { IEmpleado } from 'src/api/empleados/interfaces/empleados.interface';
 import { THistorial } from 'src/helpers/types';
@@ -32,6 +33,7 @@ export interface IOrden extends Document {
   readonly bucket: string,
   readonly subtipo_actividad?: string,
   readonly fecha_cita: Date,
+  readonly fecha_cancelado?: Date,
   readonly tipo_agenda: string,
   readonly motivo_no_realizado: string,
   readonly sla_inicio: Date,

@@ -27,20 +27,16 @@ export function separarGestor(data=[]) {
     let estados = [];
     let newData = [];
     data.forEach((o) => {
-      if (o.tecnico && o.tecnico !== '-' && o.tecnico.gestor && o.tecnico.gestor.nombre) {
-        if (!gestores.includes(o.tecnico.gestor.nombre)) gestores.push(o.tecnico.gestor.nombre)
-      } else {
-        if (!gestores.includes('-')) gestores.push('-')
+      if (o.gestor && o.gestor.nombre) {
+        if (!gestores.includes(o.gestor.nombre)) gestores.push(o.gestor.nombre)
       }
     });
     data.forEach((o) => !estados.includes(o.estado) ? estados.push(o.estado): null);
     gestores.forEach((g) => {
       estados.forEach((e) => {
         let numOrdenes = data.filter((d) => {
-          if (d.tecnico === '-') {
-            return d.tecnico === g && d.estado === e
-          } else if (d.tecnico && d.tecnico.gestor && d.tecnico.gestor.nombre){
-            return d.tecnico.gestor.nombre === g && d.estado === e
+          if (d.gestor && d.gestor.nombre){
+            return d.gestor.nombre === g && d.estado === e
           } else {
             return false;
           }
@@ -64,8 +60,8 @@ export function separarMotivo(data=[]) {
     let motivos = [];
     let newData = [];
     data.forEach((o) => {
-      if (o.tecnico && o.tecnico !== '-' && o.tecnico.gestor && o.tecnico.gestor.nombre) {
-        if (!gestores.includes(o.tecnico.gestor.nombre)) gestores.push(o.tecnico.gestor.nombre)
+      if (o.gestor && o.gestor.nombre) {
+        if (!gestores.includes(o.gestor.nombre)) gestores.push(o.gestor.nombre)
       } else {
         if (!gestores.includes('-')) gestores.push('-')
       }
@@ -74,10 +70,8 @@ export function separarMotivo(data=[]) {
     gestores.forEach((g) => {
       motivos.forEach((m) => {
         let numOrdenes = data.filter((d) => {
-          if (d.tecnico === '-') {
-            return d.tecnico === g && d.motivo_no_realizado === m
-          } else if (d.tecnico && d.tecnico.gestor && d.tecnico.gestor.nombre){
-            return d.tecnico.gestor.nombre === g && d.motivo_no_realizado === m
+          if (d.gestor && d.gestor.nombre){
+            return d.gestor.nombre === g && d.motivo_no_realizado === m
           } else {
             return false;
           }
