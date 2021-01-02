@@ -15,9 +15,9 @@ export function separarBucket(data=[]) {
         });
       })
     });
-    return {ordenes: newData, buckets};
+    return {ordenes: newData, buckets, estados};
   } else {
-    return {ordenes: [], buckets} ;
+    return {ordenes: [], buckets, estados: []} ;
   };
 };
 
