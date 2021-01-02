@@ -128,7 +128,7 @@ export class EmpleadosService {
         }).populate({
           path: 'contrata',
           select: 'nombre'
-        }).select('nombre apellidos gestor auditor contrata carnet').sort('contrata nombre').then(async(data) => {
+        }).select('nombre apellidos gestor auditor contrata carnet tipo_negocio sub_tipo_negocio').sort('contrata nombre').then(async(data) => {
           const string = JSON.stringify(data);
           return await this.redisService.set(cache_keys.TECNICOS_GLOBAL, string, variables.redis_ttl)
             .then(() => data);
@@ -312,13 +312,27 @@ export class EmpleadosService {
       })
   };
   //funcion para asignar el tipo de negocio
-  async actualizarNegocio(tecnicos: string[], negocio:string, subNegocio: string): Promise<IEmpleado> {
-    const negocios = [tipo_negocio.ADSL,tipo_negocio.ALTAS,tipo_negocio.COBRE,tipo_negocio.EMPRESAS,tipo_negocio.HFC,tipo_negocio.RUTAS_CRITICAS];
-    const subNegocios = [sub_tipo_negocio.GPON, '-'];
-    if (negocios.includes(negocio) && subNegocios.includes(subNegocio)) {
-      return this.empleadoModel.updateMany({_id: { $in: tecnicos } }, { tipo_negocio: negocio, sub_tipo_negocio: subNegocio });
+  async actualizarNegocio(tecnicos: string[], negocio:string): Promise<IEmpleado> {
+    const negocios = [tipo_negocio.AVERIAS,tipo_negocio.ALTAS,tipo_negocio.SPEEDY,tipo_negocio.BASICAS];
+    if (negocios.includes(negocio)) {
+      return this.empleadoModel.updateMany({_id: { $in: tecnicos } }, { tipo_negocio: negocio }).then(async(data) => {
+        await this.redisService.remove(cache_keys.TECNICOS_GLOBAL);
+        return data;
+      });
     } else {
       throw new HttpException('Negocio fuera de rango', HttpStatus.NOT_FOUND);
+    };
+  };
+  //funcion para asignar el subtipo de negocio
+  async actualizarSubNegocio(tecnicos: string[], subNegocio: string): Promise<IEmpleado> {
+    const subNegocios = [sub_tipo_negocio.GPON,sub_tipo_negocio.HFC,sub_tipo_negocio.ADSL,sub_tipo_negocio.COBRE,sub_tipo_negocio.CRITICOS,sub_tipo_negocio.EMPRESAS];
+    if (subNegocios.includes(subNegocio)) {
+      return this.empleadoModel.updateMany({_id: { $in: tecnicos } }, { sub_tipo_negocio: subNegocio }).then(async(data) => {
+        await this.redisService.remove(cache_keys.TECNICOS_GLOBAL);
+        return data;
+      });
+    } else {
+      throw new HttpException('Sub Negocio fuera de rango', HttpStatus.NOT_FOUND);
     };
   };
 }

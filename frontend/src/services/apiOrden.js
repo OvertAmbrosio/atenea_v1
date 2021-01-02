@@ -1,11 +1,7 @@
 import { restPrivate } from './requestHelper';
 
-export const getOrdenes = async (toast, {metodo, tipo}) => restPrivate({
-  url: 'ordenes', method: 'GET', params: {metodo, tipo}
-}, toast);
-
-export const getIndicadores = async (toast, {tipo}) => restPrivate({
-  url: 'ordenes/actividades', method: 'GET', params: {tipo}
+export const getOrdenes = async (toast, {metodo, tipo, codigo_cliente}) => restPrivate({
+  url: 'ordenes', method: 'GET', params: {metodo, tipo, codigo_cliente}
 }, toast);
 
 /**
@@ -16,4 +12,8 @@ export const getIndicadores = async (toast, {tipo}) => restPrivate({
  */
 export const postOrdenes = async ({metodo, ordenes, orden}) => restPrivate({
   url: 'ordenes', method: 'POST', data: { ordenes, metodo, orden}
+},true);
+
+export const patchOrdenes = async ({metodo, ordenes, bucket, tecnico, gestor, contrata, fecha_cita, estado, observacion}) => restPrivate({
+  url: 'ordenes', method: 'PATCH', data: { metodo, ordenes, bucket, tecnico, gestor, contrata, fecha_cita, estado, observacion}
 },true);

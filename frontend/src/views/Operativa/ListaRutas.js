@@ -25,7 +25,7 @@ export default function ListaRutas() {
   async function cargarGestores() {
     setLoadingGestores(true);
     await getEmpleados(false, { metodo: empleados.LISTA_GESTORES }).then(({data}) => {
-      if(data) setListaGestores([...data, { _id: null, nombre: '-', apellidos: '' }]);
+      if(data) setListaGestores([...data, { _id: '-', nombre: '-', apellidos: '' }]);
       return;
     }).catch((err) => console.log(err)).finally(() => setLoadingGestores(false));
   };

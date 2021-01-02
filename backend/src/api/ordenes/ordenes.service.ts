@@ -5,7 +5,7 @@ import { PaginateModel, Model  } from 'mongoose';
 import { DateTime } from 'luxon';
 
 import { RedisService } from 'src/database/redis.service';
-import { TOrdenesToa, TRespuesta } from 'src/helpers/types';
+import { THistorial, TOrdenesToa, TRespuesta } from 'src/helpers/types';
 import { cache_keys, variables } from 'src/config/variables';
 import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
@@ -147,12 +147,47 @@ export class OrdenesService {
         ]},
         {tipo}
       ]
-      
-    })
-      .populate('contrata', 'nombre')
+    }).populate('contrata', 'nombre')
       .populate('gestor', 'nombre apellidos')
       .populate('tecnico', 'nombre apellidos carnet')
-      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_cliente distrito bucket estado_toa contrata gestor fecha_registro numero_reiterada')
+      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_cliente distrito bucket estado_toa estado_gestor contrata gestor fecha_cita fecha_registro numero_reiterada')
       .sort('bucket estado_toa contrata');
   };
+  //FUNCION PARA OBTENER LAS ORDENES REITERADAS
+  async obtenerReiteradas(codigo_cliente: string):Promise<IOrden[]> {
+    return await this.ordenModel.find({
+      codigo_cliente
+    }).populate('contrata', 'nombre')
+      .populate('gestor', 'nombre apellidos')
+      .populate('auditor', 'nombre apellidos')
+      .populate('tecnico', 'nombre apellidos carnet')
+  };
+  //funcion para egendar una orden
+  async agendarOrden(ordenes:string[], id:string, bucket?:string, contrata?:string, gestor?:string, fecha_cita?:string, observacion?: string) {
+    let objUpdate = {};
+
+    let registroOrdenes:THistorial = {
+      observacion: observacion ? observacion : 'Orden agendada (bucket, contrata, gestor, fecha de cita)',
+      usuario_entrada: id,
+      contrata_modificado: contrata,
+      empleado_modificado: gestor,
+      estado_orden: "Agendado"
+    }
+
+    if(bucket) objUpdate['bucket'] = bucket;
+    if(contrata) objUpdate['contrata'] = contrata;
+    if(gestor) objUpdate['gestor'] = gestor;
+    if(fecha_cita) objUpdate['fecha_cita'] = new Date(fecha_cita).toUTCString();
+
+    return await this.ordenModel.updateMany({ 
+      $and: [
+        { _id: { $in: ordenes } },
+        { estado_toa: '-' }
+      ]
+    }, {
+      ...objUpdate,
+      historial_registro: registroOrdenes,
+      estado_gestor: 'agendado'
+    })
+  }
 };

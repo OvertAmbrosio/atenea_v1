@@ -5,7 +5,7 @@ import { Table } from 'antd';
 import columnasAverias from './columnasAverias'
 import { obtenerFiltroId, obtenerFiltroNombre } from '../../../libraries/obtenerFiltro';
 
-function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas }) {
+function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada }) {
   const [filtroDistrito, setFiltroDistrito] = useState([]);
   const [filtroBucket, setFiltroBucket] = useState([]);
   const [filtroEstadoToa, setFiltroEstadoToa] = useState([]);
@@ -20,7 +20,7 @@ function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccion
       obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f));
       obtenerFiltroId(data, 'gestor', true).then((f) => setFiltroGestor(f));
     };
-  },[data])
+  },[data]);
 
   return (
     <Table
@@ -35,7 +35,7 @@ function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccion
         selectedRowKeys: ordenesSeleccionadas,
         onChange: (e) => setOrdenesSeleccionadas(e)
       }}
-      columns={columnasAverias(filtroDistrito,filtroBucket,filtroEstadoToa,filtroContrata,filtroGestor)}
+      columns={columnasAverias(filtroDistrito,filtroBucket,filtroEstadoToa,filtroContrata,filtroGestor, abrirReiterada)}
       dataSource={data}
       loading={loading}
       size="small"
@@ -52,7 +52,8 @@ TablaOrdenes.propTypes = {
   data: PropTypes.array,
   loading: PropTypes.bool,
   ordenesSeleccionadas: PropTypes.array,
-  setOrdenesSeleccionadas: PropTypes.func
+  setOrdenesSeleccionadas: PropTypes.func,
+  abrirReiterada: PropTypes.func
 };
 
 export default TablaOrdenes

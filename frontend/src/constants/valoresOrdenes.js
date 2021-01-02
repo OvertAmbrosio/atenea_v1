@@ -45,9 +45,34 @@ export const valoresExcelAdministrar = {
   distrito: "Distrito",
   bucket: "Bucket",
   estado_toa: "Estado Toa",
+  estado_gestor: "Estado Gestor",
   contrata: "Contrata",
   gestor: "Gestor",
   auditor: "auditor",
   tecnico: "Tecnico",
-  fecha_registro: "FechaRegistro"
+  fecha_cita: "Fecha Cita",
+  fecha_registro: "Fecha Registro"
 };
+
+export const listaBuckets = [
+  {
+    text: 'MA MAGDALENA 01',
+    value: 'BK_SV_MA_MAGDALENA_01'
+  },
+  {
+    text: 'SM MAGDALENA 02',
+    value: 'BK_MA_SM_MAGDALENA_02'
+  },
+  {
+    text: 'SJ MARANGA',
+    value: 'BK_MR_SM_PN_SJ_MARANGA'
+  },
+  {
+    text: 'SJ SAN JOSE',
+    value: 'BK_SJ_SAN_JOSE'
+  },
+  {
+    text: 'MA VENEZUELA',
+    value: 'BK_VN_MA_VENEZUELA'
+  }
+]

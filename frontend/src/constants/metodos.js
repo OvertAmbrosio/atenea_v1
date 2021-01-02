@@ -9,7 +9,9 @@ export const empleados = {
   ACTIVAR_CUENTA: 'activarCuenta',
   EDITAR_ESTADO: 'editarEstadoEmpresa',
   ACTUALIZAR_GESTOR: 'actualizarGestor',
-  ACTUALIZAR_AUDITOR: 'actualizarAuditor'
+  ACTUALIZAR_AUDITOR: 'actualizarAuditor',
+  ACTUALIZAR_NEGOCIO: 'actualizarNegocio',
+  ACTUALIZAR_SUB_NEGOCIO: 'actualizarSubNegocio'
 };
 
 export const contratas = {
@@ -20,7 +22,9 @@ export const contratas = {
 export const ordenes = {
   SUBIR_DATA: 'subirData',
   CRUZAR_DATA: 'cruzarData',
-  ORDENES_HOY: 'ordenesHoy'
+  ORDENES_HOY: 'ordenesHoy',
+  BUSCAR_REITERADA: 'buscarReiterada',
+  AGENDAR_ORDEN: 'agendarOrden'
 };
 
 export const asistencias = {

@@ -6,18 +6,20 @@ import TagEstado from './TagEstado';
 
 const { Text } = Typography;
 
-export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtroEstadoToa=[],filtroContrata=[], filtroGestor=[]) {
+export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtroEstadoToa=[],filtroContrata=[], filtroGestor=[], abrirReiterada) {
 
   return [
     {
       title: '#',
       width: 50,
+      fixed: 'left',
       render: (_,__,i) => i+1
     },
     {
       title: 'Requerimiento',
       dataIndex: 'codigo_requerimiento',
       width: 120,
+      fixed: 'left',
       render: (req) => <Text copyable>{req}</Text>
     },
     {
@@ -50,9 +52,9 @@ export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtro
       width: 100,
       align: 'center',
       sorter: (a,b) => a.numero_reiterada - b.numero_reiterada,
-      render: (r) => {
+      render: (r, obj) => {
         if (r) {
-          return <Tag color="#E5302F">{r}</Tag>
+          return <Tag color="#E5302F" onClick={() => abrirReiterada(obj.codigo_cliente)} style={{ cursor: 'pointer' }}>{r}</Tag>
         } else {
           return '-'
         }
@@ -81,12 +83,19 @@ export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtro
       )
     },
     {
-      title: 'Estado',
+      title: 'Estado Toa',
       dataIndex: 'estado_toa',
       width: 150,
       align: 'center',
       filters: filtroEstadoToa ? filtroEstadoToa : [],
       onFilter: (v,r) => r.estado_toa.indexOf(v) === 0,
+      render: (e) => <TagEstado estado={e}/>
+    },
+    {
+      title: 'Estado Gestor',
+      dataIndex: 'estado_gestor',
+      width: 150,
+      align: 'center',
       render: (e) => <TagEstado estado={e}/>
     },
     {
@@ -147,6 +156,18 @@ export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtro
           {t ? t.nombre+' '+t.apellidos:'-'}
         </Tooltip>
       )
+    },
+    {
+      title: 'Fecha Cita',
+      dataIndex: 'fecha_cita',
+      width: 150,
+      render: (fecha) => {
+        if (fecha) {
+          return moment(fecha).format('DD/MM/YY');
+        } else {
+          return '-';
+        }
+      }
     },
     {
       title: 'Fecha Registro',

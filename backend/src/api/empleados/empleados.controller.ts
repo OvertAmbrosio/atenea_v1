@@ -270,11 +270,18 @@ export class EmpleadosController {
         })
       }
     } else if (metodo === 'actualizarNegocio') {
-      return await this.empleadosService.actualizarNegocio(tecnicos,negocio, subNegocio).then(() => {
+      return await this.empleadosService.actualizarNegocio(tecnicos, negocio).then(() => {
         return ({status: 'success', message: 'Usuario actualizado correctamente.'})
       }).catch((error) => {
         this.logger.error({message: error.message, service: 'actualizarNegocio'});
         return ({status: 'error', message: 'Error actualizando el tipo de negocio'})
+      });
+    } else if (metodo === 'actualizarSubNegocio') {
+      return await this.empleadosService.actualizarSubNegocio(tecnicos,subNegocio).then(() => {
+        return ({status: 'success', message: 'Usuario actualizado correctamente.'})
+      }).catch((error) => {
+        this.logger.error({message: error.message, service: 'actualizarSubNegocio'});
+        return ({status: 'error', message: 'Error actualizando el sub tipo de negocio'})
       });
     } else {
       throw new HttpException({status: 'error', message: 'Metodo incorrecto.'}, HttpStatus.FORBIDDEN);

@@ -3,13 +3,15 @@ import PropTypes from 'prop-types';
 import { Spin } from 'antd'
 import { Chart, Tooltip, Interval, Interaction } from "bizcharts";
 
+import colores from "../../constants/colores";
+
 const getTypeColor = estado => {
-  if (estado === 'Pendiente') { return '#FF351F' }
-  if (estado === 'Completado') { return '#9BB6C2'; }
-  if (estado === 'Iniciado') { return '#1890ff'; }
-  if (estado === 'Suspendido') { return '#ABFFBC' }
-  if (estado === 'Cancelado') { return '#80FF80'; }
-  if (estado === 'No Realizada') { return '#1414FF'; }
+  if (estado === 'Pendiente') { return colores.Pendiente; }
+  if (estado === 'Completado') { return colores.Completado; }
+  if (estado === 'Iniciado') { return colores.Iniciado; }
+  if (estado === 'Suspendido') { return colores.Suspendido }
+  if (estado === 'Cancelado') { return colores.Cancelado; }
+  if (estado === 'No Realizada') { return colores.NoRealizada; }
 };
 
 export default function ChartBucket({data, loading}) {

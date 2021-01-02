@@ -1,5 +1,3 @@
-import { PartialType } from '@nestjs/mapped-types';
-
 import { IContrata } from "src/api/contratas/interfaces/contrata.interface";
 import { IEmpleado } from "src/api/empleados/interfaces/empleados.interface";
 
@@ -70,15 +68,18 @@ export type THistorial = {
   readonly usuario_entrada: IEmpleado['_id']
   readonly imagenes?: Array<TImagenRegistro>,
   readonly observacion: string,
-  readonly grupo_entrada: number
+  readonly grupo_entrada?: number
 };
 
 export type TBodyUpdateOrden = {
   metodo?: string,
+  id:string,
   ordenes?: string[],
   bucket?: string,
   tecnico?: string,
   gestor?: string,
   contrata?: string,
-  estado?: string
+  fecha_cita?: string,
+  estado?: string,
+  observacion?:string,
 };

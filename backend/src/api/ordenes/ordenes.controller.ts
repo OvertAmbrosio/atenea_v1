@@ -82,7 +82,7 @@ export class OrdenesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getOrdenes(@Req() req:Request, @Query('metodo') metodo:string, @Query('tipo') tipo:string): Promise<TRespuesta> {
+  async getOrdenes(@Req() req:Request, @Query('metodo') metodo:string, @Query('tipo') tipo:string, @Query('codigo_cliente') codigo_cliente:string): Promise<TRespuesta> {
     const user:any = req.user;
     const key = tipo === tipos_orden.AVERIAS ? cache_keys.ORDENES_AVERIAS : 
                 tipo === tipos_orden.ALTAS ? cache_keys.ORDENES_ALTAS :
@@ -116,8 +116,23 @@ export class OrdenesController {
           data: null
         });
       });
-    } else {
-      this.logger.error({message: `Usuario: ${user.id} - intentó acceder sin permisos.`,service: 'getOrdenes(cruzarData)'});
+    } else if (metodo === 'buscarReiterada' && codigo_cliente) {
+      return await this.ordenesService.obtenerReiteradas(codigo_cliente).then((res) => {
+        return ({
+          status: 'success',
+          message: `(${res.length}) Ordenes encontradas.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(buscarReiterada)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    }else {
+      this.logger.error({message: `Usuario: ${user.id} - intentó acceder con metodo incorrecto.`, service: 'getOrdenes'});
       return({
         status: 'error',
         message: 'Metodo incorrecto o permisos insuficientes.'
@@ -131,10 +146,22 @@ export class OrdenesController {
     @Req() req:Request, 
     @Body() data:TBodyUpdateOrden,
   ): Promise<TRespuesta> {
-    return ({
-      status: 'success',
-      message: 'hola'
-    })
+    const user:any = req.user;
+
+    if (data.metodo === 'agendarOrden' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+      return await this.ordenesService.agendarOrden(data.ordenes, user.id, data.bucket, data.contrata, data.gestor, data.fecha_cita, data.observacion)
+        .then((data) => ({status: 'success', message: 'Ordenes actualizadas correctament.'}))
+        .catch((err) => {
+          this.logger.error({message: err.message, service: 'actualizarOrden(agendarOrden)'})
+          return ({status: 'error', message: 'Error actualizando las ordenes.'})
+        })
+    } else {
+      this.logger.error({message: `Usuario: ${user.id} - intentó acceder sin permisos.`,service: 'getOrdenes(cruzarData)'});
+      return({
+        status: 'error',
+        message: 'Metodo incorrecto o permisos insuficientes.'
+      });
+    }
   }
 
   // @Get(':id')

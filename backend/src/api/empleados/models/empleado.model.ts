@@ -66,13 +66,13 @@ export const EmpleadoSchema = new Schema({
   tipo_negocio: {
     type: String,
     trim: true,
-    uppercase: true,
+    lowercase: true,
     default: '-'
   },
   sub_tipo_negocio: {
     type: String,
     trim: true,
-    uppercase: true,
+    lowercase: true,
     default: '-'
   },
   fecha_nacimiento: {

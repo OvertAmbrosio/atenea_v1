@@ -30,14 +30,16 @@ export const buscarEmpleado = async (value, field) => restPrivate({
  * @param {Date} data.fecha_baja fecha de baja
  * @param {number} data.estado_empresa estado dentro de la empresa
  * @param {string} data.gestor
+ * @param {string} data.negocio
+ * @param {string} data.subNegocio
  * @param {string[]} data.tecnicos
  */
 export const patchEmpleados = async (
-  toast, { id, metodo, cargo, fecha_baja, estado_empresa, gestor, auditor, tecnicos }
+  toast, { id, metodo, cargo, fecha_baja, estado_empresa, gestor, auditor,negocio, subNegocio, tecnicos }
 ) => restPrivate({
   url: 'empleados', 
   method: 'PATCH', 
-  data: { id, metodo, cargo, fecha_baja, estado_empresa, gestor, auditor, tecnicos }
+  data: { id, metodo, cargo, fecha_baja, estado_empresa, gestor, auditor,negocio, subNegocio, tecnicos }
 }, toast);
 
 

@@ -35,14 +35,17 @@ export const estado_asistencia= {
 };
 
 export const tipo_negocio = {
-  ADSL: 'ADSL',
-  ALTAS: 'ALTAS',
-  COBRE: 'COBRE',
-  EMPRESAS: 'EMPRESAS',
-  HFC: 'HFC',
-  RUTAS_CRITICAS: 'RUTAS CRITICAS',
+  AVERIAS: 'averias',
+  ALTAS: 'altas',
+  SPEEDY: 'speedy',
+  BASICAS: 'basicas',
 };
 
 export const sub_tipo_negocio = {
-  GPON: 'GPON'
+  GPON: 'gpon',
+  HFC: 'hfc',
+  ADSL: 'adsl',
+  COBRE: 'cobre',
+  CRITICOS: 'criticos',
+  EMPRESAS: 'empresas'
 };
