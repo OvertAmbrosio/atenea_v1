@@ -29,6 +29,7 @@ export class OrdenesService {
     private readonly updateDataService:UpdateDataService
   ) {}
   //tarea que sirve para automatizar la descarga de dota del toa
+  // ajustar hora al servidor
   @Cron('0 */15 6-20 * * *')
   async obtenerOrdenesToa() { 
     // return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
