@@ -20,7 +20,7 @@ export class UpdateDataService {
           .then((empleado) => {
             return({
               ...o,
-              tipo: o.tipo,
+              tipo,
               estado_toa: o.estado,
               tecnico: empleado ? {_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos} : null,
               carnet: empleado && empleado.carnet,
@@ -36,6 +36,7 @@ export class UpdateDataService {
       } else {
         return({
           ...o,
+          tipo,
           estado_toa: o.estado,
           tecnico: null,
           carnet: '-',
