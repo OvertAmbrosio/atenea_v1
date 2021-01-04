@@ -11,6 +11,8 @@ function TagEstado({estado}) {
       return <Tag color="success">{capitalizar(estado)}</Tag>
     case 'agendado':
       return <Tag color="purple">{capitalizar(estado)}</Tag>
+    case 'asignado':
+      return <Tag color="cyan">{capitalizar(estado)}</Tag>
     case 'iniciado':
       return <Tag color="geekblue">{capitalizar(estado)}</Tag>
     case 'no realizada':

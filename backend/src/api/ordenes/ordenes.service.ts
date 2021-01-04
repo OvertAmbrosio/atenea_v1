@@ -6,12 +6,12 @@ import { DateTime } from 'luxon';
 
 import { RedisService } from 'src/database/redis.service';
 import { THistorial, TOrdenesToa, TRespuesta } from 'src/helpers/types';
-import { cache_keys, variables } from 'src/config/variables';
+import { cache_keys } from 'src/config/variables';
 import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
 import { IOrden } from './interfaces/ordene.interface';
 import { IEmpleado } from '../empleados/interfaces/empleados.interface';
-import { estado_empresa, tipos_orden, tipos_usuario } from 'src/constants/enum';
+import { estado_gestor, tipos_orden } from 'src/constants/enum';
 
 import { OrdenesGateway } from './ordenes.gateway';
 import { UpdateDataService } from '@localLibs/update-data'
@@ -30,7 +30,11 @@ export class OrdenesService {
   ) {}
   //tarea que sirve para automatizar la descarga de dota del toa
   // ajustar hora al servidor
-  @Cron('0 */15 6-20 * * *')
+  @Cron('0 */15 6-20 * * *', {
+    name: 'obtenerOrdenes',
+    timeZone: 'America/Lima',
+    
+  })
   async obtenerOrdenesToa() { 
     // return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
       // { status: success | error }
@@ -42,14 +46,14 @@ export class OrdenesService {
   };
   //subir la data del excel convertido en json y guardarla en la base de datos
   async subirData(createOrdenesDto:CreateOrdeneDto[], usuario:string):Promise<TRespuesta> {
-    const entrada = {
+    const registroOrdenes:THistorial = {
       usuario_entrada: usuario,
-      observacion: 'Ordenes exportadas desde telefonica.',
+      observacion: 'Ordenes exportadas desde cms.',
       grupo_entrada: Date.now(),
     };
 
     const ordenes = createOrdenesDto.map((e) => {
-      return ({...e, historial_registro:[entrada]})
+      return ({...e, historial_registro:[registroOrdenes]})
     })
 
     return await this.ordenModel.insertMany(ordenes, { 
@@ -82,6 +86,35 @@ export class OrdenesService {
         }, HttpStatus.FORBIDDEN)
       };
     });
+  };
+  //subir la data del excel de liquidadas y actualizar las ordenes
+  async liquidarOrdenes(updateOrdeneDto:UpdateOrdeneDto[], usuario:string) {
+    const registroOrdenes:THistorial = {
+      usuario_entrada: usuario,
+      estado_orden: estado_gestor.LIQUIDADO,
+      observacion: 'Ordenes liquidadas desde la data exportada de cms.'
+    };
+    return Promise.all(updateOrdeneDto.map(async(newOrden) => {
+      return await this.ordenModel.findOneAndUpdate({ 
+        codigo_requerimiento: newOrden.codigo_requerimiento,
+        fecha_liquidado: null
+      }, {
+        $set: {
+          fecha_liquidado: newOrden.fecha_liquidado,
+          tecnico_liquidado: newOrden.tecnico_liquidado,
+          tipo_averia: newOrden.tipo_averia,
+          codigo_usuario_liquidado: newOrden.codigo_usuario_liquidado,
+          estado_liquidado: newOrden.estado_liquidado,
+          estado_gestor: estado_gestor.LIQUIDADO
+        },
+        $push: {
+          historial_registro: {
+            ...registroOrdenes,
+            empleado_modificado: newOrden.tecnico_liquidado
+          }
+        }
+      }, { new: true }).then((d) => d ? true: false);
+    }))
   };
   // funcion que guarda la data que envia el servidor de scraping
   async guardarDataToa(rutas:Array<any>, averias:Array<TOrdenesToa>, altas:Array<TOrdenesToa>, speedy:Array<TOrdenesToa>) {
@@ -143,8 +176,8 @@ export class OrdenesService {
     return await this.ordenModel.find({
       $and: [
         {$or: [
-          {fecha_cita: { $gte: startOfToday }},
-          {fecha_cita: null}
+          {fecha_liquidado: { $gte: startOfToday }},
+          {fecha_liquidado: null}
         ]},
         {tipo}
       ]
@@ -163,7 +196,7 @@ export class OrdenesService {
       .populate('auditor', 'nombre apellidos')
       .populate('tecnico', 'nombre apellidos carnet')
   };
-  //funcion para egendar una orden
+  //funcion para agendar una orden
   async agendarOrden(ordenes:string[], id:string, bucket?:string, contrata?:string, gestor?:string, fecha_cita?:string, observacion?: string) {
     let objUpdate = {};
 
@@ -186,9 +219,40 @@ export class OrdenesService {
         { estado_toa: '-' }
       ]
     }, {
-      ...objUpdate,
-      historial_registro: registroOrdenes,
-      estado_gestor: 'agendado'
+      $set: { ...objUpdate, estado_gestor: estado_gestor.AGENDADO },
+      $push: { historial_registro: registroOrdenes }
     })
-  }
+  };
+  //funcion para asignar personal a una orden
+  async asignarOrden(ordenes:string[], id:string, contrata?:string, gestor?:string, auditor?:string, tecnico?:string, observacion?: string) {
+    let objUpdate = {};
+
+    let registroOrdenes:THistorial = {
+      observacion: observacion ? observacion : 'Orden asignada.',
+      usuario_entrada: id,
+      contrata_modificado: contrata,
+      empleado_modificado: tecnico ? tecnico: gestor,
+      estado_orden: "Asignado"
+    }
+
+    if(tecnico) {
+      objUpdate['contrata'] = contrata;
+      objUpdate['gestor'] = gestor;
+      objUpdate['auditor'] = auditor;
+      objUpdate['tecnico'] = tecnico;
+      objUpdate['estado_gestor'] = estado_gestor.ASIGNADO;
+    } else {
+      objUpdate['gestor'] = gestor;
+    };
+
+    return await this.ordenModel.updateMany({ 
+      $and: [
+        { _id: { $in: ordenes } },
+        { estado_toa: '-' },
+      ]
+    }, {
+      $set: { ...objUpdate },
+      $push: { historial_registro: registroOrdenes },
+    })
+  };
 };

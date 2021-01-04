@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import TituloContent from '../../components/common/TituloContent';
 import Contenedor from '../../components/common/Contenedor';
 import IndicadorBucket from '../../components/dashboard/IndicadorBucket';
+import IndicadorContrata from '../../components/dashboard/IndicadorContrata';
 import IndicadorGestor from '../../components/dashboard/IndicadorGestor';
 import IndicadorDevoluciones from '../../components/dashboard/IndicadorDevoluciones';
 import variables from '../../constants/config';
@@ -17,6 +18,8 @@ export default function Dashboard() {
   const indicadorRef3 = useRef(null);
   const indicadorRef4 = useRef(null);
   const indicadorRef5 = useRef(null);
+  const indicadorRef6 = useRef(null);
+  const indicadorRef7 = useRef(null);
 
   useEffect(() => {
     scrollAutomatico();
@@ -38,7 +41,7 @@ export default function Dashboard() {
   },[]);
 
   const executeScroll = (number) => {
-    let arrayRefs = [indicadorRef1,indicadorRef2,indicadorRef3,indicadorRef4,indicadorRef5];
+    let arrayRefs = [indicadorRef1,indicadorRef2,indicadorRef3,indicadorRef4,indicadorRef5,indicadorRef6,indicadorRef7];
     if(arrayRefs[number].current) arrayRefs[number].current.scrollIntoView({block: 'center', behavior: 'smooth'})
   };
 
@@ -46,7 +49,7 @@ export default function Dashboard() {
     let i = 0;
     setInterval(() => {
       executeScroll(i);
-      if (i === 4) {
+      if (i === 6) {
         i = 0;
       } else {
         i= i+1
@@ -62,20 +65,29 @@ export default function Dashboard() {
         <div ref={indicadorRef1}>
           <IndicadorBucket data={averias} titulo="Indicador Averias GPON" tipo="averias" tecnologia={true}/>
         </div>
+        
         {/* INDICADOR DE ALTAS GPON */}
         <div ref={indicadorRef2}>
           <IndicadorBucket data={altas} titulo="Indicador Altas GPON" tipo="altas" tecnologia={true}/>
         </div>
-        {/* INDICADOR DE GESTORES AVERIAS */}
+        {/* INDICADOR DE CONTRATAS AVERIAS */}
         <div ref={indicadorRef3}>
+          <IndicadorContrata data={averias} titulo="Indicador Contratas GPON (Averias)" tecnologia={true}/>
+        </div>
+        {/* INDICADOR DE CONTRATAS ALTAS */}
+        <div ref={indicadorRef4}>
+          <IndicadorContrata data={altas} titulo="Indicador Contratas GPON (Altas)" tecnologia={true}/>
+        </div>
+        {/* INDICADOR DE GESTORES AVERIAS */}
+        <div ref={indicadorRef5}>
           <IndicadorGestor data={averias} titulo="Indicador Gestores GPON (Averias)" tecnologia={true}/>
         </div>
         {/* INDICADOR DE GESTORES ALTAS */}
-        <div ref={indicadorRef4}>
+        <div ref={indicadorRef6}>
           <IndicadorGestor data={altas} titulo="Indicador Gestores GPON (Altas)" tecnologia={true}/>
         </div>
         {/* INDICADORES DEVOLUCIONES X GESTOR */}
-        <div ref={indicadorRef5}>
+        <div ref={indicadorRef7}>
           <IndicadorDevoluciones data={altas} titulo="Indicador Devoluciones GPON" tecnologia={true}/>
         </div>
       </Contenedor>

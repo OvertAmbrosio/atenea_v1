@@ -7,10 +7,10 @@ import cogoToast from 'cogo-toast';
 import variables from '../../../constants/config';
 import convertirExcel from '../../../libraries/convertirExcel';
 import asignarValores from '../../../libraries/asignarValores';
-import { getOrdenes, postOrdenes } from '../../../services/apiOrden';
+import { getOrdenes, postOrdenes, putOrdenes } from '../../../services/apiOrden';
 import { ordenes } from '../../../constants/metodos';
 
-function ActualizarOrdenes({tipoOrden}) {
+function ActualizarOrdenes({tipoOrden, tecnicos}) {
   const [estadoOrden, setEstadoOrden] = useState(1)
   const [estadoArchivo, setEstadoArchivo] = useState('done');
   const [nombreArchivo, setNombreArchivo] = useState('');
@@ -28,11 +28,23 @@ function ActualizarOrdenes({tipoOrden}) {
       cogoToast.warn('No hay ordenes para subir.', { position: 'top-right' });
     } else {
       setLoadingButton(true);
-      await postOrdenes({metodo: ordenes.SUBIR_DATA, ordenes: ordenesObtenidas })
-        .then(async() => {
+      if (estadoOrden === 1) {
+        await postOrdenes({
+          metodo: ordenes.SUBIR_DATA, 
+          ordenes: ordenesObtenidas 
+        }).then(async() => {
           cogoToast.info('Sincronizando ordenes con TOA...', { position: 'top-right' });
           return await getOrdenes(true, { metodo: ordenes.CRUZAR_DATA, tipo: tipoOrden})
         }).catch((err) => console.log(err));
+      } else {
+        await putOrdenes({
+          metodo: ordenes.ACTUALIZAR_DATA, 
+          ordenes: ordenesObtenidas 
+        }).then(async() => {
+          cogoToast.info('Sincronizando ordenes con TOA...', { position: 'top-right' });
+          return await getOrdenes(true, { metodo: ordenes.CRUZAR_DATA, tipo: tipoOrden})
+        }).catch((err) => console.log(err));
+      };
       setLoadingButton(false);  
     }
   };
@@ -50,9 +62,9 @@ function ActualizarOrdenes({tipoOrden}) {
     //convertir excel a json
     convertirExcel(file).then(async(objJson) => {
       //obtener los valores necesarios, actualizar estado y guardar
-      await asignarValores(objJson, tipoOrden, estadoOrden).then((data) => {
+      await asignarValores(objJson, tipoOrden, estadoOrden, tecnicos).then((data) => {
         setEstadoArchivo('done');
-        setOrdenesObtenidas(data);
+        setOrdenesObtenidas(data.filter((e) => e.verificado));
         cogoToast.success(`${data.length} Ordenes encontradas.`, {position: 'top-right'});
       });
     }).catch((err) => {
@@ -114,7 +126,8 @@ function ActualizarOrdenes({tipoOrden}) {
 };
 
 ActualizarOrdenes.propTypes = {
-  tipoOrden: PropTypes.string
+  tipoOrden: PropTypes.string,
+  tecnicos: PropTypes.array
 };
 
 export default ActualizarOrdenes

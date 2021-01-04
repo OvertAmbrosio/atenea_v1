@@ -21,7 +21,10 @@ export class AsistenciaService {
     private readonly redisService: RedisService,
   ) {};
 
-  @Cron('0 0 5 * * *')
+  @Cron('0 0 5 * * *', {
+    name: 'generarAsistencia',
+    timeZone: 'America/Lima',
+  })
   async generarAsistencia() {
     const tecnicos = await this.empleadoModel.find({
       $and:[
@@ -38,7 +41,10 @@ export class AsistenciaService {
     return await this.asistenciaModel.insertMany(nuevaAsistencia);
   };
 
-  @Cron('0 */5 7-9 * * *')
+  @Cron('0 */5 7-9 * * *', {
+    name: 'guardarRutasActivas',
+    timeZone: 'America/Lima'  
+  })
   async comprobarRuta() {
     try {
       const strRutas:Array<string> = await this.redisService.get(cache_keys.RUTAS_TOA).then((e) => JSON.parse(e));

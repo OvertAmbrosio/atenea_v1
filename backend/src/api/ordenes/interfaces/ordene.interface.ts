@@ -26,10 +26,12 @@ export interface IOrden extends Document {
   readonly numero_reiterada: number,
   readonly tipo_tecnologia: string,
   ///////////////////////////////////////
-  readonly historial_registro: THistorial,
+  readonly historial_registro: THistorial[],
   readonly estado_toa: string,
   readonly estado_gestor: string,
   readonly estado_tecnico: string,
+  readonly estado_liquidado: string,
+  //datos de toa
   readonly bucket: string,
   readonly subtipo_actividad?: string,
   readonly fecha_cita: Date,
@@ -40,9 +42,14 @@ export interface IOrden extends Document {
   readonly sla_fin: Date,
   readonly observacion_toa: string,
   readonly orden_devuelta: boolean,
-  //
+  //atos de asignacion
   readonly tecnico: IEmpleado['_id'],
   readonly gestor: IEmpleado['_id'],
   readonly auditor: IEmpleado['_id'],
   readonly contrata: IContrata['_id'],
+  //datos de liquidacion
+  readonly tecnico_liquidado: IEmpleado['_id'],
+  readonly fecha_liquidado: Date,
+  readonly tipo_averia: string
+  readonly codigo_usuario_liquidado: string,
 };

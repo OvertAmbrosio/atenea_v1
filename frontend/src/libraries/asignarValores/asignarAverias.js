@@ -1,7 +1,7 @@
 import numeroFecha from '../numeroFecha';
 import isEmpty from 'is-empty';
 
-import { averias } from '../../constants/valoresOrdenes';
+import { averias, codigosLiquidadasEfectivas, codigosLiquidadasInefectivas, codigosLiquidadasNoCorresponde } from '../../constants/valoresOrdenes';
 
 const codctrArray = ["470","476"] ;
 
@@ -52,6 +52,40 @@ export async function pendientesAverias(ordenes=[]){
     })
   });
   // eslint-disable-next-line
+  return Promise.all(promises).catch((err) => {
+    console.log('Error en la promesa');
+    console.log(err);
+    return err;
+  })
+};
+
+export async function liquidadasAverias(ordenes=[], tecnicos=[]){
+  const promises = ordenes.map((orden, indice) => {
+
+    let verificado = true;
+    let tecnico = null;
+    let efectivas = codigosLiquidadasEfectivas.includes(orden[averias.TIPO_AVERIA]);
+    let inEfectivas = codigosLiquidadasInefectivas.includes(orden[averias.TIPO_AVERIA]);
+    let noCorresponde = codigosLiquidadasNoCorresponde.includes(orden[averias.TIPO_AVERIA]);
+
+    if (isNaN(orden[averias.CODIGO_REQUERIMIENTO])) { verificado = false};
+    if (String(orden[averias.TECNICO_LIQUIDADO]).trim().length === 6) {
+      let iTecnico = tecnicos.findIndex((t) => t.carnet === orden[averias.TECNICO_LIQUIDADO]);
+      tecnico = tecnicos[iTecnico]._id;
+    };
+    
+    return ({
+      key: indice,
+      verificado,
+      codigo_requerimiento: orden[averias.CODIGO_REQUERIMIENTO],
+      fecha_liquidado: !isNaN(Number(orden[averias.FECHA_LIQUIDADA])) && numeroFecha(orden[averias.FECHA_LIQUIDADA]),
+      tecnico_liquidado: tecnico,
+      tipo_averia: orden[averias.TIPO_AVERIA] !== undefined && orden[averias.TIPO_AVERIA],
+      codigo_usuario_liquidado: orden[averias.USUARIO_LIQUIDADO] !== undefined && orden[averias.USUARIO_LIQUIDADO],
+      estado_liquidado: efectivas ? 'efectiva' : inEfectivas ? 'inefectiva' : noCorresponde ? 'no_corresponde' : '-',
+    });
+  });
+
   return Promise.all(promises).catch((err) => {
     console.log('Error en la promesa');
     console.log(err);

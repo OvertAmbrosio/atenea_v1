@@ -21,10 +21,12 @@ export const contratas = {
 
 export const ordenes = {
   SUBIR_DATA: 'subirData',
+  ACTUALIZAR_DATA: 'actualizarLiquidadas',
   CRUZAR_DATA: 'cruzarData',
   ORDENES_HOY: 'ordenesHoy',
   BUSCAR_REITERADA: 'buscarReiterada',
-  AGENDAR_ORDEN: 'agendarOrden'
+  AGENDAR_ORDEN: 'agendarOrden',
+  ASIGNAR_ORDEN: 'asignarOrden'
 };
 
 export const asistencias = {

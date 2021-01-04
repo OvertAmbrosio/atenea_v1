@@ -101,7 +101,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
     } else if (tipo === 'subNegocio') {
       if (subNegocioSeleccionado && tecnicosSeleccionados.length > 0) {
         setLoadingAsignarSubNegocio(true);
-        await patchEmpleados(true, { metodo: empleados.ACTUALIZAR_NEGOCIO, subNegocio: subNegocioSeleccionado, tecnicos: tecnicosSeleccionados })
+        await patchEmpleados(true, { metodo: empleados.ACTUALIZAR_SUB_NEGOCIO, subNegocio: subNegocioSeleccionado, tecnicos: tecnicosSeleccionados })
           .then(async() => {
             setTecnicosSeleccionados([]);
             await cargarEmpleados();

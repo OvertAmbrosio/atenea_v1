@@ -77,6 +77,7 @@ export type TBodyUpdateOrden = {
   ordenes?: string[],
   bucket?: string,
   tecnico?: string,
+  auditor?: string,
   gestor?: string,
   contrata?: string,
   fecha_cita?: string,

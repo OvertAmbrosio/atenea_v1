@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
-import { Modal, Table, Typography, Tooltip } from 'antd'
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { Modal, Table, Typography, Tooltip } from 'antd';
 import moment from 'moment';
 
 import { getOrdenes } from '../../../services/apiOrden';

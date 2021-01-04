@@ -29,11 +29,11 @@ export const averias = {
   TELEFONO_REFERENCIA: 'tel_cont_ref_cc',
   NUMERO_REITERADA: 'numaverei',
   TIPO_TECNOLOGIA: 'tiptecnologia',
-  // CODIGO_SEGMENTO: 'codsegmento',
-  // TELEFONO: 'telefono',
-  //detalle
-  // CODIGO_ORDEN: 'codordtrab',
-  // CODIGO_INCIDENCIA: 'codinc',
+  //variables de liquidacion
+  FECHA_LIQUIDADA: 'fec_liquid',
+  TIPO_AVERIA: 'tipave',
+  TECNICO_LIQUIDADO: 'codtecliq',
+  USUARIO_LIQUIDADO: 'codusr'
 };
 
 export const valoresExcelAdministrar = {
@@ -75,4 +75,22 @@ export const listaBuckets = [
     text: 'MA VENEZUELA',
     value: 'BK_VN_MA_VENEZUELA'
   }
+];
+
+export const codigosLiquidadasEfectivas = [
+  '2','3','6','7','10','1C','1D','1H','1I','1N','1P','1Q','1S','1O','1T','1U','1L',
+  'G1','G3','G4','G5','2A','2B','2C','2D','2E','2F','2G','2H',
+  'HC','H0','H1','H2','H3','H4','H5','H6','H8','H9','HA','HB','HC','HD'
+];
+
+export const codigosLiquidadasInefectivas = [
+  '1V','1W','71','77','78','79','7B','7C','7D','7E','7F',
+  '21','93','R1','R2','H7','D1','D2','D3','D4','D5',
+  'S1','S2','S3','S4','S5','S6','Z1'
+];
+
+export const codigosLiquidadasNoCorresponde = [
+  '21','22','23','24','25','26','28','31','32','33','34','35',
+  '41','42','43','47','48','49','51','53','81','82','83','84',
+  '91','92','B8',
 ]

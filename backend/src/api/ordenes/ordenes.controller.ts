@@ -140,42 +140,62 @@ export class OrdenesController {
     };
   };
 
+  @Put()
+  @UseGuards(JwtAuthGuard)
+  async editarOrdenes(@Req() req:Request, @Body('metodo') metodo:string, @Body('ordenes') updateOrdeneDto:UpdateOrdeneDto[]): Promise<TRespuesta> {
+    const user:any = req.user; 
+
+    if (metodo === 'actualizarLiquidadas' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+      return await this.ordenesService.liquidarOrdenes(updateOrdeneDto, user.id).then((data) => {
+        return ({
+          status: 'success',
+          message: `(${data.filter((d) => d).length}) Ordenes actualizadas.`,
+        })
+      }).catch((err) => {
+        this.logger.error({ message: err.message, service: 'editarOrdenes(actualizarLiquidadas)' });
+        return ({
+          status: 'error',
+          message: 'Error actualizando las ordenes.'
+        })
+      });
+    } else {
+      this.logger.error({message: `Usuario: ${user.id} - intentó acceder sin permisos.`, service: 'editarOrdenes'});
+      return({
+        status: 'error',
+        message: 'Metodo incorrecto o permisos insuficientes.'
+      });
+    }
+  };
+
   @Patch()
   @UseGuards(JwtAuthGuard)
   async actualizarOrden(
     @Req() req:Request, 
     @Body() data:TBodyUpdateOrden,
   ): Promise<TRespuesta> {
-    const user:any = req.user;
-
+    const user:any = req.user;    
+    
     if (data.metodo === 'agendarOrden' && user.cargo <= tipos_usuario.LIDER_GESTION) {
       return await this.ordenesService.agendarOrden(data.ordenes, user.id, data.bucket, data.contrata, data.gestor, data.fecha_cita, data.observacion)
-        .then((data) => ({status: 'success', message: 'Ordenes actualizadas correctament.'}))
+        .then((data) => ({status: 'success', message: `(${data.nModified}) Ordenes actualizadas correctamente.`}))
         .catch((err) => {
           this.logger.error({message: err.message, service: 'actualizarOrden(agendarOrden)'})
           return ({status: 'error', message: 'Error actualizando las ordenes.'})
         })
+    } else if (data.metodo === 'asignarOrden' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+      return await this.ordenesService.asignarOrden(data.ordenes, user.id, data.contrata, data.gestor, data.auditor, data.tecnico, data.observacion)
+        .then((data) => ({status: 'success', message: `(${data.nModified}) Ordenes actualizadas correctamente.`}))
+        .catch((err) => {
+          this.logger.error({message: err.message, service: 'actualizarOrden(asignarOrden)'})
+          return ({status: 'error', message: 'Error actualizando las ordenes.'})
+        })
     } else {
-      this.logger.error({message: `Usuario: ${user.id} - intentó acceder sin permisos.`,service: 'getOrdenes(cruzarData)'});
+      this.logger.error({message: `Usuario: ${user.id} - intentó acceder sin permisos.`, service: 'actualizarOrden'});
       return({
         status: 'error',
         message: 'Metodo incorrecto o permisos insuficientes.'
       });
     }
-  }
+  };
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.ordenesService.findOne(+id);
-  // }
-
-  // @Put(':id')
-  // update(@Param('id') id: string, @Body() updateOrdeneDto: UpdateOrdeneDto) {
-  //   return this.ordenesService.update(+id, updateOrdeneDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.ordenesService.remove(+id);
-  // }
 }

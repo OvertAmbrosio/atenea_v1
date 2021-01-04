@@ -21,6 +21,39 @@ export function separarBucket(data=[]) {
   };
 };
 
+export function separarContrata(data=[]) {
+  let contratas = [];
+  if (data && data.length !== 0) {
+    let estados = [];
+    let newData = [];
+    data.forEach((o) => {
+      if (o.contrata && o.contrata.nombre) {
+        if (!contratas.includes(o.contrata.nombre)) contratas.push(o.contrata.nombre)
+      }
+    });
+    data.forEach((o) => !estados.includes(o.estado) ? estados.push(o.estado): null);
+    contratas.forEach((g) => {
+      estados.forEach((e) => {
+        let numOrdenes = data.filter((d) => {
+          if (d.contrata && d.contrata.nombre){
+            return d.contrata.nombre === g && d.estado === e
+          } else {
+            return false;
+          }
+        }).length;
+        newData.push({
+          contrata: g,
+          estado: e,
+          ordenes: numOrdenes,
+        });
+      })
+    });
+    return {ordenes: newData, contratas};
+  } else {
+    return {ordenes: [], contratas} ;
+  };
+};
+
 export function separarGestor(data=[]) {
   let gestores = [];
   if (data && data.length !== 0) {

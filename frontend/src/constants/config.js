@@ -1,7 +1,7 @@
 const variables = {
   // 192.168.100.90
   //https://atenea-v2.herokuapp.com/
-  urlApi: 'https://atenea-v2.herokuapp.com/api',
+  urlApi: 'http://localhost:5000/api',
   public: 'https://atenea-v2.herokuapp.com/',
   socket: 'https://atenea-v2.herokuapp.com/',
   TOKEN_STORAGE_KEY: 'atenea.authToken',

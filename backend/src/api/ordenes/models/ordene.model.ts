@@ -153,13 +153,20 @@ export const OrdenSchema = new Schema({
     type: String,
     trim: true,
     lowercase: true,
-    default: '-'
+    default: 'pendiente'
   },
-  estado_tecnico: {
+  estado_tecnico: {//asignado, enviado, aprobado, rechazado
     type: String,
     trim: true,
     lowercase: true,
     default: '-'
+  },
+  estado_liquidado: {//efectiva, inefectiva
+    type: String,
+    lowercase: true,
+    trim: true,
+    default: '-',
+    enum: ['efectiva', 'inefectiva', 'no_corresponde', '-']
   },
   //datos toa
   bucket: {
@@ -208,10 +215,6 @@ export const OrdenSchema = new Schema({
     trim: true,
     default: '-'
   },
-  orden_devuelta: {
-    type: Boolean,
-    default: false,
-  },
   //datos de asignacion
   tecnico: {
     type: Types.ObjectId,
@@ -228,6 +231,26 @@ export const OrdenSchema = new Schema({
   contrata: {
     type: Types.ObjectId,
     ref: 'Contrata'
+  },
+  //datos de liquidacion
+  tecnico_liquidado: {
+    type: Types.ObjectId,
+    ref: 'Empleado',
+  },
+  fecha_liquidado: {
+    type: Date,
+    default: null,
+  },
+  tipo_averia: {
+    type: String,
+    trim: true,
+    uppercase: true,
+    default: null
+  },
+  codigo_usuario_liquidado: {
+    type: String,
+    trim: true,
+    default: null
   }
 }, {
   timestamps: true

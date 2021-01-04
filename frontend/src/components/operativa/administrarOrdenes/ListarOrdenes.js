@@ -11,8 +11,9 @@ import { ordenes } from '../../../constants/metodos';
 import ModalAgendar from './ModalAgendar';
 import { listaBuckets, valoresExcelAdministrar } from "../../../constants/valoresOrdenes";
 import ModalReiterada from './ModalReiterada';
+import ModalAsignar from './ModalAsignar';
 
-function ListarOrdenes({ gestores, contratas, tipo }) {
+function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const { saveAsCsv } = useJsonToCsv();
   const [ordenesSeleccionadas, setOrdenesSeleccionadas] = useState([]);
@@ -54,8 +55,8 @@ function ListarOrdenes({ gestores, contratas, tipo }) {
   };
 
   async function agendarOrdenes(bucketSeleccionado, contrataSeleccionada, gestorSeleccionado, fechaCita, observacion) {
-    setLoadingAgendar(true);
     if (ordenesSeleccionadas && ordenesSeleccionadas.length > 0) {
+      setLoadingAgendar(true);
       await patchOrdenes({
         metodo: ordenes.AGENDAR_ORDEN, 
         ordenes: ordenesSeleccionadas,
@@ -65,6 +66,17 @@ function ListarOrdenes({ gestores, contratas, tipo }) {
         fecha_cita: fechaCita,
         observacion
       }).then(async() => await listarOrdenes()).catch((err) => console.log(err)).finally(() => setLoadingAgendar(false));
+    }
+  };
+
+  async function asignarOrdenes(data) {
+    if (ordenesSeleccionadas && ordenesSeleccionadas.length > 0) {
+      const auxData = data;
+      setLoadingAsignar(true);
+      abrirModalAsignar();
+      await patchOrdenes({
+        metodo: ordenes.ASIGNAR_ORDEN, ordenes: ordenesSeleccionadas, ...auxData
+      }).then(async() => await listarOrdenes()).catch((err) => console.log(err)).finally(() => setLoadingAsignar(false));
     }
   };
 
@@ -140,7 +152,7 @@ function ListarOrdenes({ gestores, contratas, tipo }) {
       {/* MODAL PARA AGENDAR LA ORDEN */}
       <ModalAgendar visible={modalAgendar} abrir={abrirModalAgendar} buckets={listaBuckets} contratas={contratas} gestores={gestores} agendar={agendarOrdenes}/>
       {/* MODAL PARA ASIGNAR CONTRATA, GESTOR O TECNICO */}
-
+      <ModalAsignar visible={modalAsignar} abrir={abrirModalAsignar} gestores={gestores} tecnicos={tecnicos} asignar={asignarOrdenes}/>
       {/* MODAL PARA BUSCAR LA REITERADA */}
       <ModalReiterada abrir={abrirModalReiterada} visible={modalReiterada} codigo_cliente={codigoCliente}/>
     </div>
@@ -148,8 +160,10 @@ function ListarOrdenes({ gestores, contratas, tipo }) {
 }
 
 ListarOrdenes.propTypes = {
+  contratas: PropTypes.array,
   gestores: PropTypes.array,
-  contratas: PropTypes.array
+  tecnicos: PropTypes.array,
+  tipo: PropTypes.string
 }
 
 export default ListarOrdenes

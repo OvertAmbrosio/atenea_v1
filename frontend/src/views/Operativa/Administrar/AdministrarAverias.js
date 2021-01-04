@@ -59,6 +59,7 @@ export default function AdministrarAverias() {
             >
               <ActualizarOrdenes
                 tipoOrden={averias.TIPO}
+                tecnicos={listaTecnicos}
               />
             </TabPane>
             <TabPane

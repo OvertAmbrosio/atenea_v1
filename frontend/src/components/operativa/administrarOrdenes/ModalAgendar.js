@@ -11,7 +11,7 @@ function ModalAgendar({visible, abrir, buckets=[], contratas=[], gestores=[], ag
   const [gestorSeleccionado, setGestorSeleccionado] = useState(null);
   const [fechaCita, setFechaCita] = useState(null);
   const [observacion, setObservacion] = useState(null);
-  const [loadingAsignar, setLoadingAsignar] = useState(false);
+  const [loadingAgendar, setLoadingAgendar] = useState(false);
 
   useEffect(() => {
     setBucketSeleccionado(null);
@@ -22,9 +22,9 @@ function ModalAgendar({visible, abrir, buckets=[], contratas=[], gestores=[], ag
   }, [])
 
   const agendarOrden = async () => {
-    setLoadingAsignar(true)
+    setLoadingAgendar(true)
     await agendar(bucketSeleccionado, contrataSeleccionada, gestorSeleccionado, fechaCita, observacion);
-    setLoadingAsignar(false);
+    setLoadingAgendar(false);
     abrir();
   };
 
@@ -42,7 +42,7 @@ function ModalAgendar({visible, abrir, buckets=[], contratas=[], gestores=[], ag
         <Button key="back" onClick={abrir}>
           Cancelar
         </Button>,
-        <Button key="submit" type="primary" loading={loadingAsignar} onClick={agendarOrden}>
+        <Button key="submit" type="primary" loading={loadingAgendar} onClick={agendarOrden}>
           Aceptar
         </Button>,
       ]}

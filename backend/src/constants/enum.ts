@@ -49,3 +49,15 @@ export const sub_tipo_negocio = {
   CRITICOS: 'criticos',
   EMPRESAS: 'empresas'
 };
+
+export const estado_gestor = {
+  PENDIENTE: 'pendiente',
+  AGENDADO: 'agendado',
+  ASIGNADO: 'asignado',
+  INICIADO: 'iniciado',
+  LIQUIDADO: 'liquidado',
+  SUSPENDIDO: 'suspendido',
+  MASIVO: 'masivo',
+  PEXT: 'pext',
+  REMEDY: 'remedy',
+};
