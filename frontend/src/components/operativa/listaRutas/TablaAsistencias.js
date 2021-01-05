@@ -40,7 +40,8 @@ export default function TablaAsistencias() {
   const [loadingAsistencia, setLoadingAsistencia] = useState(false);
   const [filtroGestores, setFiltroGestores] = useState([]);
   const [filtroAuditores, setFiltroAuditores] = useState([]);
-  const [rutas, setRutas] = useState({total:0,activas:0});
+  const [rutasAverias, setRutasAverias] = useState({total:0,activas:0});
+  const [rutasAltas, setRutasAltas] = useState({total:0,activas:0});
 
   useEffect(() => {
     generarColumnas();
@@ -52,17 +53,18 @@ export default function TablaAsistencias() {
       setLoadingAsistencia(true);
       await getAsistencias({
         metodo: asistencias.LISTAR_TODO,
-        page: 1,
-        limit: 20,
         fecha_inicio: diaInicio,
         fecha_fin: diaFin
       }).then(async({data}) => {
         return await ordenarAsistencia(data.filter((e) => e.tecnico !== null))
       }).then((resultado) => {
-        setDataAsistencias(resultado);
-        obtenerFiltroId(resultado, 'gestor', true).then((f) => setFiltroGestores(f));
-        obtenerFiltroId(resultado, 'auditor', true).then((f) => setFiltroAuditores(f));
-        rutasAtivas(resultado)
+        if (resultado && resultado.length > 0) {
+          setDataAsistencias(resultado);
+          obtenerFiltroId(resultado, 'gestor', true).then((f) => setFiltroGestores(f));
+          obtenerFiltroId(resultado, 'auditor', true).then((f) => setFiltroAuditores(f));
+          setRutasAverias(rutasAtivas(resultado.filter((e) => e.tipo_negocio === 'averias')))
+          setRutasAltas(rutasAtivas(resultado.filter((e) => e.tipo_negocio === 'altas')))
+        }
       }).catch((err) => console.log(err)).finally(() => setLoadingAsistencia(false));
     };
   };
@@ -109,7 +111,7 @@ export default function TablaAsistencias() {
           }
         },
         width: 250,
-        render: (e) => e.nombre ? e.nombre : '-'
+        render: (e) => e.nombre ? e.nombre + ' ' + e.apellidos : '-'
       }, {
         title: 'Auditor',
         dataIndex: 'auditor',
@@ -122,7 +124,7 @@ export default function TablaAsistencias() {
           }
         },
         width: 250,
-        render: (e) => e.nombre ? e.nombre : '-'
+        render: (e) => e.nombre ? e.nombre + ' ' + e.apellidos : '-'
       }, {
         title: 'En Ruta',
         dataIndex: hoy,
@@ -189,7 +191,7 @@ export default function TablaAsistencias() {
         }
       });
     };
-    setRutas({total, activas})
+    return ({total, activas})
   };
 
   return (
@@ -210,11 +212,18 @@ export default function TablaAsistencias() {
             value={diaInicio && diaFin ? `${moment(diaInicio).format('DD-MM')} / ${moment(diaFin).format('DD-MM')}`:'-'}
           />
         </Col>
+        <Col sm={6} style={{ marginBottom: '1rem', marginRight: '.5rem' }}>
+          <Statistic 
+            title="Rutas Activas (Averias)" 
+            value={rutasAverias.activas} 
+            suffix={`/ ${rutasAverias.total}`}
+          />
+        </Col>
         <Col>
           <Statistic 
-            title="Rutas Activas (Hoy)" 
-            value={rutas.activas} 
-            suffix={`/ ${rutas.total}`}
+            title="Rutas Activas (Altas)" 
+            value={rutasAltas.activas} 
+            suffix={`/ ${rutasAltas.total}`}
           />
         </Col>
       </Row>

@@ -26,15 +26,19 @@ export default async function ordenarAsistencia(data=[]) {
             let field = moment(obj.createdAt).format('DD-MM');
             const objetoNuevo = {
               _id: obj._id,
+              tipo_negocio: obj.tecnico.tipo_negocio,
+              sub_tipo_negocio: obj.tecnico.sub_tipo_negocio,
               nombre: obj.tecnico.nombre,
               apellidos: obj.tecnico.apellidos,
               gestor: {
-                nombre: obj.tecnico.gestor !== undefined && obj.tecnico.gestor !== null ? obj.tecnico.gestor.nombre + ' ' + obj.tecnico.gestor.apellidos: '-',
-                _id: obj.tecnico.gestor !== undefined && obj.tecnico.gestor !== null ? obj.tecnico.gestor._id: '-',
+                nombre: obj.tecnico.gestor ? obj.tecnico.gestor.nombre : '-',
+                apellidos: obj.tecnico.gestor ? obj.tecnico.gestor.apellidos: '-',
+                _id: obj.tecnico.gestor ? obj.tecnico.gestor._id: '-',
               },
               auditor: {
-                nombre: obj.tecnico.auditor !== undefined ? obj.tecnico.auditor.nombre + ' ' + obj.tecnico.auditor.apellidos: '-',
-                _id: obj.tecnico.auditor !== undefined ? obj.tecnico.auditor._id: '-',
+                nombre: obj.tecnico.auditor ? obj.tecnico.auditor.nombre : '-',
+                apellidos: obj.tecnico.auditor ? obj.tecnico.auditor.apellidos: '-',
+                _id: obj.tecnico.auditor ? obj.tecnico.auditor._id: '-',
               },
               observacion: obj.observacion,
               [field]: {
@@ -50,15 +54,19 @@ export default async function ordenarAsistencia(data=[]) {
           let field = moment(obj.createdAt).format('DD-MM');
           nuevoArray = [{
             _id: obj._id,
+            tipo_negocio: obj.tecnico.tipo_negocio,
+            sub_tipo_negocio: obj.tecnico.sub_tipo_negocio,
             nombre: obj.tecnico.nombre,
             apellidos: obj.tecnico.apellidos,
             gestor: {
-              nombre: obj.tecnico.gestor !== undefined ? obj.tecnico.gestor.nombre + ' ' + obj.tecnico.gestor.apellidos: '-',
-              _id: obj.tecnico.gestor !== undefined ? obj.tecnico.gestor._id: '-',
+              nombre: obj.tecnico.gestor ? obj.tecnico.gestor.nombre : '-',
+              apellidos: obj.tecnico.gestor ? obj.tecnico.gestor.apellidos: '-',
+              _id: obj.tecnico.gestor ? obj.tecnico.gestor._id: '-',
             },
             auditor: {
-              nombre: obj.tecnico.auditor !== undefined ? obj.tecnico.auditor.nombre + ' ' + obj.tecnico.auditor.apellidos: '-',
-              _id: obj.tecnico.auditor !== undefined ? obj.tecnico.auditor._id: '-',
+              nombre: obj.tecnico.auditor ? obj.tecnico.auditor.nombre: '-',
+              apellidos: obj.tecnico.auditor ? obj.tecnico.auditor.apellidos: '-',
+              _id: obj.tecnico.auditor ? obj.tecnico.auditor._id: '-',
             },
             observacion: obj.observacion,
             [field]: {

@@ -9,6 +9,7 @@ function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccion
   const [filtroDistrito, setFiltroDistrito] = useState([]);
   const [filtroBucket, setFiltroBucket] = useState([]);
   const [filtroEstadoToa, setFiltroEstadoToa] = useState([]);
+  const [filtroEstadoGestor, setFiltroEstadoGestor] = useState([])
   const [filtroContrata, setFiltroContrata] = useState([]);
   const [filtroGestor, setFiltroGestor] = useState([]);
 
@@ -17,6 +18,7 @@ function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccion
       obtenerFiltroNombre(data, 'distrito').then((f) => setFiltroDistrito(f));
       obtenerFiltroNombre(data, 'bucket').then((f) => setFiltroBucket(f));
       obtenerFiltroNombre(data, 'estado_toa').then((f) => setFiltroEstadoToa(f));
+      obtenerFiltroNombre(data, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
       obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f));
       obtenerFiltroId(data, 'gestor', true).then((f) => setFiltroGestor(f));
     };
@@ -35,7 +37,7 @@ function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccion
         selectedRowKeys: ordenesSeleccionadas,
         onChange: (e) => setOrdenesSeleccionadas(e)
       }}
-      columns={columnasAverias(filtroDistrito,filtroBucket,filtroEstadoToa,filtroContrata,filtroGestor, abrirReiterada)}
+      columns={columnasAverias(filtroDistrito,filtroBucket,filtroEstadoToa,filtroEstadoGestor,filtroContrata,filtroGestor, abrirReiterada)}
       dataSource={data}
       loading={loading}
       size="small"

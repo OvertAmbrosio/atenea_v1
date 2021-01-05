@@ -64,7 +64,7 @@ export class AsistenciaService {
             { createdAt: { $gte: hoy } }
           ]
         }, { iniciado: true, fecha_iniciado: new Date() }).then((data) => {
-          console.log('rutas cruzadas')
+          console.log('rutas cruzadas - ', new Date())
           return data;
         });
       };
@@ -97,7 +97,7 @@ export class AsistenciaService {
       createdAt: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) }
     }).populate({
       path: 'tecnico',
-      select: 'nombre apellidos contrata gestor',
+      select: 'nombre apellidos contrata gestor tipo_negocio sub_tipo_negocio',
       populate: [{
         path: 'contrata',
         select: 'nombre'

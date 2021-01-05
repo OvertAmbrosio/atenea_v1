@@ -16,6 +16,8 @@ export default function HeaderEmpleados(abrirModalCrear, listarEmpleado, setEmpl
             setEmpleados(data)
             setPageNumber(1)
             setTotalDocs(data.length)
+          } else {
+            setEmpleados([]);
           };
         })
         .catch((err) => console.log(err))

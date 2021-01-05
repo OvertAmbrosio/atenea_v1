@@ -1,12 +1,13 @@
 import React from 'react';
 import { Tag, Tooltip, Typography } from 'antd';
+import { PlusCircleTwoTone } from '@ant-design/icons'
 import moment from 'moment';
 
 import TagEstado from './TagEstado';
 
 const { Text } = Typography;
 
-export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtroEstadoToa=[],filtroContrata=[], filtroGestor=[], abrirReiterada) {
+export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtroEstadoToa=[],filtroEstadoGestor=[],filtroContrata=[], filtroGestor=[], abrirReiterada) {
 
   return [
     {
@@ -96,6 +97,8 @@ export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtro
       dataIndex: 'estado_gestor',
       width: 150,
       align: 'center',
+      filters: filtroEstadoGestor ? filtroEstadoGestor : [],
+      onFilter: (v,r) => r.estado_gestor.indexOf(v) === 0,
       render: (e) => <TagEstado estado={e}/>
     },
     {
@@ -202,6 +205,22 @@ export default function columnasAverias(filtroDistrito=[],filtroBucket=[],filtro
           return <Tag>-</Tag>
         }
       }
+    },
+    {
+      title: 'Acciones',
+      dataIndex: '_id',
+      width: 150,
+      align: 'center',
+      render: (id, row) => (
+        <div>
+          <PlusCircleTwoTone
+            style={{ fontSize: '1.5rem', marginRight: '.5rem' }}
+          />
+          <PlusCircleTwoTone
+            style={{ fontSize: '1.5rem' }}
+          />
+        </div>
+      )
     }
   ]
 };
