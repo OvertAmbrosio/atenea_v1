@@ -2,6 +2,7 @@ export const averias = {
   TIPO: 'averiashfc',
   CODIGO_ZONAL: 'codofcadm',
   CODIGO_REQUERIMIENTO: 'codreq',
+  CODIGO_REQUERIMIENTO_2: 'codreqatn',
   CODIGO_CLIENTE: 'codcli',
   NOMBRE_CLIENTE: 'nomcli',
   CODIGO_CTR: 'codctr',
@@ -34,6 +35,29 @@ export const averias = {
   TIPO_AVERIA: 'tipave',
   TECNICO_LIQUIDADO: 'codtecliq',
   USUARIO_LIQUIDADO: 'codusr'
+};
+
+export const altas = {
+  TIPO: 'altashfc',
+  CODIGO_REQUERIMIENTO: 'codreq',
+  CODIGO_REQUERIMIENTO_2: 'codreqatn',
+  CODIGO_CLIENTE: 'codcli',
+  CODIGO_TRABAJO: 'codordtrab',
+  CODIGO_CTR: 'codctr',
+  DESCRIPCION_CTR: 'desnomctr',
+  CODIGO_SEGMENTO: 'codsegmento',
+  TIPO_REQUERIMIENTO: 'tipreq',
+  CODIGO_MOTIVO: 'codmotv',
+  DETALLE_MOTIVO: 'desmotv',
+  DETALLE_TRABAJO: 'desobsordtrab',
+  FECHA_REGISTRO: 'fechorreg',
+  CODIGO_NODO: 'codnod',
+  CODIGO_TROBA: 'nroplano',
+  DISTRITO: 'desdtt',
+  INDICADOR_PAI: 'indpai',
+  TELEFONO_CONTACTO: 'telefono_voip',
+  TIPO_TECNOLOGIA: 'tiptecnologia',
+  MOVISTAR_TOTAL: 'movistar_total'
 };
 
 export const valoresExcelAdministrar = {
@@ -93,4 +117,4 @@ export const codigosLiquidadasNoCorresponde = [
   '21','22','23','24','25','26','28','31','32','33','34','35',
   '41','42','43','47','48','49','51','53','81','82','83','84',
   '91','92','B8',
-]
+];

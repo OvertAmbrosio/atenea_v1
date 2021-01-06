@@ -15,14 +15,14 @@ export async function pendientesAverias(ordenes=[]){
 
     if (isEmpty(orden[averias.TELEFONO])) {verificado = false}
     if (isEmpty(String(orden[averias.DISTRITO]).trim())) {verificado = false}
-    if (isNaN(orden[averias.CODIGO_REQUERIMIENTO])) {verificado = false}
+    if (isNaN(orden[averias.CODIGO_REQUERIMIENTO]) && isNaN(orden[averias.CODIGO_REQUERIMIENTO_2])) {verificado = false}
 
     return ({
       key: indice,
       verificado,
       tipo: averias.TIPO,
       codigo_zonal: orden[averias.CODIGO_ZONAL] !== undefined && orden[averias.CODIGO_ZONAL],
-      codigo_requerimiento : orden[averias.CODIGO_REQUERIMIENTO] !== undefined && orden[averias.CODIGO_REQUERIMIENTO],
+      codigo_requerimiento : orden[averias.CODIGO_REQUERIMIENTO] !== undefined ? orden[averias.CODIGO_REQUERIMIENTO] : orden[averias.CODIGO_REQUERIMIENTO_2] !== undefined ? orden[averias.CODIGO_REQUERIMIENTO_2] : null,
       codigo_cliente: orden[averias.CODIGO_CLIENTE] !== undefined && orden[averias.CODIGO_CLIENTE],
       nombre_cliente: orden[averias.NOMBRE_CLIENTE] !== undefined && orden[averias.NOMBRE_CLIENTE],
       codigo_ctr: orden[averias.CODIGO_CTR] !== undefined && orden[averias.CODIGO_CTR],
@@ -68,7 +68,7 @@ export async function liquidadasAverias(ordenes=[], tecnicos=[]){
     let inEfectivas = codigosLiquidadasInefectivas.includes(orden[averias.TIPO_AVERIA]);
     let noCorresponde = codigosLiquidadasNoCorresponde.includes(orden[averias.TIPO_AVERIA]);
 
-    if (isNaN(orden[averias.CODIGO_REQUERIMIENTO])) { verificado = false};
+    if (isNaN(orden[averias.CODIGO_REQUERIMIENTO]) && isNaN(orden[averias.CODIGO_REQUERIMIENTO_2])) { verificado = false};
     if (String(orden[averias.TECNICO_LIQUIDADO]).trim().length === 6) {
       let iTecnico = tecnicos.findIndex((t) => t.carnet === orden[averias.TECNICO_LIQUIDADO]);
       tecnico = tecnicos[iTecnico]._id;
@@ -77,7 +77,7 @@ export async function liquidadasAverias(ordenes=[], tecnicos=[]){
     return ({
       key: indice,
       verificado,
-      codigo_requerimiento: orden[averias.CODIGO_REQUERIMIENTO],
+      codigo_requerimiento: orden[averias.CODIGO_REQUERIMIENTO] ? orden[averias.CODIGO_REQUERIMIENTO] : orden[averias.CODIGO_REQUERIMIENTO_2],
       fecha_liquidado: !isNaN(Number(orden[averias.FECHA_LIQUIDADA])) && numeroFecha(orden[averias.FECHA_LIQUIDADA]),
       tecnico_liquidado: tecnico,
       tipo_averia: orden[averias.TIPO_AVERIA] !== undefined && orden[averias.TIPO_AVERIA],
