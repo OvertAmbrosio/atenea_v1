@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
 import { Table } from 'antd';
 
-import columnasAverias from './columnasAverias'
+import columnasOrdenes from './columnasOrdenes'
 import { obtenerFiltroId, obtenerFiltroNombre } from '../../../libraries/obtenerFiltro';
 
-function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada }) {
+function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirDetalle, abrirDevolver }) {
   const [filtroDistrito, setFiltroDistrito] = useState([]);
   const [filtroBucket, setFiltroBucket] = useState([]);
   const [filtroEstadoToa, setFiltroEstadoToa] = useState([]);
@@ -27,17 +27,29 @@ function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccion
   return (
     <Table
       rowKey="_id"
-      onRow={(record) => {
-        return {
-          onDoubleClick: () => console.log(record)
-        }
-      }}
+      // onRow={(record) => {
+      //   return {
+      //     onDoubleClick: () => console.log(record)
+      //   }
+      // }}
       rowSelection={{
         columnWidth: 50,
         selectedRowKeys: ordenesSeleccionadas,
         onChange: (e) => setOrdenesSeleccionadas(e)
       }}
-      columns={columnasAverias(filtroDistrito,filtroBucket,filtroEstadoToa,filtroEstadoGestor,filtroContrata,filtroGestor, abrirReiterada)}
+      columns={columnasOrdenes(
+        tipo, 
+        filtroDistrito,
+        filtroBucket,
+        filtroEstadoToa,
+        filtroEstadoGestor,
+        filtroContrata,
+        filtroGestor, 
+        abrirReiterada, 
+        abrirInfancia,
+        abrirDetalle,
+        abrirDevolver)
+      }
       dataSource={data}
       loading={loading}
       size="small"
@@ -51,11 +63,13 @@ function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccion
 };
 
 TablaOrdenes.propTypes = {
+  tipo: PropTypes.string,
   data: PropTypes.array,
   loading: PropTypes.bool,
   ordenesSeleccionadas: PropTypes.array,
   setOrdenesSeleccionadas: PropTypes.func,
-  abrirReiterada: PropTypes.func
+  abrirReiterada: PropTypes.func,
+  abrirDetalle: PropTypes.func
 };
 
 export default TablaOrdenes

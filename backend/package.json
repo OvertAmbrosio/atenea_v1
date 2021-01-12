@@ -1,8 +1,8 @@
 {
   "name": "backend",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
-  "author": "",
+  "author": "Overt Ambrosio",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -41,6 +41,7 @@
     "cache-manager": "^3.4.0",
     "cache-manager-redis-store": "^2.0.0",
     "class-validator": "^0.12.2",
+    "cloudinary": "^1.23.0",
     "compression": "^1.7.4",
     "express-rate-limit": "^5.2.3",
     "helmet": "^4.2.0",

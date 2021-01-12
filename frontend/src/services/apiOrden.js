@@ -1,7 +1,7 @@
 import { restPrivate } from './requestHelper';
 
-export const getOrdenes = async (toast, {metodo, tipo, codigo_cliente}) => restPrivate({
-  url: 'ordenes', method: 'GET', params: {metodo, tipo, codigo_cliente}
+export const getOrdenes = async (toast, {metodo, tipo, codigo_cliente, id}) => restPrivate({
+  url: 'ordenes', method: 'GET', params: {metodo, tipo, codigo_cliente, id}
 }, toast);
 
 /**
@@ -19,5 +19,14 @@ export const putOrdenes = async ({metodo, ordenes}) => restPrivate({
 },true);
 
 export const patchOrdenes = async ({metodo, ordenes, bucket, tecnico, auditor, gestor, contrata, fecha_cita, estado, observacion}) => restPrivate({
-  url: 'ordenes', method: 'PATCH', data: { metodo, ordenes, bucket, tecnico, auditor, gestor, contrata, fecha_cita, estado, observacion}
+  url: 'ordenes', 
+  method: 'PATCH', 
+  data: { metodo, ordenes, bucket, tecnico, auditor, gestor, contrata, fecha_cita, estado, observacion}
 },true);
+
+export const patchFilesOrdenes = async (data) => restPrivate({
+  url: 'ordenes', 
+  method: 'PATCH', 
+  data, 
+  headers: { 'Content-Type': 'multipart/form-data' }
+}, true)

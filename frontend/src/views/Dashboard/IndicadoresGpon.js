@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react';
+import { Switch } from 'antd';
+import cogoToast from 'cogo-toast';
 
 import TituloContent from '../../components/common/TituloContent';
 import Contenedor from '../../components/common/Contenedor';
@@ -7,11 +9,12 @@ import IndicadorContrata from '../../components/dashboard/IndicadorContrata';
 import IndicadorGestor from '../../components/dashboard/IndicadorGestor';
 import IndicadorDevoluciones from '../../components/dashboard/IndicadorDevoluciones';
 import variables from '../../constants/config';
-import cogoToast from 'cogo-toast';
 
 export default function Dashboard() {
   const [averias, setAverias] = useState([]);
   const [altas, setAltas] = useState([]);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [idInterval, setIdInterval] = useState('');
   const socket = window.io(variables.socket, { transports: ['websocket'], secure: true, reconnection: true });
   const indicadorRef1 = useRef(null);
   const indicadorRef2 = useRef(null);
@@ -22,13 +25,12 @@ export default function Dashboard() {
   const indicadorRef7 = useRef(null);
 
   useEffect(() => {
-    scrollAutomatico();
     socket.on('connect', function() {
       socket.on('ordenesGraficos', ({averias, altas}) => {
         const jsonAverias = new Array(JSON.parse(averias));
         const jsonAltas = new Array(JSON.parse(altas));
-        if(jsonAverias && jsonAverias[0].length > 0) setAverias(jsonAverias[0]);
-        if(jsonAltas && jsonAltas[0].length > 0) setAltas(jsonAltas[0]);
+        if(jsonAverias && jsonAverias[0] && jsonAverias[0].length > 0) setAverias(jsonAverias[0]);
+        if(jsonAltas && jsonAltas[0] && jsonAltas[0].length > 0) setAltas(jsonAltas[0]);
       });
       socket.emit('obtenerOrdenes')
     });
@@ -40,6 +42,15 @@ export default function Dashboard() {
     // eslint-disable-next-line
   },[]);
 
+  useEffect(() => {
+    if (autoScroll) {
+      scrollAutomatico();
+    } else {
+      clearInterval(idInterval);
+    }
+  // eslint-disable-next-line
+  },[autoScroll])
+
   const executeScroll = (number) => {
     let arrayRefs = [indicadorRef1,indicadorRef2,indicadorRef3,indicadorRef4,indicadorRef5,indicadorRef6,indicadorRef7];
     if(arrayRefs[number].current) arrayRefs[number].current.scrollIntoView({block: 'center', behavior: 'smooth'})
@@ -47,7 +58,7 @@ export default function Dashboard() {
 
   const scrollAutomatico = () => {
     let i = 0;
-    setInterval(() => {
+    let id = setInterval(() => {
       executeScroll(i);
       if (i === 6) {
         i = 0;
@@ -55,12 +66,16 @@ export default function Dashboard() {
         i= i+1
       }
     }, 30000);
+
+    setIdInterval(id);
   }
 
   return (
     <div>
       <TituloContent titulo="Indicadores GPON" subtitulo="Dashboard"/>
       <Contenedor>
+        <p style={{ marginTop: '1rem' }}>Cambiar Automaticamente:</p>
+        <Switch checked={autoScroll} onChange={(e) => setAutoScroll(e)}/>
         {/* INDICADOR AVERIAS GPON */}
         <div ref={indicadorRef1}>
           <IndicadorBucket data={averias} titulo="Indicador Averias GPON" tipo="averias" tecnologia={true}/>

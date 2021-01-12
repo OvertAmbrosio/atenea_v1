@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
-import { Button, Col, Row, Statistic, Typography } from "antd";
+import { Button, Col, Empty, Row, Statistic, Typography } from "antd";
 import moment from 'moment';
 import { useJsonToCsv } from 'react-json-csv';
 
@@ -10,7 +10,7 @@ import { separarBucket } from "../../libraries/separarField";
 
 const { Title } = Typography;
 
-function IndicadorBucket({data, titulo, tipo, tecnologia}) {
+function IndicadorBucket({data=[], titulo, tipo, tecnologia}) {
   const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
@@ -47,6 +47,15 @@ function IndicadorBucket({data, titulo, tipo, tecnologia}) {
       setLoadingOrdenes(false)
     })
   };
+
+  if (data.length <= 0 ) {
+    return (
+      <div>
+        <Title level={2} style={{ marginTop: '1rem' }}>{titulo} / Actualizado: - </Title>
+        <Empty style={{ margin: '5rem' }}/>
+      </div>
+    )
+  }
 
   return (
     <div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs } from 'antd';
 import { CloudUploadOutlined, CheckCircleOutlined, ScheduleOutlined } from '@ant-design/icons'
 
-import { altas } from '../../../constants/valoresOrdenes';
+import { tipoOrdenes } from '../../../constants/tipoOrden';
 import { empleados, contratas } from '../../../constants/metodos';
 import { getEmpleados } from '../../../services/apiEmpleado';
 import { getContratas } from '../../../services/apiContrata';
@@ -45,7 +45,7 @@ export default function AdministrarAltas() {
 
   return (
     <div>
-      <TituloContent titulo="Administrar Ordenes" subtitulo="Operativa"/>
+      <TituloContent titulo="Administrar Altas Hfc" subtitulo="Operativa"/>
         <Contenedor>
           <Tabs style={{paddingLeft: '1rem'}} animated={false}>
             <TabPane
@@ -58,7 +58,7 @@ export default function AdministrarAltas() {
               key="1"
             >
               <ActualizarOrdenes
-                tipoOrden={altas.TIPO}
+                tipoOrden={tipoOrdenes.ALTAS}
                 tecnicos={listaTecnicos}
               />
             </TabPane>
@@ -75,7 +75,7 @@ export default function AdministrarAltas() {
                 contratas={listaContratas}
                 gestores={listaGestores}
                 tecnicos={listaTecnicos}
-                tipo={altas.TIPO}
+                tipo={tipoOrdenes.ALTAS}
               />
             </TabPane>
             <TabPane

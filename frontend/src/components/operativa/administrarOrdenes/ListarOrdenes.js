@@ -1,30 +1,48 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
-import { Button } from 'antd';
-import { CloudSyncOutlined, ScheduleOutlined, LoadingOutlined, ReloadOutlined, UserSwitchOutlined, ExportOutlined } from '@ant-design/icons';
+import { Button, Input } from 'antd';
+import { CloudSyncOutlined, ScheduleOutlined, LoadingOutlined, ReloadOutlined, UserSwitchOutlined, ExportOutlined, FileSyncOutlined } from '@ant-design/icons';
 import { useJsonToCsv } from 'react-json-csv';
 import moment from 'moment'
 
 import TablaOrdenes from './TablaOrdenes';
-import { getOrdenes, patchOrdenes } from '../../../services/apiOrden';
+import { getOrdenes, patchOrdenes, patchFilesOrdenes } from '../../../services/apiOrden';
 import { ordenes } from '../../../constants/metodos';
 import ModalAgendar from './ModalAgendar';
 import { listaBuckets, valoresExcelAdministrar } from "../../../constants/valoresOrdenes";
 import ModalReiterada from './ModalReiterada';
 import ModalAsignar from './ModalAsignar';
+import ModalEstado from './ModalEstado';
+import ModalDetalle from './ModalDetalle';
+import ModalInfancia from './ModalInfancia';
+import ModalDevolver from './ModalDevolver';
+
+const { Search } = Input;
 
 function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
+  const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
+  const [dataRegistros, setDataRegistros] = useState([]);
+  const [dataInfancia, setDataInfancia] = useState([]);
   const { saveAsCsv } = useJsonToCsv();
   const [ordenesSeleccionadas, setOrdenesSeleccionadas] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
   const [loadingCruzar, setLoadingCruzar] = useState(false);
   const [loadingAgendar, setLoadingAgendar] = useState(false);
   const [loadingAsignar, setLoadingAsignar] = useState(false);
+  const [loadingEstado, setLoadingEstado] = useState(false);
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
+  const [loadingInfancia, setLoadingInfancia] = useState(false);
+  const [loadingDevolver, setLoadingDevolver] = useState(false);
   const [modalAgendar, setModalAgendar] = useState(false);
   const [modalAsignar, setModalAsignar] = useState(false);
   const [modalReiterada, setModalReiterada] = useState(false);
+  const [modalInfancia, setModalInfancia] = useState(false);
+  const [modalEstado, setModalEstado] = useState(false);
+  const [modalDetalle, setModalDetalle] = useState(false);
+  const [modalDevolver, setModalDevolver] = useState(false);
   const [codigoCliente, setCodigoCliente] = useState(null);
+  const [idOrden, setIdOrden] = useState(null);
 
   useEffect(() => {
     listarOrdenes();
@@ -37,9 +55,30 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
     await getOrdenes(true, { metodo: ordenes.ORDENES_HOY, tipo })
       .then(({data}) => {
         if (data && data.length > 0) {
+          setTotalOrdenes(data);
           setDataOrdenes(data);
         }
       }).catch((err) => console.log(err)).finally(() => setLoadingOrdenes(false));
+  };
+
+  async function buscarInfancia(id_orden) {
+    setLoadingInfancia(true);
+    await getOrdenes( true, { metodo: ordenes.BUSCAR_INFANCIA, id: id_orden })
+      .then(({data}) => {
+        if (data && data._id ) {
+          setDataInfancia([data]);
+        }
+      }).catch((err) => console.log(err)).finally(() => setLoadingInfancia(false));
+  };
+
+  async function buscarRegistro(id_orden) {
+    setLoadingDetalle(true);
+    await getOrdenes( true, { metodo: ordenes.BUSCAR_REGISTROS, id: id_orden })
+      .then(({data}) => {
+        if (data && data.length > 0) {
+          setDataRegistros(data);
+        }
+      }).catch((err) => console.log(err)).finally(() => setLoadingDetalle(false));
   };
 
   async function sincronizarData() {
@@ -80,6 +119,52 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
     }
   };
 
+  async function actualizarEstado(estado, observacion, files=[]) {
+    if (ordenesSeleccionadas && ordenesSeleccionadas.length > 0) {
+      let orden_imagen = new FormData();
+      orden_imagen.append('metodo', ordenes.ACTUALIZAR_ESTADO);
+      orden_imagen.append('ordenes', ordenesSeleccionadas);
+      orden_imagen.append('estado', estado);
+      orden_imagen.append('observacion', observacion);
+      files.forEach((f) => {
+        orden_imagen.append('files', f);
+      });
+
+      setLoadingEstado(true);
+      abrirModalEstado();
+      await patchFilesOrdenes(orden_imagen)
+        .then(async() => await listarOrdenes())
+        .catch((err) => console.log(err))
+        .finally(() => setLoadingEstado(false));
+    }
+  };
+
+  async function devolverOrden(observacion, files=[]) {
+    if (idOrden) {
+      let orden_imagen = new FormData();
+      orden_imagen.append('metodo', ordenes.DEVOLVER_ORDEN);
+      orden_imagen.append('id', idOrden);
+      orden_imagen.append('observacion', observacion);
+      files.forEach((f) => {
+        orden_imagen.append('files', f);
+      });
+
+      setLoadingDevolver(true);
+      await patchFilesOrdenes(orden_imagen)
+        .then(async() => await listarOrdenes())
+        .catch((err) => console.log(err))
+        .finally(() => setLoadingDevolver(false));
+    }
+  };
+
+  function buscarRequerimiento(e) {
+    if (e && e.length > 1) {
+      setDataOrdenes(totalOrdenes.filter((o) => String(o.codigo_requerimiento).includes(e)))
+    } else {
+      setDataOrdenes(totalOrdenes);
+    }
+  }
+
   function exportarExcel() {
     if (dataOrdenes && dataOrdenes.length > 0) {
       return saveAsCsv({ 
@@ -103,10 +188,29 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
   const abrirModalAgendar = () => setModalAgendar(!modalAgendar);
   const abrirModalAsignar = () => setModalAsignar(!modalAsignar);
   const abrirModalReiterada = () => setModalReiterada(!modalReiterada);
-
+  const abrirModalInfancia = () => setModalInfancia(!modalInfancia);
+  const abrirModalEstado = () => setModalEstado(!modalEstado);
+  const abrirModalDetalle = () => setModalDetalle(!modalDetalle);
+  const abrirModalDevolver = () => setModalDevolver(!modalDevolver);
+ 
   const abrirReiterada = (c) => {
     setCodigoCliente(c);
     abrirModalReiterada();
+  };
+
+  const abrirInfancia = async (id) => {
+    abrirModalInfancia();
+    await buscarInfancia(id);
+  };
+
+  const abrirDetalle = async (id) => {
+    abrirModalDetalle();
+    await buscarRegistro(id);
+  };
+
+  const abrirDevolver = (id) => {
+    setIdOrden(id);
+    abrirModalDevolver();
   };
 
   return (
@@ -136,6 +240,18 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
           onClick={abrirModalAsignar}
         >Asignar</Button>
         <Button 
+          icon={loadingEstado ? <LoadingOutlined spin/>:<FileSyncOutlined/>}
+          style={{ marginBottom: '1rem', marginRight: '.5rem' }}
+          disabled={ordenesSeleccionadas.length === 0}
+          onClick={abrirModalEstado}
+        >Estado</Button>
+        <Search 
+          placeholder="Requerimiento..." 
+          onSearch={buscarRequerimiento} 
+          style={{ width: 180, marginRight: '.5rem' }} 
+          allowClear 
+        />
+        <Button 
           icon={<ExportOutlined/>}
           style={{ marginBottom: '1rem', marginRight: '.5rem' }}
           disabled={!dataOrdenes || dataOrdenes.length === 0}
@@ -143,18 +259,30 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
         >Exportar</Button>
       </div>
       <TablaOrdenes 
+        tipo={tipo}
         data={dataOrdenes} 
         loading={loadingOrdenes} 
         ordenesSeleccionadas={ordenesSeleccionadas} 
         setOrdenesSeleccionadas={setOrdenesSeleccionadas}
         abrirReiterada={abrirReiterada}
+        abrirInfancia={abrirInfancia}
+        abrirDetalle={abrirDetalle}
+        abrirDevolver={abrirDevolver}
       />
       {/* MODAL PARA AGENDAR LA ORDEN */}
       <ModalAgendar visible={modalAgendar} abrir={abrirModalAgendar} buckets={listaBuckets} contratas={contratas} gestores={gestores} agendar={agendarOrdenes}/>
       {/* MODAL PARA ASIGNAR CONTRATA, GESTOR O TECNICO */}
       <ModalAsignar visible={modalAsignar} abrir={abrirModalAsignar} gestores={gestores} tecnicos={tecnicos} asignar={asignarOrdenes}/>
+      {/* MODAL PARA ACTUALIZAR EL ESTADO_GESTOR DE LA ORDEN */}
+      <ModalEstado visible={modalEstado} abrir={abrirModalEstado} actualizarEstado={actualizarEstado} />
       {/* MODAL PARA BUSCAR LA REITERADA */}
-      <ModalReiterada abrir={abrirModalReiterada} visible={modalReiterada} codigo_cliente={codigoCliente}/>
+      <ModalReiterada visible={modalReiterada} abrir={abrirModalReiterada} codigo_cliente={codigoCliente}/>
+      {/* MODAL PARA BUSCAR LA INFANCIA */}
+      <ModalInfancia visible={modalInfancia} abrir={abrirModalInfancia} loading={loadingInfancia} orden={dataInfancia} />
+      {/* MODAL DETALLE PARA VER EL HISTORIAL DE CAMBIOS */}
+      <ModalDetalle visible={modalDetalle} abrir={abrirModalDetalle} loading={loadingDetalle} registros={dataRegistros}/>
+      {/* MODAL PARA DEVOLVER LA ORDEN */}
+      <ModalDevolver visible={modalDevolver} abrir={abrirModalDevolver} loading={loadingDevolver} devolverOrden={devolverOrden} />
     </div>
   )
 }

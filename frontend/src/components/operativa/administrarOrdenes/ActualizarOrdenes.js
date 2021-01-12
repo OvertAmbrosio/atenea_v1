@@ -66,7 +66,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
         setEstadoArchivo('done');
         setOrdenesObtenidas(data.filter((e) => e.verificado));
         cogoToast.success(`${data.length} Ordenes encontradas.`, {position: 'top-right'});
-      });
+      }).catch((err) => console.log(err, 'Error asignando valores'));
     }).catch((err) => {
       setEstadoArchivo('error');
       cogoToast.error('Error convirtiendo el archivo', {position: 'top-right'})

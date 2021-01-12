@@ -10,7 +10,6 @@ import { cache_keys } from 'src/config/variables';
 import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
 import { IOrden } from './interfaces/ordene.interface';
-import { IEmpleado } from '../empleados/interfaces/empleados.interface';
 import { estado_gestor, tipos_orden } from 'src/constants/enum';
 
 import { OrdenesGateway } from './ordenes.gateway';
@@ -22,7 +21,6 @@ const estadosToa = ['pendiente','iniciado'];
 export class OrdenesService {
   constructor (
     @InjectModel('Ordene') private readonly ordenModel: PaginateModel<IOrden>,
-    @InjectModel('Empleado') private readonly empleadoModel: Model<IEmpleado>,
     private readonly redisService: RedisService,
     private readonly ordenesGateway: OrdenesGateway,
     private httpService: HttpService,
@@ -48,43 +46,71 @@ export class OrdenesService {
   async subirData(createOrdenesDto:CreateOrdeneDto[], usuario:string):Promise<TRespuesta> {
     const registroOrdenes:THistorial = {
       usuario_entrada: usuario,
+      estado_orden: 'pendiente',
       observacion: 'Ordenes exportadas desde cms.',
       grupo_entrada: Date.now(),
     };
 
-    const ordenes = createOrdenesDto.map((e) => {
-      return ({...e, historial_registro:[registroOrdenes]})
-    })
-
-    return await this.ordenModel.insertMany(ordenes, { 
-      ordered: false
-    }).then((d) => {
-      return ({
-        status: 'success',
-        message: `(${d.length}) Ordenes guardadas correctamente.`
-      })
-    }).catch((e) => {
-      if (e.result.nInserted > 0 && (e.writeErrors).length === 0) {
-        return ({
-          status: 'success',
-          message: `(${e.result.nInserted}) Ordenes guardadas correctamente.`
-        });
-      } else if (e.result.nInserted === 0 && (e.writeErrors).length > 0) {
-        return ({
-          status: 'warn',
-          message: `(${(e.writeErrors).length}) Ordenes duplicadas y (0) Ordenes nuevas.`
-        });
-      } else if (e.result.nInserted > 0 && (e.writeErrors).length > 0) {
-        return ({
-          status: 'warn',
-          message: `(${(e.writeErrors).length}) Ordenes duplicadas y (${e.result.nInserted}) Ordenes nuevas.`
+    return Promise.all(createOrdenesDto.map(async(o) => {
+      if (o.tipo === tipos_orden.AVERIAS) {
+        const dia = new Date().getDate();
+        const fechaInicio = DateTime.fromJSDate(new Date()).set({day: dia-32});
+  
+        return await this.ordenModel.findOne({ 
+          $and: [
+            { tipo: tipos_orden.ALTAS },
+            { tipo: o.codigo_cliente },
+            { fecha_liquidado: { $gte: new Date(fechaInicio.toISO()) } }
+          ]
+        }).then((newOrden: IOrden) => {
+          if (newOrden) {
+            return ({
+              ...o,
+              historial_registro:[registroOrdenes],
+              infancia: newOrden._id
+            })
+          } else {
+            return ({
+              ...o,
+              historial_registro:[registroOrdenes],
+            })
+          }
         })
       } else {
-        throw new HttpException({
-          status: 'error',
-          message: 'Error en el servidor.'
-        }, HttpStatus.FORBIDDEN)
+        return ({
+          ...o,
+          historial_registro:[registroOrdenes],
+        })
       };
+    })).then(async(ordenes) => {
+      return await this.ordenModel.insertMany(ordenes).then((d) => {      
+        return ({
+          status: 'success',
+          message: `(${d.length}) Ordenes guardadas correctamente.`
+        })
+      }).catch((e) => {
+        if (e.result && e.result.nInserted > 0 && (e.writeErrors).length === 0) {
+          return ({
+            status: 'success',
+            message: `(${e.result.nInserted}) Ordenes guardadas correctamente.`
+          });
+        } else if (e.result && e.result.nInserted === 0 && (e.writeErrors).length > 0) {
+          return ({
+            status: 'warn',
+            message: `(${(e.writeErrors).length}) Ordenes duplicadas y (0) Ordenes nuevas.`
+          });
+        } else if (e.result && e.result.nInserted > 0 && (e.writeErrors).length > 0) {
+          return ({
+            status: 'warn',
+            message: `(${(e.writeErrors).length}) Ordenes duplicadas y (${e.result.nInserted}) Ordenes nuevas.`
+          })
+        } else {
+          throw new HttpException({
+            status: 'error',
+            message: e
+          }, HttpStatus.FORBIDDEN)
+        }; 
+      })
     });
   };
   //subir la data del excel de liquidadas y actualizar las ordenes
@@ -171,31 +197,65 @@ export class OrdenesService {
   //funcion que obtiene las ordenes del dia actual filtrandolo por la fecha de cita
   async obtenerOrdenesHoy(tipo: string) {
     let now = new Date();
-    let startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());    
+    let startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());  
     
     return await this.ordenModel.find({
       $and: [
-        {$or: [
+        { $or: [
           {fecha_liquidado: { $gte: startOfToday }},
           {fecha_liquidado: null}
         ]},
-        {tipo}
+        { tipo },
+        { orden_devuelta: false }
       ]
     }).populate('contrata', 'nombre')
       .populate('gestor', 'nombre apellidos')
       .populate('tecnico', 'nombre apellidos carnet')
-      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_cliente distrito bucket estado_toa estado_gestor contrata gestor fecha_cita fecha_registro numero_reiterada')
+      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_cliente distrito bucket estado_toa estado_gestor contrata gestor fecha_cita fecha_registro infancia numero_reiterada')
       .sort('bucket estado_toa contrata');
   };
   //FUNCION PARA OBTENER LAS ORDENES REITERADAS
   async obtenerReiteradas(codigo_cliente: string):Promise<IOrden[]> {
+    const dia = new Date().getDate();
+    const fechaInicio = DateTime.fromJSDate(new Date()).set({day: dia-32});
     return await this.ordenModel.find({
-      codigo_cliente
+      $and: [
+        { codigo_cliente },
+        { fecha_liquidado: { $gte: new Date(fechaInicio.toISO()) } }
+      ]
     }).populate('contrata', 'nombre')
       .populate('gestor', 'nombre apellidos')
       .populate('auditor', 'nombre apellidos')
       .populate('tecnico', 'nombre apellidos carnet')
   };
+  //funcion para obtener la orden de infancia
+  async obtenerInfancia(id_orden: string):Promise<IOrden> {
+    return await this.ordenModel.findOne({_id: id_orden}).populate({
+        path: 'tecnico_liquidado',
+        select: 'nombre apellidos carnet'
+      }).then((data) => {
+        if (data) {
+          return data;
+        } else {
+          return {}
+        }
+      })
+  };
+  //funcion para obtener el historial de registros
+  async obtenerRegistros(id_orden: string): Promise<THistorial[]> {
+    return await this.ordenModel.findOne({ _id: id_orden })
+      .select('historial_registro')
+      .populate('historial_registro.usuario_entrada', 'nombre apellidos cargo')
+      .populate('historial_registro.empleado_modificado', 'nombre apellidos cargo')
+      .populate('historial_registro.contrata_modificado', 'nombre')
+      .then((data: IOrden) => {
+        if (data) {
+          return data.historial_registro;
+        } else {
+          return []
+        }
+      })
+  }
   //funcion para agendar una orden
   async agendarOrden(ordenes:string[], id:string, bucket?:string, contrata?:string, gestor?:string, fecha_cita?:string, observacion?: string) {
     let objUpdate = {};
@@ -253,6 +313,60 @@ export class OrdenesService {
     }, {
       $set: { ...objUpdate },
       $push: { historial_registro: registroOrdenes },
+    })
+  };
+  //funcion para cambiar el estado de la orden, agregar una observacion y subir imagenes si las haya
+  async actualizarEstadoOrden(usuario:string, ordenes:string[], observacion:string, estado?:string, files?:Array<any>) {
+    return await this.updateDataService.subirImagenes(files, 'Ordenes').then(async(images) => {
+      let objUpd:any = {};
+
+      let registro: THistorial = {
+        usuario_entrada: usuario,
+        observacion,
+        estado_orden: estado ? estado :'-',
+      };
+      if (images && images.length > 0) {
+        registro.imagenes = images.map((img) => ({
+          public_id: img.public_id,
+          url: img.secure_url
+        }));
+      };
+      if (estado) objUpd.estado_gestor = estado;
+      return await this.ordenModel.updateMany({ 
+        _id: { $in: ordenes }
+      }, {
+        $set: objUpd,
+        $push: { historial_registro: registro }
+      })
+    });
+  };
+  //funcion para devolver la orden
+  async devolverOrden(usuario:string, orden:string, observacion:string, files?:Array<any>) {
+    return await this.updateDataService.subirImagenes(files, 'Ordenes').then(async(images) => {
+
+      let registro: THistorial = {
+        usuario_entrada: usuario,
+        observacion: observacion + ' (orden devuelta)',
+        estado_orden: 'devuelta',
+      };
+      if (images && images.length > 0) {
+        registro.imagenes = images.map((img) => ({
+          public_id: img.public_id,
+          url: img.secure_url
+        }));
+      };
+      return await this.ordenModel.findOneAndUpdate({
+        $and: [
+          { _id: orden },
+          { estado_gestor: estado_gestor.REMEDY }
+        ]
+      }, {
+        $set: {
+          orden_devuelta: true,
+          estado_liquidado: '-'
+        },
+        $push: { historial_registro: registro }
+      })
     })
   };
 };

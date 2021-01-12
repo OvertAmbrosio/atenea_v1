@@ -7,7 +7,7 @@ export class CreateOrdeneDto {
   readonly codigo_requerimiento: string;
   readonly codigo_cliente?: string;
   readonly nombre_cliente?: string;
-  readonly codigo_ctr?: number;
+  readonly codigo_ctr?: string;
   readonly descripcion_ctr?: string;
   readonly codigo_nodo?: string;
   readonly codigo_troba?: string;
@@ -20,7 +20,7 @@ export class CreateOrdeneDto {
   readonly detalle_trabajo?: string;
   readonly telefono_contacto?: string;
   readonly telefono_referencia?: string;
-  readonly numero_reiterada?: number;
+  readonly numero_reiterada?: string;
   readonly tipo_tecnologia?: string;
   ///////////////////////////////////////
   readonly historial_registro: THistorial[];

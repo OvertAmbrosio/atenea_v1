@@ -1,16 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
+import * as CloudLib from 'cloudinary'
 import { Model } from 'mongoose';
 import { DateTime } from 'luxon';
+import * as fs from 'fs';
 
+import { Cloudinary } from './update-data.provider';
 import { IEmpleado } from 'src/api/empleados/interfaces/empleados.interface';
 import { TOrdenesToa } from 'src/helpers/types';
+import { variables } from 'src/config';
+
 
 @Injectable()
 export class UpdateDataService {
   constructor (
     @InjectModel('Empleado') private readonly empleadoModel: Model<IEmpleado>,
-  ) {}
+    @Inject(Cloudinary) private cloudinary: typeof CloudLib,
+    private configService: ConfigService,
+  ) {
+    this.cloudinary.v2.config({
+      cloud_name: configService.get(variables.cloudinary_name),
+      api_key: configService.get(variables.cloudinary_key),
+      api_secret: configService.get(variables.cloudinary_secret),
+    })
+    // this.v2 = this.cloudinary.v2
+  }
 
   public async actualizarTecnicosToa(ordenes:TOrdenesToa[], tipo:string):Promise<TOrdenesToa[]> {
     return await Promise.all(ordenes.map(async(o) => {
@@ -50,5 +65,21 @@ export class UpdateDataService {
         })
       };
     }));
+  };
+
+  public async subirImagenes(files:Array<any>, folder:string):Promise<CloudLib.UploadApiResponse[]> {
+    if (files && files.length > 0) {
+      return Promise.all(files.map(async(file) => {
+        return await this.cloudinary.v2.uploader.upload(file.path, {
+          resource_type: "auto",
+          folder: folder
+        }).then(async(res) => {
+          fs.unlinkSync(file.path)
+          return res;
+        });
+      }));
+    } else {
+      return null;
+    }
   };
 }

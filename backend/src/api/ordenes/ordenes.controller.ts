@@ -1,7 +1,8 @@
 import { 
   Controller, Get, Post, Body, Put, Patch, 
-  Param, Delete, Req, UseGuards, Inject, Query
+  Param, Delete, Req, UseGuards, Inject, Query, UseInterceptors, UploadedFiles
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { Request } from 'express';
@@ -39,7 +40,7 @@ export class OrdenesController {
           message: err.message,
           service: 'Error subiendo las ordenes (subirData)'
         });
-        return ({status: 'error', message: err.message});
+        return ({status: 'error', message: 'Error subiendo las ordenes (subirData)'});
       });
     } else {
       return ({
@@ -82,7 +83,13 @@ export class OrdenesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getOrdenes(@Req() req:Request, @Query('metodo') metodo:string, @Query('tipo') tipo:string, @Query('codigo_cliente') codigo_cliente:string): Promise<TRespuesta> {
+  async getOrdenes(
+    @Req() req:Request, 
+    @Query('metodo') metodo:string, 
+    @Query('tipo') tipo:string, 
+    @Query('codigo_cliente') codigo_cliente:string,
+    @Query('id') id_orden: string
+  ): Promise<TRespuesta> {
     const user:any = req.user;
     const key = tipo === tipos_orden.AVERIAS ? cache_keys.ORDENES_AVERIAS : 
                 tipo === tipos_orden.ALTAS ? cache_keys.ORDENES_ALTAS :
@@ -131,7 +138,37 @@ export class OrdenesController {
           data: null
         });
       });
-    }else {
+    } else if (metodo === 'buscarInfancia' && id_orden) {
+      return await this.ordenesService.obtenerInfancia(id_orden).then((res) => {
+        return ({
+          status: 'success',
+          message: `Orden encontrada correctamente.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(buscarInfancia)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    } else if (metodo === 'buscarRegistro' && id_orden) {
+      return await this.ordenesService.obtenerRegistros(id_orden).then((res) => {
+        return ({
+          status: 'success',
+          message: `Registros encontrados correctamente.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(buscarRegistro)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    } else {
       this.logger.error({message: `Usuario: ${user.id} - intentó acceder con metodo incorrecto.`, service: 'getOrdenes'});
       return({
         status: 'error',
@@ -169,9 +206,11 @@ export class OrdenesController {
 
   @Patch()
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FilesInterceptor('files'))
   async actualizarOrden(
     @Req() req:Request, 
     @Body() data:TBodyUpdateOrden,
+    @UploadedFiles() files:any
   ): Promise<TRespuesta> {
     const user:any = req.user;    
     
@@ -189,6 +228,31 @@ export class OrdenesController {
           this.logger.error({message: err.message, service: 'actualizarOrden(asignarOrden)'})
           return ({status: 'error', message: 'Error actualizando las ordenes.'})
         })
+    } else if (data.metodo === 'actualizarEstado') {      
+      return await this.ordenesService.actualizarEstadoOrden(user.id, data.ordenes, data.observacion, data.estado, files)
+        .then(() => ({ status: 'success', message: 'Ordenes actualizadas correctamente.'}))
+        .catch((err) => {
+        this.logger.error({ message: err.message, service: 'actualizarOrden(actualizarEstado)'});
+        return ({
+          status: 'error',
+          message: 'Error actualizando las ordenes.'
+        })
+      })
+    } else if (data.metodo === 'devolverOrden') {      
+      return await this.ordenesService.devolverOrden(user.id, data.id, data.observacion, files)
+        .then((data) => {
+          if (data) {
+            return ({ status: 'success', message: 'Orden actualizadas correctamente.'})
+          } else {
+            return ({ status: 'warn', message: 'No se encontró la orden o no es una orden "Remedy".'})
+          }
+        }).catch((err) => {
+          this.logger.error({ message: err.message, service: 'actualizarOrden(devolverOrden)'});
+        return ({
+          status: 'error',
+          message: 'Error actualizando las ordenes.'
+        })
+      })
     } else {
       this.logger.error({message: `Usuario: ${user.id} - intentó acceder sin permisos.`, service: 'actualizarOrden'});
       return({
@@ -197,5 +261,4 @@ export class OrdenesController {
       });
     }
   };
-
-}
+};

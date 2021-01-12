@@ -25,8 +25,12 @@ export const ordenes = {
   CRUZAR_DATA: 'cruzarData',
   ORDENES_HOY: 'ordenesHoy',
   BUSCAR_REITERADA: 'buscarReiterada',
+  BUSCAR_INFANCIA: 'buscarInfancia',
+  BUSCAR_REGISTROS: 'buscarRegistro',
   AGENDAR_ORDEN: 'agendarOrden',
-  ASIGNAR_ORDEN: 'asignarOrden'
+  ASIGNAR_ORDEN: 'asignarOrden',
+  ACTUALIZAR_ESTADO: 'actualizarEstado',
+  DEVOLVER_ORDEN: 'devolverOrden'
 };
 
 export const asistencias = {

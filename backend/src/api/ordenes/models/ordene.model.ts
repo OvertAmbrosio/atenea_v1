@@ -50,6 +50,16 @@ export const OrdenSchema = new Schema({
     trim: true,
     default: '-'
   },
+  codigo_incidencia: {
+    type: String,
+    trim: true,
+    default: '-'
+  },
+  codigo_segmento: {
+    type: String,
+    trim: true,
+    default: '-'
+  },
   distrito: {
     type: String,
     trim: true,
@@ -80,6 +90,16 @@ export const OrdenSchema = new Schema({
     trim: true,
     default: '-'
   },
+  indicador_pai: {
+    type: String,
+    trim: true,
+    default: '-'
+  },
+  movistar_total: {
+    type: String,
+    trim: true,
+    default: '-'
+  },
   detalle_trabajo: {
     type: String,
     trim: true,
@@ -96,7 +116,7 @@ export const OrdenSchema = new Schema({
     default: '-'
   },
   numero_reiterada: {
-    type: Number,
+    type: String,
     trim: true,
     default: '-'
   },
@@ -104,6 +124,11 @@ export const OrdenSchema = new Schema({
     type: String,
     trim: true,
     default: '-'
+  },
+  infancia: {
+    type: Types.ObjectId,
+    ref: 'Ordene',
+    default: null
   },
   //REGISTROS EN EL SISTEMA
   historial_registro: [{
@@ -161,7 +186,7 @@ export const OrdenSchema = new Schema({
     lowercase: true,
     default: '-'
   },
-  estado_liquidado: {//efectiva, inefectiva
+  estado_liquidado: {//efectiva, inefectiva, no_corresponde
     type: String,
     lowercase: true,
     trim: true,
@@ -251,6 +276,10 @@ export const OrdenSchema = new Schema({
     type: String,
     trim: true,
     default: null
+  },
+  orden_devuelta: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs } from 'antd';
 import { CloudUploadOutlined, CheckCircleOutlined, ScheduleOutlined } from '@ant-design/icons'
 
-import { averias } from '../../../constants/valoresOrdenes';
+import { tipoOrdenes } from '../../../constants/tipoOrden';
 import { empleados, contratas } from '../../../constants/metodos';
 import { getEmpleados } from '../../../services/apiEmpleado';
 import { getContratas } from '../../../services/apiContrata';
@@ -45,7 +45,7 @@ export default function AdministrarAverias() {
 
   return (
     <div>
-      <TituloContent titulo="Administrar Ordenes" subtitulo="Operativa"/>
+      <TituloContent titulo="Administrar Averias Hfc" subtitulo="Operativa"/>
         <Contenedor>
           <Tabs style={{paddingLeft: '1rem'}} animated={false}>
             <TabPane
@@ -58,7 +58,7 @@ export default function AdministrarAverias() {
               key="1"
             >
               <ActualizarOrdenes
-                tipoOrden={averias.TIPO}
+                tipoOrden={tipoOrdenes.AVERIAS}
                 tecnicos={listaTecnicos}
               />
             </TabPane>
@@ -75,7 +75,7 @@ export default function AdministrarAverias() {
                 contratas={listaContratas}
                 gestores={listaGestores}
                 tecnicos={listaTecnicos}
-                tipo={averias.TIPO}
+                tipo={tipoOrdenes.AVERIAS}
               />
             </TabPane>
             <TabPane

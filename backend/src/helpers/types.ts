@@ -66,7 +66,7 @@ export type THistorial = {
   readonly contrata_modificado?: IContrata['_id'],
   readonly empleado_modificado?: IEmpleado['_id'],
   readonly usuario_entrada: IEmpleado['_id']
-  readonly imagenes?: Array<TImagenRegistro>,
+  imagenes?: Array<TImagenRegistro>,
   readonly observacion: string,
   readonly grupo_entrada?: number
 };

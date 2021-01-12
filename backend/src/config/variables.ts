@@ -10,7 +10,10 @@ export const variables = {
   redis_host: 'REDISCLOUD_HOST',
   redis_port: 'REDISCLOUD_PORT',
   redis_pass: 'REDISCLOUD_PASS',
-  redis_ttl: 86400
+  redis_ttl: 86400,
+  cloudinary_name: 'CLOUDINARY_NAME',
+  cloudinary_key: 'CLOUDINARY_KEY',
+  cloudinary_secret: 'CLOUDINARY_SECRET',
 };
 
 export const cache_keys = {

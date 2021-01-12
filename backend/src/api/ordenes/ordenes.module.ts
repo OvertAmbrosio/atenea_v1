@@ -10,6 +10,7 @@ import { RedisModule } from '../../database/redis.module';
 import { variables } from 'src/config';
 
 import { UpdateDataService, UpdateDataModule } from '@localLibs/update-data';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -21,6 +22,11 @@ import { UpdateDataService, UpdateDataModule } from '@localLibs/update-data';
       name: 'Empleado',
       schema: EmpleadoSchema
     }], variables.db_name),
+    MulterModule.registerAsync({
+      useFactory: () => ({
+        dest: './upload',
+      }),
+    }),
     RedisModule,
     HttpModule
   ],

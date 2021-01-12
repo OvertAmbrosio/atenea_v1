@@ -109,20 +109,19 @@ export class AsistenciaService {
         select: 'nombre apellidos'
       }]
     }).then((obj) => {
-        return obj.sort((a, b) => {
-          if (a.tecnico && b.tecnico) {
-            if (a.tecnico.nombre > b.tecnico.nombre) {
-              return 1;
-            } else if (a.tecnico.nombre < b.tecnico.nombre) {
-              return -1;
-            } else {
-              return 0
-            };
+      return obj.sort((a, b) => {
+        if (a.tecnico && b.tecnico) {
+          if (a.tecnico.nombre > b.tecnico.nombre) {
+            return 1;
+          } else if (a.tecnico.nombre < b.tecnico.nombre) {
+            return -1;
           } else {
             return 0
-          }
-         
-         }); 
+          };
+        } else {
+          return 0
+        }
+      }); 
     });
   };
 

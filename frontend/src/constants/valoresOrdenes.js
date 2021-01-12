@@ -1,64 +1,223 @@
-export const averias = {
-  TIPO: 'averiashfc',
-  CODIGO_ZONAL: 'codofcadm',
-  CODIGO_REQUERIMIENTO: 'codreq',
-  CODIGO_REQUERIMIENTO_2: 'codreqatn',
-  CODIGO_CLIENTE: 'codcli',
-  NOMBRE_CLIENTE: 'nomcli',
-  CODIGO_CTR: 'codctr',
-  DESCRIPCION_CTR: 'desnomctr',
-  CODIGO_NODO: 'codnod',
-  CODIGO_TROBA: 'nroplano',
-  DISTRITO: 'desdtt',
-  //direccion -START
-  destipvia: 'destipvia',
-  desnomvia: 'desnomvia',
-  numvia: 'numvia',
-  despis: 'despis',
-  desint: 'desint',
-  desmzn: 'desmzn',
-  deslot: 'deslot',
-  destipurb: 'destipurb',
-  desurb: 'desurb',
-  //direccion -END
-  FECHA_REGISTRO: 'fec_regist',
-  CODIGO_MOTIVO: 'codmotv',
-  DETALLE_MOTIVO: 'desmotv',
-  TIPO_REQUERIMIENTO: 'tipreqfin',
-  DETALLE_TRABAJO: 'desobsordtrab',
-  TELEFONO_CONTACTO: 'tel_cont_cc',
-  TELEFONO_REFERENCIA: 'tel_cont_ref_cc',
-  NUMERO_REITERADA: 'numaverei',
-  TIPO_TECNOLOGIA: 'tiptecnologia',
-  //variables de liquidacion
-  FECHA_LIQUIDADA: 'fec_liquid',
-  TIPO_AVERIA: 'tipave',
-  TECNICO_LIQUIDADO: 'codtecliq',
-  USUARIO_LIQUIDADO: 'codusr'
-};
+export const averias = [
+  {
+    cabecera: 'desdtt',
+    propiedad: 'distrito'
+  },
+  {
+    cabecera: 'codreq',
+    cabecera_2: 'codreqatn',
+    propiedad: 'codigo_requerimiento'
+  },
+  {
+    cabecera: 'codofcadm',
+    propiedad: 'codigo_zonal'
+  },
+  {
+    cabecera: 'codcli',
+    propiedad: 'codigo_cliente'
+  },
+  {
+    cabecera: 'nomcli',
+    propiedad: 'nombre_cliente'
+  },
+  {
+    cabecera: 'codctr',
+    propiedad: 'codigo_ctr'
+  },
+  {
+    cabecera: 'desnomctr',
+    propiedad: 'descripcion_ctr'
+  },
+  {
+    cabecera: 'codnod',
+    propiedad: 'codigo_nodo'
+  },
+  {
+    cabecera: 'nroplano',
+    propiedad: 'codigo_troba'
+  },
+  {
+    cabecera: 'fec_regist',
+    cabecera_2: 'fechorreg',
+    fecha: true,
+    propiedad: 'fecha_registro'
+  },
+  {
+    cabecera: 'codmotv',
+    propiedad: 'codigo_motivo'
+  },
+  {
+    cabecera: 'desmotv',
+    propiedad: 'detalle_motivo'
+  },
+  {
+    cabecera: 'tipreqfin',
+    propiedad: 'tipo_requerimiento'
+  },
+  {
+    cabecera: 'desobsordtrab',
+    propiedad: 'detalle_trabajo'
+  },
+  {
+    cabecera: 'telefono',
+    cabecera_2: 'tel_cont_cc',
+    propiedad: 'telefono_contacto'
+  },
+  {
+    cabecera: 'tel_cont_ref_cc',
+    propiedad: 'telefono_referencia'
+  },
+  {
+    cabecera: 'numaverei',
+    cabecera_2: 'numaveind',
+    propiedad: 'numero_reiterada'
+  },
+  {
+    cabecera: 'tiptecnologia',
+    propiedad: 'tipo_tecnologia'
+  },
+];
 
-export const altas = {
-  TIPO: 'altashfc',
-  CODIGO_REQUERIMIENTO: 'codreq',
-  CODIGO_REQUERIMIENTO_2: 'codreqatn',
-  CODIGO_CLIENTE: 'codcli',
-  CODIGO_TRABAJO: 'codordtrab',
-  CODIGO_CTR: 'codctr',
-  DESCRIPCION_CTR: 'desnomctr',
-  CODIGO_SEGMENTO: 'codsegmento',
-  TIPO_REQUERIMIENTO: 'tipreq',
-  CODIGO_MOTIVO: 'codmotv',
-  DETALLE_MOTIVO: 'desmotv',
-  DETALLE_TRABAJO: 'desobsordtrab',
-  FECHA_REGISTRO: 'fechorreg',
-  CODIGO_NODO: 'codnod',
-  CODIGO_TROBA: 'nroplano',
-  DISTRITO: 'desdtt',
-  INDICADOR_PAI: 'indpai',
-  TELEFONO_CONTACTO: 'telefono_voip',
-  TIPO_TECNOLOGIA: 'tiptecnologia',
-  MOVISTAR_TOTAL: 'movistar_total'
-};
+export const averiasDireccion = [
+  {
+    cabecera: 'destipvia',
+    espacio: ' '
+  },
+  {
+    cabecera: 'desnomvia',
+    espacio: ' '
+  },
+  {
+    cabecera: 'numvia',
+    espacio: ' '
+  },
+  {
+    cabecera: 'despis',
+    espacio: ' '
+  },
+  {
+    cabecera: 'desint',
+    espacio: ' Int. '
+  },
+  {
+    cabecera: 'desmzn',
+    espacio: ' Mz. '
+  },
+  {
+    cabecera: 'deslot',
+    espacio: ' Lt. '
+  },
+  {
+    cabecera: 'destipurb',
+    espacio: ' '
+  },
+  {
+    cabecera: 'desurb',
+    espacio: ' '
+  }
+]
+
+export const altas = [
+  {
+    cabecera: 'desdtt',
+    propiedad: 'distrito',
+  },
+  {
+    cabecera: 'codreq',
+    cabecera_2: 'codreqatn',
+    propiedad: 'codigo_requerimiento',
+  },
+  {
+    cabecera: 'codofcadm',
+    propiedad: 'codigo_zonal'
+  },
+  {
+    cabecera: 'codcli',
+    propiedad: 'codigo_cliente',
+  },
+  {
+    cabecera: 'codordtrab',
+    propiedad: 'codigo_trabajo',
+  },
+  {
+    cabecera: 'codinc',
+    propiedad: 'codigo_incidencia',
+  },
+  {
+    cabecera: 'codctr',
+    propiedad: 'codigo_ctr',
+  },
+  {
+    cabecera: 'desnomctr',
+    propiedad: 'descripcion_ctr',
+  },
+  {
+    cabecera: 'codsegmento',
+    propiedad: 'codigo_segmento',
+  },
+  {
+    cabecera: 'tipreq',
+    propiedad: 'tipo_requerimiento',
+  },
+  {
+    cabecera: 'codmotv',
+    propiedad: 'codigo_motivo',
+  },
+  {
+    cabecera: 'desmotv',
+    propiedad: 'detalle_motivo',
+  },
+  {
+    cabecera: 'desobsordtrab',
+    propiedad: 'detalle_trabajo',
+  },
+  {
+    cabecera: 'fechorreg',
+    cabecera_2: 'fec_regist',
+    fecha: true,
+    propiedad: 'fecha_registro',
+  },
+  {
+    cabecera: 'codnod',
+    propiedad: 'codigo_nodo',
+  },
+  {
+    cabecera: 'nroplano',
+    propiedad: 'codigo_troba',
+  },
+  {
+    cabecera: 'indpai',
+    propiedad: 'indicador_pai',
+  },
+  {
+    cabecera: 'telefono_voip',
+    propiedad: 'telefono_contacto',
+  },
+  {
+    cabecera: 'tiptecnologia',
+    propiedad: 'tipo_tecnologia',
+  },
+  {
+    cabecera: 'movistar_total',
+    propiedad: 'movistar_total',
+  },
+]
+
+export const hfcLiquidadas = [
+  {
+    cabecera: 'fec_liquid',
+    fecha: true,
+    propiedad: 'fecha_liquidada',
+  },
+  {
+    cabecera: 'tipave',
+    propiedad: 'tipo_averia',
+  },
+  {
+    cabecera: 'codusr',
+    propiedad: 'usuario_liquidado',
+  },
+]
 
 export const valoresExcelAdministrar = {
   codigo_requerimiento: "Requerimiento",
@@ -100,6 +259,18 @@ export const listaBuckets = [
     value: 'BK_VN_MA_VENEZUELA'
   }
 ];
+
+export const listaEstadosGestor = {
+  PENDIENTE: 'pendiente',
+  AGENDADO: 'agendado',
+  ASIGNADO: 'asignado',
+  INICIADO: 'iniciado',
+  LIQUIDADO: 'liquidado',
+  SUSPENDIDO: 'suspendido',
+  MASIVO: 'masivo',
+  PEXT: 'pext',
+  REMEDY: 'remedy',
+}
 
 export const codigosLiquidadasEfectivas = [
   '2','3','6','7','10','1C','1D','1H','1I','1N','1P','1Q','1S','1O','1T','1U','1L',
