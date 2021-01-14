@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Req, Inject, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, UseGuards, Req, Inject, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { Request } from 'express';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
@@ -104,18 +104,27 @@ export class AsistenciaController {
     }
   };
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.asistenciaService.findOne(+id);
-  }
+  @Patch()
+  async actualizarAsistencia(@Body() data:any , @Req() req: Request): Promise<TRespuesta> {
+    const user:any = req.user;
+    return await this.asistenciaService.actualizarAsistencia(data.id, user.id, data.estado, data.observacion).then(() => {
+      this.logger.info({
+        service: `El gestor -${user.id}- actualizo al tecnico -${data.tecnico}- con el estado -${data.estado}-`
+      })
+      return ({
+        status: 'success',
+        message: 'Asistencia actualizada con éxito.',
+      });
+    }).catch((err) => {
+      this.logger.error({
+        message: err,
+        service: 'actualizarAsistencia'
+      });
+      return ({
+        status: 'error',
+        message: 'Error actualizando la asistencia.'
+      });
+    });
+  };
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateAsistenciaDto: UpdateAsistenciaDto) {
-    return this.asistenciaService.update(+id, updateAsistenciaDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.asistenciaService.remove(+id);
-  }
 }

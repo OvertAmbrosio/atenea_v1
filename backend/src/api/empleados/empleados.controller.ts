@@ -57,6 +57,21 @@ export class EmpleadosController {
       } else {
         throw new HttpException({status: 'error', message: 'Metodo incorrecto.'}, HttpStatus.FORBIDDEN);
       } 
+    } else if (params.metodo === 'listaTecnicosGestor') {
+      return this.empleadosService.listarTecnicosGestor(usuario.id).then((data) => {
+        return ({
+          status: 'success',
+          message: 'Tecnicos obtenidos correctamente.',
+          data
+        })
+      }).catch((err) => {
+        this.logger.error({message: err.message, service: 'listaTecnicosGestor'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: []
+        })
+      })
     } else if (params.metodo === 'listaGestores') {
       return this.empleadosService.listarGestores().then((data) => {
         return ({

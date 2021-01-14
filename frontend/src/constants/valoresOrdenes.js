@@ -9,6 +9,15 @@ export const averias = [
     propiedad: 'codigo_requerimiento'
   },
   {
+    cabecera: 'codordtrab',
+    propiedad: 'codigo_trabajo',
+  },
+  {
+    cabecera: 'cod_peticion',
+    cabecera_2: 'codpeticion',
+    propiedad: 'codigo_peticion',
+  },
+  {
     cabecera: 'codofcadm',
     propiedad: 'codigo_zonal'
   },
@@ -140,6 +149,11 @@ export const altas = [
     propiedad: 'codigo_trabajo',
   },
   {
+    cabecera: 'cod_peticion',
+    cabecera_2: 'codpeticion',
+    propiedad: 'codigo_peticion',
+  },
+  {
     cabecera: 'codinc',
     propiedad: 'codigo_incidencia',
   },
@@ -172,10 +186,14 @@ export const altas = [
     propiedad: 'detalle_trabajo',
   },
   {
-    cabecera: 'fechorreg',
-    cabecera_2: 'fec_regist',
+    cabecera: 'fecest',
     fecha: true,
-    propiedad: 'fecha_registro',
+    propiedad: 'fecha_asignado'
+  },
+  {
+    cabecera: 'fechorasig',
+    fecha: true,
+    propiedad: 'fecha_registro'
   },
   {
     cabecera: 'codnod',
@@ -205,9 +223,15 @@ export const altas = [
 
 export const hfcLiquidadas = [
   {
+    cabecera: 'codreq',
+    cabecera_2: 'codreqatn',
+    propiedad: 'codigo_requerimiento',
+  },
+  {
     cabecera: 'fec_liquid',
+    cabecera_2: 'fechorliq',
     fecha: true,
-    propiedad: 'fecha_liquidada',
+    propiedad: 'fecha_liquidado',
   },
   {
     cabecera: 'tipave',

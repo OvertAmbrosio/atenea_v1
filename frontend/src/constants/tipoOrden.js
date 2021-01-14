@@ -43,10 +43,6 @@ export const subTipoNegocio = [
     value: tipoTecnologia.HFC
   },
   {
-    text: 'ADSL',
-    value: tipoTecnologia.ADSL
-  },
-  {
     text: 'COBRE',
     value: tipoTecnologia.COBRE
   },

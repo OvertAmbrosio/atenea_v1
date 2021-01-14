@@ -68,7 +68,7 @@ function ModalDevolver({ visible, abrir, loading, devolverOrden }) {
         </Button>,
       ]}
     >
-      <div style={{ marginBottom: '.5rem' }}>Una orden solo podrá ser devuelta si se encuentra en estado "Remedy".</div>
+      <div style={{ marginBottom: '.5rem' }}>Observación:</div>
       <TextArea
         placeholder="Observacion"
         defaultValue={observacion}

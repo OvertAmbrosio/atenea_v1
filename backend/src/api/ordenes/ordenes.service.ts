@@ -1,7 +1,7 @@
 import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
-import { PaginateModel, Model  } from 'mongoose';
+import { Model  } from 'mongoose';
 import { DateTime } from 'luxon';
 
 import { RedisService } from 'src/database/redis.service';
@@ -20,7 +20,7 @@ const estadosToa = ['pendiente','iniciado'];
 @Injectable()
 export class OrdenesService {
   constructor (
-    @InjectModel('Ordene') private readonly ordenModel: PaginateModel<IOrden>,
+    @InjectModel('Ordene') private readonly ordenModel: Model<IOrden>,
     private readonly redisService: RedisService,
     private readonly ordenesGateway: OrdenesGateway,
     private httpService: HttpService,
@@ -31,7 +31,6 @@ export class OrdenesService {
   @Cron('0 */15 6-20 * * *', {
     name: 'obtenerOrdenes',
     timeZone: 'America/Lima',
-    
   })
   async obtenerOrdenesToa() { 
     // return await this.httpService.get(`${variables.url_scrap}?user=${variables.user_scrap}&pass=${variables.pass_scrap}`).toPromise().then(async(res) => {
@@ -59,7 +58,7 @@ export class OrdenesService {
         return await this.ordenModel.findOne({ 
           $and: [
             { tipo: tipos_orden.ALTAS },
-            { tipo: o.codigo_cliente },
+            { codigo_cliente: o.codigo_cliente },
             { fecha_liquidado: { $gte: new Date(fechaInicio.toISO()) } }
           ]
         }).then((newOrden: IOrden) => {
@@ -104,7 +103,8 @@ export class OrdenesService {
             status: 'warn',
             message: `(${(e.writeErrors).length}) Ordenes duplicadas y (${e.result.nInserted}) Ordenes nuevas.`
           })
-        } else {
+        } else { 
+          console.log(e);         
           throw new HttpException({
             status: 'error',
             message: e
@@ -122,8 +122,7 @@ export class OrdenesService {
     };
     return Promise.all(updateOrdeneDto.map(async(newOrden) => {
       return await this.ordenModel.findOneAndUpdate({ 
-        codigo_requerimiento: newOrden.codigo_requerimiento,
-        fecha_liquidado: null
+        codigo_requerimiento: newOrden.codigo_requerimiento
       }, {
         $set: {
           fecha_liquidado: newOrden.fecha_liquidado,
@@ -178,9 +177,11 @@ export class OrdenesService {
               observacion_toa: o.observacion_toa,
               tecnico: o.tecnico && typeof o.tecnico !== 'string' ? o.tecnico._id : null,
               gestor: o.gestor && typeof o.gestor !== 'string' ? o.gestor._id : null,
+              gestor_liquidado_toa: o.gestor_liquidado_toa && typeof o.gestor_liquidado_toa !== 'string' ? o.gestor_liquidado_toa._id : null,
               auditor: o.auditor && typeof o.auditor !== 'string' ? o.auditor._id : null,
               contrata: o.contrata && typeof o.contrata !== 'string' ? o.contrata._id : null,
               estado_toa: o.estado,
+              estado_indicador_toa: o.estado_indicador_toa,
               bucket: o.bucket,
               subtipo_actividad: o.subtipo_actividad,
               fecha_cita: o.fecha_cita ? new Date(String(o.fecha_cita).trim()): null,
@@ -194,7 +195,7 @@ export class OrdenesService {
       };
     });
   };
-  //funcion que obtiene las ordenes del dia actual filtrandolo por la fecha de cita
+  //funcion que obtiene las ordenes del dia actual filtrandolo por la fecha de LIQUIDACION 
   async obtenerOrdenesHoy(tipo: string) {
     let now = new Date();
     let startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());  
@@ -205,31 +206,60 @@ export class OrdenesService {
           {fecha_liquidado: { $gte: startOfToday }},
           {fecha_liquidado: null}
         ]},
-        { tipo },
-        { orden_devuelta: false }
+        { tipo }
       ]
     }).populate('contrata', 'nombre')
       .populate('gestor', 'nombre apellidos')
       .populate('tecnico', 'nombre apellidos carnet')
-      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_cliente distrito bucket estado_toa estado_gestor contrata gestor fecha_cita fecha_registro infancia numero_reiterada')
+      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_motivo codigo_trabajo codigo_peticion codigo_cliente distrito bucket tipo_requerimiento tipo_tecnologia estado_toa estado_gestor contrata gestor fecha_cita fecha_asignado fecha_registro infancia numero_reiterada orden_devuelta')
       .sort('bucket estado_toa contrata');
+  };
+  //funcion que obtiene las ordenes del dia actual POR GESTOR
+  async obtenerOrdenesHoyGestor(gestor: string) {
+    let now = new Date();
+    let startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());  
+    
+    return await this.ordenModel.find({
+      $and: [
+        { $or: [
+          {fecha_liquidado: { $gte: startOfToday }},
+          {fecha_liquidado: null}
+        ]},
+        { gestor }
+      ]
+    }).populate('contrata', 'nombre')
+      .populate('tecnico', 'nombre apellidos carnet')
+      .select('codigo_requerimiento tipo codigo_ctr codigo_nodo codigo_troba codigo_motivo codigo_trabajo codigo_peticion codigo_cliente distrito bucket tipo_requerimiento tipo_tecnologia estado_toa estado_gestor contrata gestor fecha_cita fecha_asignado fecha_registro infancia numero_reiterada orden_devuelta')
+      .sort('bucket estado_toa');
   };
   //FUNCION PARA OBTENER LAS ORDENES REITERADAS
   async obtenerReiteradas(codigo_cliente: string):Promise<IOrden[]> {
-    const dia = new Date().getDate();
-    const fechaInicio = DateTime.fromJSDate(new Date()).set({day: dia-32});
     return await this.ordenModel.find({
       $and: [
         { codigo_cliente },
-        { fecha_liquidado: { $gte: new Date(fechaInicio.toISO()) } }
+        { fecha_liquidado: { $ne: null } }
       ]
-    }).populate('contrata', 'nombre')
-      .populate('gestor', 'nombre apellidos')
-      .populate('auditor', 'nombre apellidos')
-      .populate('tecnico', 'nombre apellidos carnet')
+    }).populate({
+      path: 'tecnico_liquidado', 
+      select: 'nombre apellidos contrata gestor auditor',
+      populate: [
+        {
+          path: 'contrata',
+          select: 'nombre'
+        },
+        {
+          path: 'gestor',
+          select: 'nombre apellidos'
+        },
+        {
+          path: 'auditor',
+          select: 'nombre apellidos'
+        }
+      ]
+    })
   };
   //funcion para obtener la orden de infancia
-  async obtenerInfancia(id_orden: string):Promise<IOrden> {
+  async obtenerInfancia(id_orden: string):Promise<IOrden|any> {
     return await this.ordenModel.findOne({_id: id_orden}).populate({
         path: 'tecnico_liquidado',
         select: 'nombre apellidos carnet'
@@ -257,20 +287,21 @@ export class OrdenesService {
       })
   }
   //funcion para agendar una orden
-  async agendarOrden(ordenes:string[], id:string, bucket?:string, contrata?:string, gestor?:string, fecha_cita?:string, observacion?: string) {
+  async agendarOrden(ordenes:string[], id:string, bucket?:string, contrata?:string, gestor?:string, tecnico?:string, fecha_cita?:string, observacion?: string) {
     let objUpdate = {};
 
     let registroOrdenes:THistorial = {
       observacion: observacion ? observacion : 'Orden agendada (bucket, contrata, gestor, fecha de cita)',
       usuario_entrada: id,
       contrata_modificado: contrata,
-      empleado_modificado: gestor,
+      empleado_modificado: tecnico ? tecnico : gestor,
       estado_orden: "Agendado"
     }
 
     if(bucket) objUpdate['bucket'] = bucket;
     if(contrata) objUpdate['contrata'] = contrata;
     if(gestor) objUpdate['gestor'] = gestor;
+    if(tecnico) objUpdate['tecnico'] = tecnico;
     if(fecha_cita) objUpdate['fecha_cita'] = new Date(fecha_cita).toUTCString();
 
     return await this.ordenModel.updateMany({ 
@@ -355,12 +386,7 @@ export class OrdenesService {
           url: img.secure_url
         }));
       };
-      return await this.ordenModel.findOneAndUpdate({
-        $and: [
-          { _id: orden },
-          { estado_gestor: estado_gestor.REMEDY }
-        ]
-      }, {
+      return await this.ordenModel.findOneAndUpdate({ _id: orden }, {
         $set: {
           orden_devuelta: true,
           estado_liquidado: '-'

@@ -1,6 +1,7 @@
 export const empleados = {
   LISTA_TODO: 'listaTodo',
   LISTA_TECNICOS_GLOBAL: 'listaTecnicosGlobal',
+  LISTA_TECNICOS_GESTOR: 'listaTecnicosGestor',
   LISTA_GESTORES: 'listaGestores',
   LISTA_AUDITORES: 'listaAuditores',
   RESET_PASS: 'resetPassword',
@@ -24,10 +25,12 @@ export const ordenes = {
   ACTUALIZAR_DATA: 'actualizarLiquidadas',
   CRUZAR_DATA: 'cruzarData',
   ORDENES_HOY: 'ordenesHoy',
+  ORDENES_HOY_GESTOR: 'ordenesHoyGestor',
   BUSCAR_REITERADA: 'buscarReiterada',
   BUSCAR_INFANCIA: 'buscarInfancia',
   BUSCAR_REGISTROS: 'buscarRegistro',
   AGENDAR_ORDEN: 'agendarOrden',
+  AGENDAR_ORDEN_GESTOR: 'agendarOrdenGestor',
   ASIGNAR_ORDEN: 'asignarOrden',
   ACTUALIZAR_ESTADO: 'actualizarEstado',
   DEVOLVER_ORDEN: 'devolverOrden'

@@ -20,6 +20,16 @@ export const OrdenSchema = new Schema({
     unique: true,
     default: '-'
   },
+  codigo_trabajo: {
+    type: String,
+    trim: true,
+    default: '-'
+  },
+  codigo_peticion: {
+    type: String,
+    trim: true,
+    default: '-'
+  },
   codigo_cliente: {
     type: String,
     trim: true,
@@ -69,6 +79,10 @@ export const OrdenSchema = new Schema({
     type: String,
     trim: true,
     default: '-'
+  },
+  fecha_asignado:{
+    type: Date,
+    trim: true,
   },
   fecha_registro:{
     type: Date,

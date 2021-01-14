@@ -5,6 +5,7 @@ import moment from 'moment';
 
 import { getOrdenes } from '../../../services/apiOrden';
 import { ordenes } from '../../../constants/metodos';
+import TagEstado from './TagEstado';
 
 const { Text } = Typography;
 
@@ -55,33 +56,33 @@ function ModalReiterada({abrir, visible, codigo_cliente}) {
     },
     {
       title: 'Contrata',
-      dataIndex: 'contrata',
+      dataIndex: 'tecnico_liquidado',
       width: 200,
       ellipsis: {
         showTitle: false,
       },
-      render: (c) => (
-        <Tooltip placement="topLeft" title={c ? c.nombre:'-'}>
-          {c ? c.nombre:'-'}
+      render: (t) => (
+        <Tooltip placement="topLeft" title={t && t.contrata ? t.contrata.nombre:'-'}>
+          {t && t.contrata ? t.contrata.nombre:'-'}
         </Tooltip>
       )
     },
     {
       title: 'Gestor',
-      dataIndex: 'gestor',
+      dataIndex: 'tecnico_liquidado',
       width: 200,
       ellipsis: {
         showTitle: false,
       },
-      render: (g) => (
-        <Tooltip placement="topLeft" title={g ? g.nombre+' '+g.apellidos:'-'}>
-          {g ? g.nombre+' '+g.apellidos:'-'}
+      render: (t) => (
+        <Tooltip placement="topLeft" title={t && t.gestor ? t.gestor.nombre+' '+t.gestor.apellidos:'-'}>
+          {t ? t.gestor.nombre+' '+t.gestor.apellidos:'-'}
         </Tooltip>
       )
     },
     {
       title: 'Tecnico',
-      dataIndex: 'tecnico',
+      dataIndex: 'tecnico_liquidado',
       width: 200,
       ellipsis: {
         showTitle: false,
@@ -103,6 +104,24 @@ function ModalReiterada({abrir, visible, codigo_cliente}) {
           return '-';
         }
       }
+    },
+    {
+      title: 'Fecha Liquidacion',
+      dataIndex: 'fecha_liquidado',
+      width: 150,
+      render: (fecha) => {
+        if (fecha) {
+          return moment(fecha).format('DD/MM/YY HH:mm');
+        } else {
+          return '-';
+        }
+      }
+    },
+    {
+      title: 'Estado Liquidado',
+      dataIndex: 'estado_liquidado',
+      width: 150,
+      render: (estado) => <TagEstado estado={estado}/>
     },
   ]
 

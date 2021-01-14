@@ -32,21 +32,42 @@ export class UpdateDataService {
       if (o.tecnico && typeof o.tecnico === 'string' && String(o.tecnico).length === 6) {
         return await this.empleadoModel.findOne({ $and: [{carnet: o.tecnico},{carnet: { $ne: null}}]})
           .select('_id nombre apellidos gestor auditor contrata carnet').populate('gestor', 'nombre apellidos').populate('auditor', 'nombre apellidos').populate('contrata', 'nombre')
-          .then((empleado) => {
-            return({
-              ...o,
-              tipo,
-              estado_toa: o.estado,
-              tecnico: empleado ? {_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos} : null,
-              carnet: empleado && empleado.carnet,
-              gestor: empleado && empleado.gestor ? empleado.gestor : null,
-              auditor: empleado && empleado.auditor ? empleado.auditor : null,
-              contrata: empleado && empleado.contrata ? empleado.contrata : null,
-              fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-              fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
-              sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
-              sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
-            })
+          .then(async(empleado) => {
+            if (o.gestor_liquidado_toa && typeof o.gestor_liquidado_toa === 'string' && String(o.gestor_liquidado_toa).length === 6) {
+              return await this.empleadoModel.findOne({ $and: [{carnet: o.gestor_liquidado_toa},{carnet: { $ne: null}}]}).select('_id').then((gestor) => {
+                return({
+                  ...o,
+                  tipo,
+                  estado_toa: o.estado,
+                  tecnico: empleado ? {_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos} : null,
+                  carnet: empleado && empleado.carnet,
+                  gestor: empleado && empleado.gestor ? empleado.gestor : null,
+                  gestor_liquidado_toa: gestor ? {_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos} : null,
+                  auditor: empleado && empleado.auditor ? empleado.auditor : null,
+                  contrata: empleado && empleado.contrata ? empleado.contrata : null,
+                  fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+                  fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
+                  sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+                  sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
+                })
+              })
+            } else {
+              return({
+                ...o,
+                tipo,
+                estado_toa: o.estado,
+                tecnico: empleado ? {_id: empleado._id, nombre: empleado.nombre, apellidos: empleado.apellidos} : null,
+                carnet: empleado && empleado.carnet,
+                gestor: empleado && empleado.gestor ? empleado.gestor : null,
+                gestor_liquidado_toa: null,
+                auditor: empleado && empleado.auditor ? empleado.auditor : null,
+                contrata: empleado && empleado.contrata ? empleado.contrata : null,
+                fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+                fecha_cita: o.fecha_cita ? new Date(DateTime.fromFormat(String(o.fecha_cita).trim(), 'dd/MM/yy').toISO()): null,
+                sla_inicio: o.sla_inicio ? new Date(DateTime.fromFormat(String(o.sla_inicio).trim(), 'dd/MM/yy hh:mm a').toISO()): null,
+                sla_fin: o.sla_fin ? new Date(DateTime.fromFormat(String(o.sla_fin).trim(), 'dd/MM/yy hh:mm a').toISO()): null
+              })
+            }
           })
       } else {
         return({
@@ -56,6 +77,7 @@ export class UpdateDataService {
           tecnico: null,
           carnet: '-',
           gestor: null,
+          gestor_liquidado_toa: null,
           auditor: null,
           contrata: null,
           fecha_cancelado: o.fecha_cancelado ? new Date(DateTime.fromFormat(String(o.fecha_cancelado).trim(), 'dd/MM/yy hh:mm a').toISO()): null,

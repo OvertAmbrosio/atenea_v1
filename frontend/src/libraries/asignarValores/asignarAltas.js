@@ -62,7 +62,6 @@ export async function liquidadasAltas(ordenes=[], tecnicos=[]){
     if (String(orden['codtecliq']).trim().length === 6) {
       let iTecnico = tecnicos.findIndex((t) => t.carnet === orden['codtecliq']);
       if (iTecnico > 0) {
-        console.log(tecnicos[iTecnico]._id)
         tecnico = tecnicos[iTecnico]._id
       };
     };
@@ -79,7 +78,7 @@ export async function liquidadasAltas(ordenes=[], tecnicos=[]){
         if (orden[v.cabecera] !== undefined && orden[v.cabecera] !== null) {
           valores[v.propiedad] = v.fecha ? numeroFecha(orden[v.cabecera]) : orden[v.cabecera]
         } else if (orden[v.cabecera_2] !== undefined && orden[v.cabecera_2] !== null) {
-          valores[v.propiedad]= v.fecha ? numeroFecha(orden[v.cabecera]) : orden[v.cabecera]
+          valores[v.propiedad]= v.fecha ? numeroFecha(orden[v.cabecera_2]) : orden[v.cabecera_2]
         };
       } else {
         if (orden[v.cabecera] !== undefined && orden[v.cabecera] !== null) {

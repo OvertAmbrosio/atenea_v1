@@ -11,10 +11,9 @@ export const rutas = {
   adminAltasHfc: "/administrar-ordenes/altas-hfc",
   adminBasicas: "/administrar-ordenes/basicas",
   adminspeedy: "/administrar-ordenes/speedy",
-  gestionarAveriasHfc: "/gestionar-ordenes/averias-hfc",
-  gestionarAltasHfc: "/gestionar-ordenes/altas-hfc",
-  gestionarBasicas: "/gestionar-ordenes/basicas",
-  gestionarspeedy: "/gestionar-ordenes/speedy",
+  gestionarAsistencia: "/gestionar-ordenes/asistencia",
+  gestionarListaOrdenes: "/gestionar-ordenes/lista-ordenes",
+  gestionarLiquidarOrdenes: "/gestionar-ordenes/liquidar-ordenes",
 };
 
 export const permisos = {
@@ -38,10 +37,7 @@ export const permisos = {
     cargos.JEFE_OPERACIONES,
     cargos.LIDER_GESTION
   ],
-  gestionarOrdenes: [
-    cargos.ADMINISTRADOR,
-    cargos.JEFE_OPERACIONES,
-    cargos.LIDER_GESTION,
+  gestion: [
     cargos.GESTOR
   ]
 };

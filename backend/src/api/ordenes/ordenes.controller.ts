@@ -123,6 +123,21 @@ export class OrdenesController {
           data: null
         });
       });
+    } else if (metodo === 'ordenesHoyGestor') {
+      return await this.ordenesService.obtenerOrdenesHoyGestor(user.id).then((res) => {
+        return ({
+          status: 'success',
+          message: `(${res.length}) Ordenes encontradas.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(ordenesHoyGestor)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
     } else if (metodo === 'buscarReiterada' && codigo_cliente) {
       return await this.ordenesService.obtenerReiteradas(codigo_cliente).then((res) => {
         return ({
@@ -216,6 +231,13 @@ export class OrdenesController {
     
     if (data.metodo === 'agendarOrden' && user.cargo <= tipos_usuario.LIDER_GESTION) {
       return await this.ordenesService.agendarOrden(data.ordenes, user.id, data.bucket, data.contrata, data.gestor, data.fecha_cita, data.observacion)
+        .then((data) => ({status: 'success', message: `(${data.nModified}) Ordenes actualizadas correctamente.`}))
+        .catch((err) => {
+          this.logger.error({message: err.message, service: 'actualizarOrden(agendarOrden)'})
+          return ({status: 'error', message: 'Error actualizando las ordenes.'})
+        })
+    } else if (data.metodo === 'agendarOrdenGestor') {
+      return await this.ordenesService.agendarOrden(data.ordenes, user.id, data.bucket, data.contrata, user.id, data.tecnico, data.fecha_cita, data.observacion)
         .then((data) => ({status: 'success', message: `(${data.nModified}) Ordenes actualizadas correctamente.`}))
         .catch((err) => {
           this.logger.error({message: err.message, service: 'actualizarOrden(agendarOrden)'})

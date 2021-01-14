@@ -38,6 +38,23 @@ export default function columnasOrdenes(
       render: (req) => <Text copyable>{req}</Text>
     },
     {
+      title: 'Codigo Cliente',
+      dataIndex: 'codigo_cliente',
+      width: 120,
+      fixed: 'left',
+      render: (req) => <Text copyable>{req}</Text>
+    },
+    {
+      title: 'Tipo Requerimiento',
+      dataIndex: 'tipo_requerimiento',
+      width: 120
+    },
+    {
+      title: 'Tipo Tecnologia',
+      dataIndex: 'tipo_tecnologia',
+      width: 120
+    },
+    {
       title: 'CTR',
       dataIndex: 'codigo_ctr',
       width: 60,
@@ -68,7 +85,7 @@ export default function columnasOrdenes(
       align: 'center',
       sorter: (a,b) => a.numero_reiterada - b.numero_reiterada,
       render: (r, obj) => {
-        if (r && r !== '0') {
+        if (r && r !== '0' && r !== '-') {
           return <Tag color="#E5302F" onClick={() => abrirReiterada(obj.codigo_cliente)} style={{ cursor: 'pointer' }}>{r}</Tag>
         } else {
           return '-'
@@ -220,6 +237,27 @@ export default function columnasOrdenes(
       }
     },
     {
+      title: 'Orden Devuelta',
+      dataIndex: 'orden_devuelta',
+      width: 150,
+      align: 'center',
+      filters: [{text: 'Si', value: true}, {text: 'No', value: false}],
+      onFilter: (v,r) => {
+        if (v) {
+          return r.orden_devuelta
+        } else {
+          return !r.orden_devuelta
+        }
+      },
+      render: (inf) => {
+        if (inf && inf.length > 0) {
+          return <Tag color={colores.warning}>Si</Tag>
+        } else {
+          return '-'
+        }
+      }
+    },
+    {
       title: 'Horas',
       dataIndex: 'fecha_registro',
       width: 80,
@@ -273,6 +311,27 @@ export default function columnasOrdenes(
     {
       title: 'Requerimiento',
       dataIndex: 'codigo_requerimiento',
+      width: 120,
+      fixed: 'left',
+      render: (req) => <Text copyable>{req}</Text>
+    },
+    {
+      title: 'Orden Trabajo',
+      dataIndex: 'codigo_trabajp',
+      width: 120,
+      fixed: 'left',
+      render: (req) => <Text copyable>{req}</Text>
+    },
+    {
+      title: 'Peticion',
+      dataIndex: 'codigo_peticion',
+      width: 120,
+      fixed: 'left',
+      render: (req) => <Text copyable>{req}</Text>
+    },
+    {
+      title: 'Codigo Cliente',
+      dataIndex: 'codigo_cliente',
       width: 120,
       fixed: 'left',
       render: (req) => <Text copyable>{req}</Text>
@@ -413,6 +472,18 @@ export default function columnasOrdenes(
       }
     },
     {
+      title: 'Fecha Asignado',
+      dataIndex: 'fecha_asignado',
+      width: 150,
+      render: (fecha) => {
+        if (fecha) {
+          return moment(fecha).format('DD/MM/YY HH:mm');
+        } else {
+          return '-';
+        }
+      }
+    },
+    {
       title: 'Fecha Registro',
       dataIndex: 'fecha_registro',
       width: 150,
@@ -421,6 +492,27 @@ export default function columnasOrdenes(
           return moment(fecha).format('DD/MM/YY HH:mm');
         } else {
           return '-';
+        }
+      }
+    },
+    {
+      title: 'Orden Devuelta',
+      dataIndex: 'orden_devuelta',
+      width: 150,
+      align: 'center',
+      filters: [{text: 'Si', value: true}, {text: 'No', value: false}],
+      onFilter: (v,r) => {
+        if (v) {
+          return r.orden_devuelta
+        } else {
+          return !r.orden_devuelta
+        }
+      },
+      render: (inf) => {
+        if (inf && inf.length > 0) {
+          return <Tag color={colores.warning}>Si</Tag>
+        } else {
+          return '-'
         }
       }
     },

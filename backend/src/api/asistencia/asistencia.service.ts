@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
-import { PaginateModel } from 'mongoose';
+import { Model } from 'mongoose';
 import { DateTime } from 'luxon';
 
 import { RedisService } from 'src/database/redis.service';
-// import { CreateAsistenciaDto } from './dto/create-asistencia.dto';
-import { UpdateAsistenciaDto } from './dto/update-asistencia.dto';
 import { IAsistencia } from './interfaces/asistencia.interface';
 import { TPaginateParams } from 'src/helpers/types';
 import { IEmpleado } from '../empleados/interfaces/empleados.interface';
@@ -16,8 +14,8 @@ import { cache_keys } from 'src/config/variables';
 @Injectable()
 export class AsistenciaService {
   constructor(
-    @InjectModel('Asistencia') private readonly asistenciaModel: PaginateModel<IAsistencia>,
-    @InjectModel('Empleado') private readonly empleadoModel: PaginateModel<IEmpleado>,
+    @InjectModel('Asistencia') private readonly asistenciaModel: Model<IAsistencia>,
+    @InjectModel('Empleado') private readonly empleadoModel: Model<IEmpleado>,
     private readonly redisService: RedisService,
   ) {};
 
@@ -89,6 +87,15 @@ export class AsistenciaService {
     })
   };
 
+  async actualizarAsistencia(id:string, gestor:string, estado:string, observacion?:string) {
+    return await this.asistenciaModel.findByIdAndUpdate({
+      _id: id
+    }, {
+      estado, gestor,
+      observacion: observacion ? observacion : '-'
+    })
+  };
+
   async listarTodoAsistencia(params: TPaginateParams): Promise<IAsistencia[]> {
     const diaFin = new Date(params.fecha_fin).getDate();
     const fechaFin = DateTime.fromISO(params.fecha_fin).set({day: diaFin+2});
@@ -142,15 +149,18 @@ export class AsistenciaService {
       ]
     }).populate({
       path: 'tecnico',
-      select: 'nombre apellidos contrata',
+      select: 'nombre apellidos contrata gestor',
       populate: [{
         path: 'contrata',
         select: 'nombre'
       }, {
         path: 'gestor',
         select: 'nombre apellidos'
+      }, {
+        path: 'auditor',
+        select: 'nombre apellidos'
       }]
-    }).select('tecnico estado observacion createdAt').then((obj) => obj.sort((a, b) => {
+    }).then((obj) => obj.sort((a, b) => {
       if (a.tecnico.nombre > b.tecnico.nombre) {
         return -1;
       } else if (a.tecnico.nombre < b.tecnico.nombre) {
@@ -161,20 +171,4 @@ export class AsistenciaService {
     }));
   };
 
-  findOne(id: number) {
-    return `This action returns a #${id} asistencia`;
-  }
-
-  update(id: number, updateAsistenciaDto: UpdateAsistenciaDto) {
-    return `This action updates a #${id} asistencia`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} asistencia`;
-  };
-
-  prueba() {
-    // funcion de prueba para ver si hay seguimiento
-    return {};
-  }
 }

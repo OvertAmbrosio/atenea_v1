@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
 import { Table } from 'antd';
 
-import columnasOrdenes from './columnasOrdenes'
+import columnasOrdenesGestor from './columnasOrdenesGestor'
 import { obtenerFiltroId, obtenerFiltroNombre } from '../../../libraries/obtenerFiltro';
 
-function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirDetalle, abrirDevolver }) {
+function TablaOrdenes({ data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirDetalle }) {
   const [filtroDistrito, setFiltroDistrito] = useState([]);
   const [filtroBucket, setFiltroBucket] = useState([]);
   const [filtroEstadoToa, setFiltroEstadoToa] = useState([]);
   const [filtroEstadoGestor, setFiltroEstadoGestor] = useState([])
   const [filtroContrata, setFiltroContrata] = useState([]);
-  const [filtroGestor, setFiltroGestor] = useState([]);
+  const [filtroTecnico, setFiltroTecnico] = useState([]);
+  const [filtroTipo, setFiltroTipo] = useState([])
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -20,7 +21,8 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
       obtenerFiltroNombre(data, 'estado_toa').then((f) => setFiltroEstadoToa(f));
       obtenerFiltroNombre(data, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
       obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f));
-      obtenerFiltroId(data, 'gestor', true).then((f) => setFiltroGestor(f));
+      obtenerFiltroId(data, 'tecnico').then((f) => setFiltroTecnico(f));
+      obtenerFiltroNombre(data, 'tipo', true).then((f) => setFiltroTipo(f));
     };
   },[data]);
 
@@ -37,18 +39,17 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
         selectedRowKeys: ordenesSeleccionadas,
         onChange: (e) => setOrdenesSeleccionadas(e)
       }}
-      columns={columnasOrdenes(
-        tipo, 
+      columns={columnasOrdenesGestor(
         filtroDistrito,
+        filtroTipo,
         filtroBucket,
         filtroEstadoToa,
         filtroEstadoGestor,
         filtroContrata,
-        filtroGestor, 
+        filtroTecnico,
         abrirReiterada, 
         abrirInfancia,
-        abrirDetalle,
-        abrirDevolver)
+        abrirDetalle)
       }
       dataSource={data}
       loading={loading}
@@ -63,14 +64,13 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
 };
 
 TablaOrdenes.propTypes = {
-  tipo: PropTypes.string,
   data: PropTypes.array,
   loading: PropTypes.bool,
   ordenesSeleccionadas: PropTypes.array,
   setOrdenesSeleccionadas: PropTypes.func,
   abrirReiterada: PropTypes.func,
-  abrirDetalle: PropTypes.func,
-  abrirDevolver: PropTypes.func
+  abrirInfancia: PropTypes.func,
+  abrirDetalle: PropTypes.func
 };
 
 export default TablaOrdenes

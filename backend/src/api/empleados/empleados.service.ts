@@ -36,7 +36,7 @@ export class EmpleadosService {
   };
   //tabla de lista de personal para la tabla
   async listarPersonal(usuario:TPayload, page:number, limit:number) {
-    //decalrar opciones de la consulta
+    //declarar opciones de la consulta
     const options = {
       page, limit,
       populate: [{
@@ -61,10 +61,10 @@ export class EmpleadosService {
           { contrata: usuario.contrata },
           { 'usuario.cargo': { $gte: tipos_usuario.JEFE_CONTRATA } }
         ] }, options)
-    } else if (usuario.cargo === tipos_usuario.GESTOR) {
+    } else if (usuario.cargo === tipos_usuario.GESTOR) {  
       return await this.empleadoModel.paginate({
         $and: [
-          { 'gestor': usuario.gestor },
+          { 'gestor': usuario.id },
           { 'gestor': { $ne: null } },
           { 'usuario.cargo': { $gte: tipos_usuario.GESTOR } }
         ]}, options)
@@ -150,7 +150,8 @@ export class EmpleadosService {
       'usuario.cargo': tipos_usuario.TECNICO,
       'gestor': idGestor,
       estado_empresa: { $ne: estado_empresa.INACTIVO }
-    }).populate('auditor', 'nombre apellidos').select('nombre apellidos auditor').sort('apellidos')
+    }).populate('auditor', 'nombre apellidos')
+      .populate('contrata', 'nombre').select('nombre apellidos auditor').sort('apellidos')
   };
   //funcion para buscar personal por el field y el valor
   async buscarPersonal(value: string, field: string, usuario:TPayload) {
@@ -325,7 +326,7 @@ export class EmpleadosService {
   };
   //funcion para asignar el subtipo de negocio
   async actualizarSubNegocio(tecnicos: string[], subNegocio: string): Promise<IEmpleado> {
-    const subNegocios = [sub_tipo_negocio.GPON,sub_tipo_negocio.HFC,sub_tipo_negocio.ADSL,sub_tipo_negocio.COBRE,sub_tipo_negocio.CRITICOS,sub_tipo_negocio.EMPRESAS];
+    const subNegocios = [sub_tipo_negocio.GPON,sub_tipo_negocio.HFC,sub_tipo_negocio.COBRE,sub_tipo_negocio.CRITICOS,sub_tipo_negocio.EMPRESAS];
     if (subNegocios.includes(subNegocio)) {
       return this.empleadoModel.updateMany({_id: { $in: tecnicos } }, { sub_tipo_negocio: subNegocio }).then(async(data) => {
         await this.redisService.remove(cache_keys.TECNICOS_GLOBAL);

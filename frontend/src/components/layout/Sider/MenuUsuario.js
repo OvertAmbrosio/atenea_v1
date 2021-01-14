@@ -87,6 +87,13 @@ const items = [
         titulo: 'Lista Rutas'
       },
       {
+        grupo: false,
+        ruta: rutas.gestionarAsistencia,
+        icon: CarryOutOutlined,
+        permisos: permisos.gestion,
+        titulo: 'Asistencia'
+      },
+      {
         grupo: true,
         key: 'sub98',
         icon: FileSearchOutlined,
@@ -120,28 +127,18 @@ const items = [
         key: 'sub97',
         icon: ScheduleOutlined,
         titulo: 'Gestionar ordenes',
-        permisos: permisos.gestionarOrdenes,
+        permisos: permisos.gestion,
         children: [
           {
-            ruta: rutas.gestionarAveriasHfc,
+            ruta: rutas.gestionarListaOrdenes,
             icon: ScheduleOutlined,
-            titulo: 'Averias Hfc'
+            titulo: 'Lista de Ordenes'
           },
           {
-            ruta: rutas.gestionarAltasHfc,
+            ruta: rutas.gestionarLiquidarOrdenes,
             icon: ScheduleOutlined,
-            titulo: 'Altas Hfc'
+            titulo: 'Liquidar Orden'
           },
-          {
-            ruta: rutas.gestionarBasicas,
-            icon: ScheduleOutlined,
-            titulo: 'Basicas'
-          },
-          {
-            ruta: rutas.gestionarspeedy,
-            icon: ScheduleOutlined,
-            titulo: 'Speedy'
-          }
         ]
       }
     ]

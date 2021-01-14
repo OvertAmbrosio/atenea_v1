@@ -12,10 +12,11 @@ export default async function ordenarAsistencia(data=[]) {
           const aux = nuevoArray.findIndex((i) => i.nombre === obj.tecnico.nombre && i.apellidos === obj.tecnico.apellidos);
           if (aux !== -1 && obj.createdAt ) {
             const objetoNuevo = nuevoArray[aux];
-            let field = moment(obj.createdAt).format('DD-MM');
+            const field = moment(obj.createdAt).format('DD-MM');
             nuevoArray[aux] = {
               ...objetoNuevo,
               [field]: {
+                _id: obj._id,
                 estado: obj.estado,
                 observacion: obj.observacion,
                 iniciado: obj.iniciado,
@@ -23,7 +24,7 @@ export default async function ordenarAsistencia(data=[]) {
               }
             };
           } else {
-            let field = moment(obj.createdAt).format('DD-MM');
+            const field = moment(obj.createdAt).format('DD-MM');
             const objetoNuevo = {
               _id: obj._id,
               tipo_negocio: obj.tecnico.tipo_negocio,
@@ -42,6 +43,7 @@ export default async function ordenarAsistencia(data=[]) {
               },
               observacion: obj.observacion,
               [field]: {
+                _id: obj._id,
                 estado: obj.estado,
                 observacion: obj.observacion,
                 iniciado: obj.iniciado,
@@ -51,7 +53,7 @@ export default async function ordenarAsistencia(data=[]) {
             nuevoArray.push(objetoNuevo);
           }
         } else {
-          let field = moment(obj.createdAt).format('DD-MM');
+          const field = moment(obj.createdAt).format('DD-MM');
           nuevoArray = [{
             _id: obj._id,
             tipo_negocio: obj.tecnico.tipo_negocio,
@@ -70,6 +72,7 @@ export default async function ordenarAsistencia(data=[]) {
             },
             observacion: obj.observacion,
             [field]: {
+              _id: obj._id,
               estado: obj.estado,
               observacion: obj.observacion,
               iniciado: obj.iniciado,

@@ -42,10 +42,12 @@ export type TOrdenesToa = {
 
   tecnico?: string|Partial<IEmpleado>,
   gestor?: string|IEmpleado,
+  gestor_liquidado_toa?: string|Partial<IEmpleado>,
   auditor?: string|IEmpleado,
   contrata?: string|IContrata,
   estado?: string,
   estado_toa?: string,
+  estado_indicador_toa?:string,
   bucket?: string,
   subtipo_actividad?: string,
   fecha_cita?: string|Date,

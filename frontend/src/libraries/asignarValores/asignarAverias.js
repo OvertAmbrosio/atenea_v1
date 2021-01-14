@@ -67,7 +67,7 @@ export async function liquidadasAverias(ordenes=[], tecnicos=[]){
     let inEfectivas = codigosLiquidadasInefectivas.includes(orden['tipave']);
     let noCorresponde = codigosLiquidadasNoCorresponde.includes(orden['tipave']);
 
-    if (isNaN(orden[averias.CODIGO_REQUERIMIENTO]) && isNaN(orden[averias.CODIGO_REQUERIMIENTO_2])) { verificado = false};
+    if (isNaN(orden[averias[1].cabecera]) && isNaN(orden[averias[1].cabecera_2])) { verificado = false};
     if (String(orden['codtecliq']).trim().length === 6) {
       let iTecnico = tecnicos.findIndex((t) => t.carnet === orden['codtecliq']);
       if (iTecnico > 0) {
@@ -87,7 +87,7 @@ export async function liquidadasAverias(ordenes=[], tecnicos=[]){
         if (orden[v.cabecera] !== undefined && orden[v.cabecera] !== null) {
           valores[v.propiedad] = v.fecha ? numeroFecha(orden[v.cabecera]) : orden[v.cabecera]
         } else if (orden[v.cabecera_2] !== undefined && orden[v.cabecera_2] !== null) {
-          valores[v.propiedad]= v.fecha ? numeroFecha(orden[v.cabecera]) : orden[v.cabecera]
+          valores[v.propiedad]= v.fecha ? numeroFecha(orden[v.cabecera_2]) : orden[v.cabecera_2]
         };
       } else {
         if (orden[v.cabecera] !== undefined && orden[v.cabecera] !== null) {

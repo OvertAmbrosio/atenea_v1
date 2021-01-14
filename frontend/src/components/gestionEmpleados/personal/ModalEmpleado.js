@@ -97,16 +97,13 @@ function ModalEmpleado({accion, visible, setVisible, empleado={}, contratas=[], 
             <Option value={cargos.TECNICO}>Tecnico</Option>
           </Select>
         </Form.Item>
-        {
-          empleadoObj.cargo ? empleadoObj.cargo === cargos.TECNICO || empleadoObj.cargo === cargos.AUDITOR ? 
-          <Form.Item
-            name="carnet"
-            label="Carnet"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>:null:null
-        }
+        <Form.Item
+          name="carnet"
+          label="Carnet"
+          rules={[{ required: false }]}
+        >
+          <Input />
+        </Form.Item>
         {
           contratas && contratas.length > 0 ? 
           <Form.Item

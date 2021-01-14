@@ -1,5 +1,4 @@
 import { Schema } from 'mongoose';
-import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { estado_asistencia } from 'src/constants/enum';
 
 export const AsistenciaSchema = new Schema({
@@ -42,5 +41,3 @@ export const AsistenciaSchema = new Schema({
 }, {
   timestamps: true
 });
-
-AsistenciaSchema.plugin(mongoosePaginate);

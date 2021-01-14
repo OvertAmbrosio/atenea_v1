@@ -1,7 +1,7 @@
 export const variables = {
   url_scrap: 'http://localhost:4000/api/ordenes',
   user_scrap: 'LY0267',
-  pass_scrap: 'Empanadadecarne123',
+  pass_scrap: 'Empanadadecarne456',
   puerto: 'PORT',
   db_uri_dev: 'MONGODB_URI_DEV',
   db_uri_prod: 'MONGODB_URI_PROD',

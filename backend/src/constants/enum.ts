@@ -44,7 +44,6 @@ export const tipo_negocio = {
 export const sub_tipo_negocio = {
   GPON: 'gpon',
   HFC: 'hfc',
-  ADSL: 'adsl',
   COBRE: 'cobre',
   CRITICOS: 'criticos',
   EMPRESAS: 'empresas'
