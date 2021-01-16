@@ -1,11 +1,11 @@
 import { HttpException, HttpService, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
-import { Model  } from 'mongoose';
+import { Model } from 'mongoose';
 import { DateTime } from 'luxon';
 
 import { RedisService } from 'src/database/redis.service';
-import { THistorial, TOrdenesToa, TRespuesta } from 'src/helpers/types';
+import { THistorial, TInfanciasExternas, TOrdenesToa, TRespuesta } from 'src/helpers/types';
 import { cache_keys } from 'src/config/variables';
 import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
@@ -53,7 +53,7 @@ export class OrdenesService {
     return Promise.all(createOrdenesDto.map(async(o) => {
       if (o.tipo === tipos_orden.AVERIAS) {
         const dia = new Date().getDate();
-        const fechaInicio = DateTime.fromJSDate(new Date()).set({day: dia-32});
+        const fechaInicio = DateTime.fromJSDate(o.fecha_registro).set({day: dia-32});
   
         return await this.ordenModel.findOne({ 
           $and: [
@@ -111,6 +111,54 @@ export class OrdenesService {
           }, HttpStatus.FORBIDDEN)
         }; 
       })
+    });
+  };
+  //subir la data de infancias externas, buscar las ordenes de nuestra base de datos, recorrer esa data
+  async subirInfanciasExternas(ordenesExternas:TInfanciasExternas[], usuario:string):Promise<TRespuesta> {
+    const registroOrdenes:THistorial = {
+      usuario_entrada: usuario,
+      observacion: 'Orden con infancia externa.',
+    };
+
+    return await this.ordenModel.find({
+      $and: [
+        { fecha_liquidado: null } ,
+        { tipo: tipos_orden.AVERIAS }
+      ]
+    }).select('codigo_cliente').then(async(data:IOrden[]) => {
+      if (data) {
+        return await Promise.all(ordenesExternas.map(async(o) => {
+          const index = data.findIndex((e) => e.codigo_cliente === o.codigo_cliente);          
+          if (index !== -1) {
+            const fechaLiquidadoInfancia = DateTime.fromJSDate(o.fecha_liquidado);
+            const diasDiferencia = DateTime.fromJSDate(data[index].fecha_registro).diff(fechaLiquidadoInfancia, 'day').days;
+            console.log(diasDiferencia);
+            if (diasDiferencia < 31) {
+              return await this.ordenModel.findOneAndUpdate({ 
+                _id: data[index]._id 
+              }, {
+                $set: { infancia_externa: o },
+                $push: { historial_registro: registroOrdenes }
+              }).then(() => true);
+            } else {
+              return false;
+            }
+          } else {
+            return false;
+          }
+        })).then((res) => {
+          let validados = res.filter((e) => e === true);
+          return ({
+            status: 'success',
+            message: `(${validados.length}) Ordenes Actualizadas.`
+          })
+        })
+      } else {
+        return ({
+          status: 'error',
+          message: `No se encontraron ordenes.`
+        })
+      }
     });
   };
   //subir la data del excel de liquidadas y actualizar las ordenes
@@ -211,7 +259,7 @@ export class OrdenesService {
     }).populate('contrata', 'nombre')
       .populate('gestor', 'nombre apellidos')
       .populate('tecnico', 'nombre apellidos carnet')
-      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_motivo codigo_trabajo codigo_peticion codigo_cliente distrito bucket tipo_requerimiento tipo_tecnologia estado_toa estado_gestor contrata gestor fecha_cita fecha_asignado fecha_registro infancia numero_reiterada orden_devuelta')
+      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_motivo codigo_trabajo codigo_peticion codigo_cliente distrito bucket tipo_requerimiento tipo_tecnologia estado_toa estado_gestor estado_liquidado contrata gestor fecha_cita fecha_asignado fecha_registro infancia infancia_externa numero_reiterada orden_devuelta')
       .sort('bucket estado_toa contrata');
   };
   //funcion que obtiene las ordenes del dia actual POR GESTOR
@@ -262,7 +310,11 @@ export class OrdenesService {
   async obtenerInfancia(id_orden: string):Promise<IOrden|any> {
     return await this.ordenModel.findOne({_id: id_orden}).populate({
         path: 'tecnico_liquidado',
-        select: 'nombre apellidos carnet'
+        select: 'nombre apellidos carnet gestor',
+        populate: {
+          path: 'gestor',
+          select: 'nombre apellidos carnet'
+        }
       }).then((data) => {
         if (data) {
           return data;

@@ -19,6 +19,7 @@ export default function columnasOrdenes(
   filtroGestor=[], 
   abrirReiterada,
   abrirInfancia,
+  abrirInfanciaExterna,
   abrirDetalle,
   abrirDevolver
 ) {
@@ -41,7 +42,6 @@ export default function columnasOrdenes(
       title: 'Codigo Cliente',
       dataIndex: 'codigo_cliente',
       width: 120,
-      fixed: 'left',
       render: (req) => <Text copyable>{req}</Text>
     },
     {
@@ -107,7 +107,28 @@ export default function columnasOrdenes(
       },
       render: (inf) => {
         if (inf && inf.length > 0) {
-          return <Tag color={colores.warning} onClick={() => abrirInfancia(inf)} style={{ cursor: 'pointer' }}>Si</Tag>
+          return <Tag color="purple" onClick={() => abrirInfancia(inf)} style={{ cursor: 'pointer' }}>Si</Tag>
+        } else {
+          return '-'
+        }
+      }
+    },
+    {
+      title: 'Infancia Externa',
+      dataIndex: 'infancia_externa',
+      width: 100,
+      align: 'center',
+      filters: [{text: 'Si', value: true}, {text: 'No', value: false}],
+      onFilter: (v,r) => {
+        if (v) {
+          return r.infancia_externa
+        } else {
+          return !r.infancia_externa
+        }
+      },
+      render: (inf) => {
+        if (inf && inf.length > 0) {
+          return <Tag color="geekblue" onClick={() => abrirInfanciaExterna(inf)} style={{ cursor: 'pointer' }}>Si</Tag>
         } else {
           return '-'
         }
@@ -151,6 +172,13 @@ export default function columnasOrdenes(
       align: 'center',
       filters: filtroEstadoGestor ? filtroEstadoGestor : [],
       onFilter: (v,r) => r.estado_gestor.indexOf(v) === 0,
+      render: (e) => <TagEstado estado={e}/>
+    },
+    {
+      title: 'Estado Liquidado',
+      dataIndex: 'estado_liquidado',
+      width: 150,
+      align: 'center',
       render: (e) => <TagEstado estado={e}/>
     },
     {
@@ -317,29 +345,32 @@ export default function columnasOrdenes(
     },
     {
       title: 'Orden Trabajo',
-      dataIndex: 'codigo_trabajp',
+      dataIndex: 'codigo_trabajo',
       width: 120,
-      fixed: 'left',
       render: (req) => <Text copyable>{req}</Text>
     },
     {
       title: 'Peticion',
       dataIndex: 'codigo_peticion',
       width: 120,
-      fixed: 'left',
       render: (req) => <Text copyable>{req}</Text>
     },
     {
       title: 'Codigo Cliente',
       dataIndex: 'codigo_cliente',
       width: 120,
-      fixed: 'left',
       render: (req) => <Text copyable>{req}</Text>
     },
     {
       title: 'CTR',
       dataIndex: 'codigo_ctr',
       width: 60,
+    },
+    {
+      title: 'Tipo Req.',
+      dataIndex: 'tipo_requerimiento',
+      align:'center',
+      width: 100
     },
     {
       title: 'Nodo',

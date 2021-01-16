@@ -16,6 +16,7 @@ import ModalEstado from './ModalEstado';
 import ModalDetalle from './ModalDetalle';
 import ModalInfancia from './ModalInfancia';
 import ModalDevolver from './ModalDevolver';
+import ModalInfanciaExterna from './ModalInfanciaExterna';
 
 const { Search } = Input;
 
@@ -38,11 +39,13 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
   const [modalAsignar, setModalAsignar] = useState(false);
   const [modalReiterada, setModalReiterada] = useState(false);
   const [modalInfancia, setModalInfancia] = useState(false);
+  const [modalInfanciaExterna, setModalInfanciaExterna] = useState(false);
   const [modalEstado, setModalEstado] = useState(false);
   const [modalDetalle, setModalDetalle] = useState(false);
   const [modalDevolver, setModalDevolver] = useState(false);
   const [codigoCliente, setCodigoCliente] = useState(null);
   const [idOrden, setIdOrden] = useState(null);
+  const [dataInfanciaExterna, setDataInfanciaExterna] = useState({});
 
   useEffect(() => {
     listarOrdenes();
@@ -189,6 +192,7 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
   const abrirModalAsignar = () => setModalAsignar(!modalAsignar);
   const abrirModalReiterada = () => setModalReiterada(!modalReiterada);
   const abrirModalInfancia = () => setModalInfancia(!modalInfancia);
+  const abrirModalInfanciaExterna = () => setModalInfanciaExterna(!modalInfanciaExterna);
   const abrirModalEstado = () => setModalEstado(!modalEstado);
   const abrirModalDetalle = () => setModalDetalle(!modalDetalle);
   const abrirModalDevolver = () => setModalDevolver(!modalDevolver);
@@ -201,6 +205,11 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
   const abrirInfancia = async (id) => {
     abrirModalInfancia();
     await buscarInfancia(id);
+  };
+
+  const abrirInfanciaExterna = async (infancia) => {
+    abrirModalInfanciaExterna();
+    setDataInfanciaExterna(infancia);
   };
 
   const abrirDetalle = async (id) => {
@@ -266,6 +275,7 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
         setOrdenesSeleccionadas={setOrdenesSeleccionadas}
         abrirReiterada={abrirReiterada}
         abrirInfancia={abrirInfancia}
+        abrirInfanciaExterna={abrirInfanciaExterna}
         abrirDetalle={abrirDetalle}
         abrirDevolver={abrirDevolver}
       />
@@ -279,6 +289,8 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
       <ModalReiterada visible={modalReiterada} abrir={abrirModalReiterada} codigo_cliente={codigoCliente}/>
       {/* MODAL PARA BUSCAR LA INFANCIA */}
       <ModalInfancia visible={modalInfancia} abrir={abrirModalInfancia} loading={loadingInfancia} orden={dataInfancia} />
+      {/* MODAL PARA MOSTRAR LA INFANCIA eXTERNA */}
+      <ModalInfanciaExterna visible={modalInfanciaExterna} abrir={abrirModalInfanciaExterna} orden={dataInfanciaExterna} />
       {/* MODAL DETALLE PARA VER EL HISTORIAL DE CAMBIOS */}
       <ModalDetalle visible={modalDetalle} abrir={abrirModalDetalle} loading={loadingDetalle} registros={dataRegistros}/>
       {/* MODAL PARA DEVOLVER LA ORDEN */}

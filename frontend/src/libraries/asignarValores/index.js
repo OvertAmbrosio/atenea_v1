@@ -1,5 +1,5 @@
 import { tipoOrdenes } from '../../constants/tipoOrden';
-import { pendientesAverias, liquidadasAverias } from './asignarAverias';
+import { pendientesAverias, infanciasExternas, liquidadasAverias } from './asignarAverias';
 import { pendientesAltas, liquidadasAltas } from './asignarAltas';
 
 export default async function asignarValores(obj, tipo, estado, tecnicos) {
@@ -10,6 +10,8 @@ export default async function asignarValores(obj, tipo, estado, tecnicos) {
       } else {
         return await liquidadasAverias(obj, tecnicos);   
       }
+    case 'infancias' :
+      return await infanciasExternas(obj);
     case tipoOrdenes.ALTAS:
       if (estado === 1) {
         return await pendientesAltas(obj);

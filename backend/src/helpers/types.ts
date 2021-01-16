@@ -57,8 +57,18 @@ export type TOrdenesToa = {
   sla_fin?: string|Date
 };
 
+export type TInfanciasExternas = {
+  readonly codigo_requerimiento: string,
+  readonly codigo_trabajo?: string,
+  readonly codigo_cliente?: string,
+  readonly nombre_cliente?: string,
+  readonly codigo_ctr?: string,
+  readonly fecha_liquidado?: Date,
+  readonly observacion_liquidado?: string,
+}
+
 type TImagenRegistro = {
-  readonly url: string
+  readonly url: string,
   readonly public_id: string
 };
 

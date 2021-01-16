@@ -58,8 +58,40 @@ export async function pendientesAverias(ordenes=[]){
   })
 };
 
+export async function infanciasExternas(ordenes=[]){
+  // eslint-disable-next-line
+  const promises = ordenes
+    .filter((e) => !codctrArray.includes(String(e['codres'])))
+    .map(function(orden, indice){
+      
+    let verificado = true;
+    //cliente
+    if (isEmpty(String(orden['codcli']).trim())) {verificado = false};
+    //requerimiento
+    if (isNaN(orden['numreq'])) {verificado = false};
+    
+    return ({
+      key: indice,
+      verificado,
+      codigo_requerimiento: orden['numreq'] !== undefined && orden['numreq'] !== null ? orden['numreq'] : null,
+      codigo_trabajo: orden['ordtrab'] !== undefined && orden['ordtrab'] !== null ? orden['ordtrab'] : null,
+      codigo_cliente: orden['codcli'] !== undefined && orden['codcli'] !== null ? orden['codcli'] : null,
+      nombre_cliente: orden['nombre'] !== undefined && orden['nombre'] !== null ? orden['nombre'] : null,
+      codigo_ctr: orden['codres'] !== undefined && orden['codres'] !== null ? orden['codres'] : null,
+      fecha_liquidado: orden['fechorliq'] !== undefined && orden['fechorliq'] !== null ? numeroFecha(orden['fechorliq']) : null,
+      observacion_liquidado: orden['desobsordtrab'] !== undefined && orden['desobsordtrab'] !== null ? orden['desobsordtrab'] : null,
+    });
+  });
+  // eslint-disable-next-line
+  return Promise.all(promises).catch((err) => {
+    console.log('Error en la promesa');
+    console.log(err);
+    return err;
+  })
+};
+
 export async function liquidadasAverias(ordenes=[], tecnicos=[]){
-  const promises = ordenes.map((orden, indice) => {
+  const promises = ordenes.filter((e) => codctrArray.includes(String(e['codctr']))).map((orden, indice) => {
 
     let verificado = true;
     let tecnico = null;
@@ -105,4 +137,4 @@ export async function liquidadasAverias(ordenes=[], tecnicos=[]){
     console.log(err);
     return err;
   })
-}
+};

@@ -144,6 +144,16 @@ export const OrdenSchema = new Schema({
     ref: 'Ordene',
     default: null
   },
+  infancia_externa: {
+    codigo_requerimiento: String,
+    codigo_trabajo: String,
+    codigo_cliente: String,
+    nombre_cliente: String,
+    codigo_ctr: String,
+    fecha_liquidado: Date,
+    observacion_liquidado: String,
+    default: false,
+  },
   //REGISTROS EN EL SISTEMA
   historial_registro: [{
     fecha_entrada: {

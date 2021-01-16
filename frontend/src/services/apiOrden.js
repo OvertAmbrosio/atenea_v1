@@ -8,10 +8,11 @@ export const getOrdenes = async (toast, {metodo, tipo, codigo_cliente, id}) => r
  * @param {object} body
  * @param {string} body.metodo
  * @param {array} body.ordenes
+ * @param {array} body.ordenesExternas
  * @param {object} body.orden
  */
-export const postOrdenes = async ({metodo, ordenes, orden}) => restPrivate({
-  url: 'ordenes', method: 'POST', data: { ordenes, metodo, orden}
+export const postOrdenes = async ({metodo, ordenes, ordenesExternas, orden}) => restPrivate({
+  url: 'ordenes', method: 'POST', data: { ordenes, ordenesExternas, metodo, orden}
 },true);
 
 export const putOrdenes = async ({metodo, ordenes}) => restPrivate({

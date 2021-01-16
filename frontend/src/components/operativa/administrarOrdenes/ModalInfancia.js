@@ -1,37 +1,47 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Table } from 'antd';
+import { Modal, Table, Typography } from 'antd';
 import moment from 'moment';
+
 import TagEstado from './TagEstado';
+
+const { Text } = Typography;
 
 function ModalInfancia({visible, abrir, loading, orden}) {
 
   const columnas = [
-    {
-      title: '#',
-      width: 50,
-      render: (_,__,i) => i+1
-    },
     {
       title: 'Tipo',
       dataIndex: 'tipo',
       width: 120,
     },
     {
+      title: 'Requerimiento',
+      dataIndex: 'codigo_requerimiento',
+      width: 120,
+      render: (u) => u ? <Text copyable>{u}</Text> : '-'
+    },
+    {
       title: 'Tecnico',
-      dataIndex: 'tecnico',
+      dataIndex: 'tecnico_liquidado',
       width: 180,
       render: (u) => u ? u.nombre + ' ' + u.apellidos : '-'
     },
     {
-      title: 'Estado Gestor',
-      dataIndex: 'estado_gestor',
-      width: 120,
-      render: (e) => <TagEstado estado={e} />
+      title: 'Carnet',
+      dataIndex: 'tecnico_liquidado',
+      width: 180,
+      render: (u) => u ? <Text copyable>{u.carnet}</Text> : '-'
     },
     {
-      title: 'Estado Liquidacion',
-      dataIndex: 'estado_liquidado',
+      title: 'Gestor',
+      dataIndex: 'tecnico_liquidado',
+      width: 180,
+      render: (u) => u && u.gestor && u.gestor.nombre ? u.gestor.nombre + ' ' + u.gestor.apellidos : '-'
+    },
+    {
+      title: 'Estado Gestor',
+      dataIndex: 'estado_gestor',
       width: 120,
       render: (e) => <TagEstado estado={e} />
     },

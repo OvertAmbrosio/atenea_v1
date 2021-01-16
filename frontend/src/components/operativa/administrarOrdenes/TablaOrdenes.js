@@ -5,7 +5,7 @@ import { Table } from 'antd';
 import columnasOrdenes from './columnasOrdenes'
 import { obtenerFiltroId, obtenerFiltroNombre } from '../../../libraries/obtenerFiltro';
 
-function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirDetalle, abrirDevolver }) {
+function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirInfanciaExterna, abrirDetalle, abrirDevolver }) {
   const [filtroDistrito, setFiltroDistrito] = useState([]);
   const [filtroBucket, setFiltroBucket] = useState([]);
   const [filtroEstadoToa, setFiltroEstadoToa] = useState([]);
@@ -47,6 +47,7 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
         filtroGestor, 
         abrirReiterada, 
         abrirInfancia,
+        abrirInfanciaExterna,
         abrirDetalle,
         abrirDevolver)
       }

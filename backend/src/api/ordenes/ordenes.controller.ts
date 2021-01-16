@@ -12,7 +12,7 @@ import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { tipos_orden, tipos_usuario } from 'src/constants/enum';
-import { TBodyUpdateOrden, TRespuesta } from 'src/helpers/types';
+import { TBodyUpdateOrden, TInfanciasExternas, TRespuesta } from 'src/helpers/types';
 import { cache_keys } from 'src/config/variables';
 
 @Controller('ordenes/')
@@ -28,12 +28,23 @@ export class OrdenesController {
     @Req() req:Request,
     @Body('metodo') metodo:string, 
     @Body('ordenes') createOrdenesDto:CreateOrdeneDto[],
+    @Body('ordenesExternas') ordenesExternas:TInfanciasExternas[],
     @Body('orden') createOrdenDto:CreateOrdeneDto
   ): Promise<TRespuesta> {
     const user:any = req.user;
     //metodo para subir las data del excel de cms
     if (metodo === 'subirData' && user && user.cargo <= tipos_usuario.LIDER_GESTION) {
       return await this.ordenesService.subirData(createOrdenesDto, user.id).then((resp) => {
+        return (resp)
+      }).catch((err) => {
+        this.logger.error({
+          message: err.message,
+          service: 'Error subiendo las ordenes (subirData)'
+        });
+        return ({status: 'error', message: 'Error subiendo las ordenes (subirData)'});
+      });
+    } else if (metodo === 'subirInfanciasExternas' && user && user.cargo <= tipos_usuario.LIDER_GESTION) {
+      return await this.ordenesService.subirInfanciasExternas(ordenesExternas, user.id).then((resp) => {
         return (resp)
       }).catch((err) => {
         this.logger.error({
