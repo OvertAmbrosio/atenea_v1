@@ -243,22 +243,43 @@ export const hfcLiquidadas = [
   },
 ]
 
-export const valoresExcelAdministrar = {
+export const valoresExcelPendientes = {
   codigo_requerimiento: "Requerimiento",
+  codigo_cliente: 'Codigo Cliente',
+  codigo_trabajo: 'Orden Trabajo',
+  codigo_peticion: 'Peticion',
+  tipo_requerimiento: 'Tipo Requerimiento',
+  tipo_tecnologia: 'Tipo Tecnologia',
   codigo_ctr: "CTR",
   codigo_nodo: "Nodo",
   codigo_troba: "Troba",
   numero_reiterada: "Reiterada",
+  infancia_requerimiento: 'Infancia Requerimiento',
+  infancia_tecnico_nombre: 'Infancia Tecnico',
+  infancia_tecnico_carnet: 'Infancia Carnet',
+  infancia_tecnico_gestor: 'Infancia Gestor',
+  infancia_registro: 'Infancia Fecha Registro',
+  infancia_liquidado: 'Infancia Fecha Liquidado',
+  infancia_externa_requerimiento: 'Infancia Externa Requerimiento',
+  infancia_externa_ctr: 'Infancia Externa CTR',
+  infancia_externa_observacion: 'Infancia Externa Obs.',
   distrito: "Distrito",
   bucket: "Bucket",
   estado_toa: "Estado Toa",
   estado_gestor: "Estado Gestor",
   contrata: "Contrata",
   gestor: "Gestor",
-  auditor: "auditor",
+  gestor_carnet: 'Gestor Carnet',
+  auditor: "Auditor",
   tecnico: "Tecnico",
+  tecnico_carnet: 'Tecnico Carnet',
   fecha_cita: "Fecha Cita",
-  fecha_registro: "Fecha Registro"
+  fecha_registro: "Fecha Registro",
+  fecha_asignado: 'Fecha Asignado',
+  fecha_liquidado: 'Fecha Liquidado',
+  horas_registro: 'Horas Registro',
+  horas_asignado: 'Horas Asignado',
+  orden_devuelta: 'Orden Devuelta'
 };
 
 export const listaBuckets = [

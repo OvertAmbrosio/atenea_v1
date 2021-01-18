@@ -5,7 +5,7 @@ import { Modal, Select, Input, DatePicker, Button } from 'antd'
 const { Option } = Select;
 const { TextArea } = Input;
 
-function ModalAgendarGestor({visible, abrir, buckets=[], tecnicos=[], agendar}) {
+function ModalAgendarTecnico({visible, abrir, buckets=[], tecnicos=[], agendar}) {
   const [bucketSeleccionado, setBucketSeleccionado] = useState(null);
   const [contrataSeleccionada, setContrataSeleccionada] = useState(null);
   const [tecnicoSeleccionado, setTecnicoSeleccionado] = useState(null);
@@ -103,7 +103,7 @@ function ModalAgendarGestor({visible, abrir, buckets=[], tecnicos=[], agendar}) 
   )
 }
 
-ModalAgendarGestor.propTypes = {
+ModalAgendarTecnico.propTypes = {
   visible: PropTypes.bool,
   abrir: PropTypes.func,
   buckets: PropTypes.array,
@@ -111,5 +111,5 @@ ModalAgendarGestor.propTypes = {
   agendar: PropTypes.func
 };
 
-export default ModalAgendarGestor
+export default ModalAgendarTecnico
 

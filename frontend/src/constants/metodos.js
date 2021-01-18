@@ -26,6 +26,7 @@ export const ordenes = {
   ACTUALIZAR_DATA: 'actualizarLiquidadas',
   CRUZAR_DATA: 'cruzarData',
   ORDENES_HOY: 'ordenesHoy',
+  EXPORTAR_PENDIENTES: 'exportarPendientes',
   ORDENES_HOY_GESTOR: 'ordenesHoyGestor',
   BUSCAR_REITERADA: 'buscarReiterada',
   BUSCAR_INFANCIA: 'buscarInfancia',

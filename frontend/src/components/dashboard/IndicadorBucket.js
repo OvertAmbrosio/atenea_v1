@@ -5,7 +5,7 @@ import moment from 'moment';
 import { useJsonToCsv } from 'react-json-csv';
 
 import ChartBucket from './ChartBucket';
-import { gpon, valoresExcelToa } from "../../constants/valoresToa";
+import { valoresExcelToa } from "../../constants/valoresToa";
 import { separarBucket } from "../../libraries/separarField";
 
 const { Title } = Typography;
@@ -30,7 +30,7 @@ function IndicadorBucket({data=[], titulo, tipo, tecnologia}) {
     return new Promise((resolve, reject) => {
      try {
       if (data.length > 0) {
-        const ordenesFiltradas = data.filter((d) => gpon.includes(d.subtipo_actividad) === tecnologia)
+        const ordenesFiltradas = data.filter((d) => tecnologia ? d.actividad_gpon : !d.actividad_gpon)
         setTotalOrdenes(ordenesFiltradas);
         return resolve(ordenesFiltradas)
       } else {

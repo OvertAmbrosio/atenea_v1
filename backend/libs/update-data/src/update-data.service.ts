@@ -34,7 +34,7 @@ export class UpdateDataService {
           .select('_id nombre apellidos gestor auditor contrata carnet').populate('gestor', 'nombre apellidos').populate('auditor', 'nombre apellidos').populate('contrata', 'nombre')
           .then(async(empleado) => {
             if (o.gestor_liquidado_toa && typeof o.gestor_liquidado_toa === 'string' && String(o.gestor_liquidado_toa).length === 6) {
-              return await this.empleadoModel.findOne({ $and: [{carnet: o.gestor_liquidado_toa},{carnet: { $ne: null}}]}).select('_id').then((gestor) => {
+              return await this.empleadoModel.findOne({ $and: [{carnet: o.gestor_liquidado_toa},{carnet: { $ne: null}}]}).select('_id nombre apellidos').then((gestor) => {
                 return({
                   ...o,
                   tipo,

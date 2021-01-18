@@ -1,7 +1,7 @@
 import { restPrivate } from './requestHelper';
 
-export const getOrdenes = async (toast, {metodo, tipo, codigo_cliente, id}) => restPrivate({
-  url: 'ordenes', method: 'GET', params: {metodo, tipo, codigo_cliente, id}
+export const getOrdenes = async (toast, {metodo, tipo, codigo_cliente, id, todo, id_ordenes}) => restPrivate({
+  url: 'ordenes', method: 'GET', params: {metodo, tipo, todo, codigo_cliente, id, id_ordenes}
 }, toast);
 
 /**

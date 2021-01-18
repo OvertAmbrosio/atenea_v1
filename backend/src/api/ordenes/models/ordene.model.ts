@@ -1,5 +1,4 @@
 import { Schema, Types } from 'mongoose';
-import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export const OrdenSchema = new Schema({
   tipo: {
@@ -310,5 +309,3 @@ export const OrdenSchema = new Schema({
 });
 
 OrdenSchema.index({ codigo_requerimiento: 1 }, { unique: true });
-
-OrdenSchema.plugin(mongoosePaginate);

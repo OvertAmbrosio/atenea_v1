@@ -5,13 +5,13 @@ import { ScheduleOutlined, LoadingOutlined, ReloadOutlined, ExportOutlined, File
 import { useJsonToCsv } from 'react-json-csv';
 import moment from 'moment'
 
-import { listaBuckets, valoresExcelAdministrar } from '../../../constants/valoresOrdenes';
+import { listaBuckets, valoresExcelPendientes } from '../../../constants/valoresOrdenes';
 import TablaOrdenes from '../../../components/operativa/gestionarOrdenes/TablaOrdenes';
 import ModalDetalle from '../../../components/operativa/administrarOrdenes/ModalDetalle';
 import ModalInfancia from '../../../components/operativa/administrarOrdenes/ModalInfancia';
 import ModalReiterada from '../../../components/operativa/administrarOrdenes/ModalReiterada';
 import ModalEstado from '../../../components/operativa/administrarOrdenes/ModalEstado';
-import ModalAgendarGestor from '../../../components/operativa/gestionarOrdenes/ModalAgendarGestor';
+import ModalAgendarTecnico from '../../../components/operativa/gestionarOrdenes/ModalAgendarTecnico';
 import { getOrdenes, patchFilesOrdenes, patchOrdenes } from '../../../services/apiOrden';
 import { ordenes as ordenesMetodo } from '../../../constants/metodos';
 
@@ -118,7 +118,7 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
             contrata: o.contrata ? o.contrata.nombre : '-'
           })
         }), 
-        fields: valoresExcelAdministrar, 
+        fields: valoresExcelPendientes, 
         filename: `data_ordenes_${moment().format('DD_MM_YY_HH_mm')}`
       })
     }
@@ -189,7 +189,7 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
         abrirDetalle={abrirDetalle}
       />
       {/* MODAL PARA AGENDAR LA ORDEN */}
-      <ModalAgendarGestor visible={modalAgendar} abrir={abrirModalAgendar} buckets={listaBuckets} tecnicos={tecnicos} agendar={agendarOrdenes}/>
+      <ModalAgendarTecnico visible={modalAgendar} abrir={abrirModalAgendar} buckets={listaBuckets} tecnicos={tecnicos} agendar={agendarOrdenes}/>
       {/* MODAL PARA ACTUALIZAR EL ESTADO_GESTOR DE LA ORDEN */}
       <ModalEstado visible={modalEstado} abrir={abrirModalEstado} actualizarEstado={actualizarEstado} />
       {/* MODAL PARA BUSCAR LA REITERADA */}

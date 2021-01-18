@@ -17,6 +17,7 @@ export default function columnasOrdenes(
   filtroEstadoGestor=[],
   filtroContrata=[], 
   filtroGestor=[], 
+  filtroTipoReq=[],
   abrirReiterada,
   abrirInfancia,
   abrirInfanciaExterna,
@@ -47,11 +48,15 @@ export default function columnasOrdenes(
     {
       title: 'Tipo Requerimiento',
       dataIndex: 'tipo_requerimiento',
-      width: 120
+      align: 'center',
+      width: 120,
+      filters: filtroTipoReq ? filtroTipoReq : [],
+      onFilter: (v,r) => r.tipo_requerimiento.indexOf(v) === 0
     },
     {
       title: 'Tipo Tecnologia',
       dataIndex: 'tipo_tecnologia',
+      align: 'center',
       width: 120
     },
     {
@@ -370,7 +375,9 @@ export default function columnasOrdenes(
       title: 'Tipo Req.',
       dataIndex: 'tipo_requerimiento',
       align:'center',
-      width: 100
+      width: 100,
+      filters: filtroTipoReq ? filtroTipoReq : [],
+      onFilter: (v,r) => r.tipo_requerimiento.indexOf(v) === 0
     },
     {
       title: 'Nodo',
@@ -599,5 +606,4 @@ export default function columnasOrdenes(
     default:
       break;
   }
-  return 
 };

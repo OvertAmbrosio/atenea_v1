@@ -99,7 +99,9 @@ export class OrdenesController {
     @Query('metodo') metodo:string, 
     @Query('tipo') tipo:string, 
     @Query('codigo_cliente') codigo_cliente:string,
-    @Query('id') id_orden: string
+    @Query('id') id_orden: string,
+    @Query('id_ordenes') id_ordenes: string[],
+    @Query('todo') todo: string
   ): Promise<TRespuesta> {
     const user:any = req.user;
     const key = tipo === tipos_orden.AVERIAS ? cache_keys.ORDENES_AVERIAS : 
@@ -188,6 +190,21 @@ export class OrdenesController {
         });
       }).catch((err) => {
         this.logger.error({message: err.message,service: 'getOrdenes(buscarRegistro)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    } else if (metodo === 'exportarPendientes' && tipo) {
+      return await this.ordenesService.obtenerPendientesExportar(todo, tipo, id_ordenes).then((res) => {
+        return ({
+          status: 'success',
+          message: `Registros encontrados correctamente.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(exportarPendientes)'});
         return ({
           status: 'error',
           message: err.message,

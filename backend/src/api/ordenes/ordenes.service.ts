@@ -337,7 +337,75 @@ export class OrdenesService {
           return []
         }
       })
-  }
+  };
+  //funcion para obtener las pendientes seleccionas
+  async obtenerPendientesExportar(todo:string, tipo:string, ids:string[]) {
+    let now = new Date();
+    let startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());  
+
+    let objQuery:any;
+    
+    if (todo === 'true') {
+      objQuery = {
+        $and: [
+          { $or: [
+            {fecha_liquidado: { $gte: startOfToday }},
+            {fecha_liquidado: null}
+          ]},
+          { tipo }
+        ]
+      }
+    } else {      
+      if (!ids || ids.length < 0 ) {
+        throw new HttpException({
+          status: 'error',
+          message: "No se encontraron ordenes."
+        }, HttpStatus.FORBIDDEN)
+      }
+      objQuery = { _id: { $in: ids } }
+    }
+    return await this.ordenModel.find(objQuery).select({
+      codigo_requerimiento: 1,
+      codigo_cliente: 1,
+      codigo_trabajo: 1,
+      codigo_peticion: 1,
+      tipo_requerimiento: 1,
+      tipo_tecnologia: 1,
+      codigo_ctr: 1,
+      codigo_nodo: 1,
+      codigo_troba: 1,
+      numero_reiterada: 1,
+      infancia: 1,
+      infancia_externa: 1,
+      distrito: 1,
+      bucket: 1,
+      estado_toa: 1,
+      estado_gestor: 1,
+      contrata: 1,
+      gestor: 1,
+      auditor: 1,
+      tecnico: 1,
+      fecha_cita: 1,
+      fecha_registro: 1,
+      fecha_asignado: 1,
+      fecha_liquidado: 1,
+      orden_devuelta: 1,
+    }).populate({
+      path: 'infancia',
+      select: 'codigo_requerimiento tecnico_liquidado fecha_registro fecha_liquidado',
+      populate: {
+        path: 'tecnico_liquidado',
+        select: 'nombre apellidos carnet gestor',
+        populate: {
+          path: 'gestor',
+          select: 'nombre apellidos'
+        }
+      }
+    }).populate('contrata', 'nombre')
+      .populate('gestor', 'nombre apellidos carnet')
+      .populate('auditor', 'nombre apellidos carnet')
+      .populate('tecnico', 'nombre apellidos carnet')
+  };
   //funcion para agendar una orden
   async agendarOrden(ordenes:string[], id:string, bucket?:string, contrata?:string, gestor?:string, tecnico?:string, fecha_cita?:string, observacion?: string) {
     let objUpdate = {};

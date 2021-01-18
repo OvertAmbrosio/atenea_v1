@@ -12,6 +12,7 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
   const [filtroEstadoGestor, setFiltroEstadoGestor] = useState([])
   const [filtroContrata, setFiltroContrata] = useState([]);
   const [filtroGestor, setFiltroGestor] = useState([]);
+  const [filtroTipoReq, setFiltroTipoReq] = useState([]);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -19,6 +20,7 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
       obtenerFiltroNombre(data, 'bucket').then((f) => setFiltroBucket(f));
       obtenerFiltroNombre(data, 'estado_toa').then((f) => setFiltroEstadoToa(f));
       obtenerFiltroNombre(data, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
+      obtenerFiltroNombre(data, 'tipo_requerimiento').then((f) => setFiltroTipoReq(f));
       obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f));
       obtenerFiltroId(data, 'gestor', true).then((f) => setFiltroGestor(f));
     };
@@ -45,6 +47,7 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
         filtroEstadoGestor,
         filtroContrata,
         filtroGestor, 
+        filtroTipoReq,
         abrirReiterada, 
         abrirInfancia,
         abrirInfanciaExterna,

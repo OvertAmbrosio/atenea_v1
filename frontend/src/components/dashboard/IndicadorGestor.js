@@ -4,7 +4,6 @@ import { Col, Empty, Row, Statistic, Typography } from "antd";
 import moment from 'moment';
 
 import ChartGponGestor from './ChartGestor';
-import { gpon } from "../../constants/valoresToa";
 import { separarGestor } from "../../libraries/separarField";
 
 const { Title } = Typography;
@@ -28,7 +27,7 @@ function IndicadorGponGestor({data, titulo, tecnologia}) {
     return new Promise((resolve, reject) => {
       try {
         if (data.length > 0) {
-          const ordenesFiltradas = data.filter((d) => gpon.includes(d.subtipo_actividad) === tecnologia)
+          const ordenesFiltradas = data.filter((d) => tecnologia ? d.actividad_gpon : !d.actividad_gpon)
           setTotalOrdenes(ordenesFiltradas.filter((d) => d.tecnico && d.gestor));
           return resolve(ordenesFiltradas)
         } else {

@@ -3,7 +3,6 @@ import { Col, Empty, Row, Statistic, Typography } from "antd";
 import moment from 'moment';
 
 import ChartDevolucionesGpon from './ChartDevoluciones';
-import { gpon } from "../../constants/valoresToa";
 import { separarMotivo } from "../../libraries/separarField";
 
 const { Title } = Typography;
@@ -28,7 +27,7 @@ function IndicadorGponDevoluciones({data, titulo, tecnologia}){
     return new Promise((resolve, reject) => {
       try {
         if (data.length > 0) {
-          const ordenesFiltradas = data.filter((d) => gpon.includes(d.subtipo_actividad) && estados.includes(d.estado));
+          const ordenesFiltradas = data.filter((d) => tecnologia ? d.actividad_gpon : !d.actividad_gpon && estados.includes(d.estado));
           setTotalOrdenes(ordenesFiltradas.filter((d) => d.tecnico && d.gestor));
           return resolve(ordenesFiltradas)
         } else {
