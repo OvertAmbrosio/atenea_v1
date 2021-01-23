@@ -56,6 +56,7 @@ function ModalAsignar({visible, abrir, gestores=[], tecnicos=[], asignar}) {
           style={{ width: 350, marginBottom: '.5rem' }}
           onChange={(e) => setGestorSeleccionado(e)}
           filterOption={(input, option) => {
+            console.log(input, option);
             return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
         }
@@ -63,7 +64,7 @@ function ModalAsignar({visible, abrir, gestores=[], tecnicos=[], asignar}) {
           {
             gestores && gestores.length > 0 ? 
             gestores.map((g) => (
-              <Option value={g._id} key={g._id}>{g.nombre}{` `}{g.apellidos}</Option>
+              <Option value={g._id} key={g._id}>{`${g.nombre} ${g.apellidos}`}</Option>
             ))
             :<Option>No data</Option>
           }
@@ -83,7 +84,7 @@ function ModalAsignar({visible, abrir, gestores=[], tecnicos=[], asignar}) {
           {
             tecnicos && tecnicos.length > 0 ? 
             tecnicos.map((t,i) => (
-              <Option value={i} key={t._id}>{t.nombre}{` `}{t.apellidos}</Option>
+              <Option value={i} key={t._id}>{`${t.nombre} ${t.apellidos}`}</Option>
             ))
             :<Option>No data</Option>
           }

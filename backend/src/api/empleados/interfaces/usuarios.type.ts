@@ -1,6 +1,6 @@
 export type IUsuario = {
   readonly email: string,
-  password: string,
+  password?: string,
   readonly imagen?: string,
   readonly cargo: number
   readonly activo?: boolean

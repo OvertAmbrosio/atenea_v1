@@ -41,7 +41,7 @@ export class AuthService {
           }
         }
       }).catch((error) => {
-        throw new InternalServerErrorException(error)
+        throw new InternalServerErrorException(error, error.message)
       })
     }
   };
@@ -52,7 +52,7 @@ export class AuthService {
       id: empleado._id, 
       gestor: empleado.gestor,
       contrata: empleado.contrata,
-      cargo: empleado.usuario.cargo,
+      cargo:  empleado && empleado.usuario && empleado.usuario.cargo ? empleado.usuario.cargo : null,
       imagen: empleado.usuario.imagen  
     };
     //generar el token segun los datos dados

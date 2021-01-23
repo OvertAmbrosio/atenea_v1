@@ -7,8 +7,8 @@ const variables = {
   TOKEN_STORAGE_KEY: 'atenea.authToken',
   logoPath: '/icon.png',
   logoFull: '/iconL.png',
-  version: '0.0.10',
+  version: '0.0.16',
   formatosAdmitidos: ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-}
+};
 
 export default variables;

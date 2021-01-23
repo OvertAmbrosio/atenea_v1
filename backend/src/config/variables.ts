@@ -14,6 +14,10 @@ export const variables = {
   cloudinary_name: 'CLOUDINARY_NAME',
   cloudinary_key: 'CLOUDINARY_KEY',
   cloudinary_secret: 'CLOUDINARY_SECRET',
+  email_puerto: 'EMAIL_PUERTO',
+  email_host: 'EMAIL_HOST',
+  email_usuario: 'EMAIL_USUARIO',
+  email_password: 'EMAIL_PASSWORD'
 };
 
 export const cache_keys = {

@@ -13,6 +13,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ApiModule } from './api/api.module';
 import { RedisModule } from './database/redis.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { RedisModule } from './database/redis.module';
     MongoModule,
     AuthModule,
     RedisModule,
-    ApiModule
+    ApiModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],

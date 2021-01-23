@@ -4,11 +4,12 @@ import moment from 'moment';
 
 import ChartDevolucionesGpon from './ChartDevoluciones';
 import { separarMotivo } from "../../libraries/separarField";
+import { gponAltas, hfcAltas } from "../../constants/valoresToa";
 
 const { Title } = Typography;
 const estados = ['Cancelado','No Realizada']
 
-function IndicadorGponDevoluciones({data, titulo, tecnologia}){
+function IndicadorGponDevoluciones({data, titulo, tipo, tecnologia}){
   const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
@@ -27,7 +28,7 @@ function IndicadorGponDevoluciones({data, titulo, tecnologia}){
     return new Promise((resolve, reject) => {
       try {
         if (data.length > 0) {
-          const ordenesFiltradas = data.filter((d) => tecnologia ? d.actividad_gpon : !d.actividad_gpon && estados.includes(d.estado));
+          const ordenesFiltradas = data.filter((d) => tecnologia ? gponAltas.includes(d.subtipo_actividad) && estados.includes(d.estado) : hfcAltas.includes(d.subtipo_actividad) && estados.includes(d.estado));
           setTotalOrdenes(ordenesFiltradas.filter((d) => d.tecnico && d.gestor));
           return resolve(ordenesFiltradas)
         } else {
@@ -45,7 +46,7 @@ function IndicadorGponDevoluciones({data, titulo, tecnologia}){
     })
   };
 
-  if (data.length <= 0 ) {
+  if (data.length <= 0 || dataOrdenes.length <= 0 ) {
     return (
       <div>
         <Title level={2} style={{ marginTop: '1rem' }}>{titulo} / Actualizado: - </Title>
@@ -59,7 +60,7 @@ function IndicadorGponDevoluciones({data, titulo, tecnologia}){
       <Title level={2} style={{ marginTop: '1rem' }}>{titulo} / Actualizado: {horaActualizado ? horaActualizado : '-'}</Title>
       <Row style={{ marginTop: '2rem', marginBottom: '1rem' }}>
         <Col sm={24}>
-          <ChartDevolucionesGpon data={dataOrdenes} loading={loadingOrdenes}/>
+          <ChartDevolucionesGpon data={dataOrdenes.filter((d) => d.motivo && d.gestor !== '-' && d.ordenes > 0)} loading={loadingOrdenes}/>
         </Col>
       </Row>
       <Row>

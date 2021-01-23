@@ -80,11 +80,23 @@ const items = [
     titulo: 'Operativa',
     children: [
       {
-        grupo: false,
-        ruta: rutas.listaRutas,
+        grupo: true,
+        key: 'listaRutas',
         icon: CarryOutOutlined,
+        titulo: 'Lista Rutas',
         permisos: permisos.administrarOrdenes,
-        titulo: 'Lista Rutas'
+        children: [
+          {
+            ruta: rutas.asignarRutas,
+            icon: CarryOutOutlined,
+            titulo: 'Asignar Rutas'
+          },
+          {
+            ruta: rutas.listaAsistencia,
+            icon: CarryOutOutlined,
+            titulo: 'Asistencias'
+          }
+        ]
       },
       {
         grupo: false,

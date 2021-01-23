@@ -2,12 +2,21 @@ import { Schema } from 'mongoose';
 import { estado_asistencia } from 'src/constants/enum';
 
 export const AsistenciaSchema = new Schema({
+  tipo: {
+    type: String,
+    lowercase: true,
+    trim: true,
+    default: 'tecnico'
+  },
   tecnico: {
     type: Schema.Types.ObjectId,
-    ref: 'Empleado',
-    required: true
+    ref: 'Empleado'
   },
   gestor: {
+    type: Schema.Types.ObjectId,
+    ref: 'Empleado'
+  },
+  auditor: {
     type: Schema.Types.ObjectId,
     ref: 'Empleado'
   },

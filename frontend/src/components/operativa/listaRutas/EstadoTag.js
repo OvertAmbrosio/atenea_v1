@@ -20,8 +20,10 @@ function EstadoTag({estado}) {
       return (<Tag color="geekblue">{estado}</Tag>);
     case estadoAsistencia.EXAMEN_MEDICO:
         return (<Tag color="purple">{estado}</Tag>);
-    // case  estado === 'BA':
-    //   return (<Tag color="blue">{estado}</Tag>);
+    case estadoAsistencia.VACACIONES:
+      return (<Tag color="pink">{estado}</Tag>);
+    case estadoAsistencia.BAJA:
+      return (<Tag color="volcano">{estado}</Tag>);
     default:
       return (<Tag>-</Tag>)
   };

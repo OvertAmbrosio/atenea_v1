@@ -15,8 +15,9 @@ export type TErrorsLogin = {
 
 export type TPaginateParams = {
   readonly metodo: string,
-  readonly page: number,
-  readonly limit: number,
+  readonly tipo?: string,
+  readonly page?: number,
+  readonly limit?: number,
   readonly fecha_inicio?: string,
   readonly fecha_fin?: string,
 };

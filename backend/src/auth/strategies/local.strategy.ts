@@ -13,8 +13,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     return await this.authService.validateUser(username, password)
       .then((data) => {
         return data
-      }).catch((error) => {
-        throw error; 
-      });
+      })
   }
 }

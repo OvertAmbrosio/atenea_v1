@@ -16,7 +16,7 @@ export async function pendientesAverias(ordenes=[]){
     let direccion = '';
 
     //distrito
-    if (isEmpty(String(orden[averias[0].propiedad]).trim())) {verificado = false};
+    if (isEmpty(String(orden[averias[0].cabecera]).trim())) {verificado = false};
     //requerimiento
     if (isNaN(orden[averias[1].cabecera]) && isNaN(orden[averias[1].cabecera_2])) {verificado = false};
 

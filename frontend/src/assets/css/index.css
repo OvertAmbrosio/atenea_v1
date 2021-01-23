@@ -44,3 +44,12 @@
   text-decoration: none;
   outline: none;
 }
+
+.columna-resumen-completado {
+  background-color: #9BB6C2;
+  color: rgb(59, 59, 50);
+}
+
+.columna-resumen-iniciado {
+  background-color: #5DBE3F;
+}

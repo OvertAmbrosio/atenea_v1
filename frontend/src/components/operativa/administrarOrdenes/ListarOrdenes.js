@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
 import { Button, Dropdown, Input, Menu } from 'antd';
-import { CloudSyncOutlined, ScheduleOutlined, LoadingOutlined, ReloadOutlined, UserSwitchOutlined, ExportOutlined, FileSyncOutlined } from '@ant-design/icons';
+import { CloudSyncOutlined, ScheduleOutlined, LoadingOutlined, ReloadOutlined, UserSwitchOutlined, ExportOutlined, FileSyncOutlined, SyncOutlined } from '@ant-design/icons';
 import { useJsonToCsv } from 'react-json-csv';
 import moment from 'moment';
 import cogoToast from 'cogo-toast';
@@ -30,6 +30,7 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
   const [ordenesSeleccionadas, setOrdenesSeleccionadas] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
   const [loadingCruzar, setLoadingCruzar] = useState(false);
+  const [loadingComprobarInfancias, setLoadingComprobarInfancias] = useState(false);
   const [loadingAgendar, setLoadingAgendar] = useState(false);
   const [loadingAsignar, setLoadingAsignar] = useState(false);
   const [loadingEstado, setLoadingEstado] = useState(false);
@@ -96,6 +97,18 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
       })
       .catch((err) => console.log(err))
       .finally(() => setLoadingCruzar(false));
+  };
+
+  async function comprobarInfancias() {
+    setLoadingComprobarInfancias(true);
+    await getOrdenes(true, { metodo: ordenes.COMPROBAR_INFANCIAS })
+      .then((e) => {
+        if (e.status === 'success') {
+          listarOrdenes()
+        };
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setLoadingComprobarInfancias(false));
   };
 
   async function agendarOrdenes(bucketSeleccionado, contrataSeleccionada, gestorSeleccionado, fechaCita, observacion) {
@@ -265,6 +278,11 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
           style={{ marginBottom: '1rem', marginRight: '.5rem' }}
           onClick={sincronizarData}
         >Sincronizar</Button>
+        <Button
+          icon={loadingComprobarInfancias ? <LoadingOutlined spin/>:<SyncOutlined />}
+          style={{ marginBottom: '1rem', marginRight: '.5rem' }}
+          onClick={comprobarInfancias}
+        >Comprobar Infancias</Button>
         <Button 
           icon={loadingAgendar ? <LoadingOutlined spin/>:<ScheduleOutlined />}
           style={{ marginBottom: '1rem', marginRight: '.5rem' }}

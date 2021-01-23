@@ -28,18 +28,43 @@ export class AsistenciaService {
       $and:[
         { estado_empresa: { $ne: estado_empresa.INACTIVO } },
         { 'usuario.cargo': tipos_usuario.TECNICO }
+    ]}).select('_id gestor');
+    const gestores = await this.empleadoModel.find({
+      $and:[
+        { estado_empresa: { $ne: estado_empresa.INACTIVO } },
+        { 'usuario.cargo': tipos_usuario.GESTOR }
     ]}).select('_id');
-    const nuevaAsistencia = tecnicos.map((e) => {
+    const auditores = await this.empleadoModel.find({
+      $and:[
+        { estado_empresa: { $ne: estado_empresa.INACTIVO } },
+        { 'usuario.cargo': tipos_usuario.AUDITOR }
+    ]}).select('_id');
+    const nuevaAsistenciaT = tecnicos.map((e) => {
       return ({
         tecnico: e._id,
+        tipo: 'tecnico',
+        observacion: 'Estado aplicado automaticamente por el sistema.'
+      })
+    });
+    const nuevaAsistenciaG = gestores.map((e) => {
+      return ({
+        gestor: e._id,
+        tipo: 'gestor',
+        observacion: 'Estado aplicado automaticamente por el sistema.'
+      })
+    });
+    const nuevaAsistenciaA = auditores.map((e) => {
+      return ({
+        auditor: e._id,
+        tipo: 'auditor',
         observacion: 'Estado aplicado automaticamente por el sistema.'
       })
     })
-    console.log('asistencia creada')
-    return await this.asistenciaModel.insertMany(nuevaAsistencia);
+    console.log('asistencia creada - ', new Date());
+    return await this.asistenciaModel.insertMany([...nuevaAsistenciaT,...nuevaAsistenciaG,...nuevaAsistenciaA]);
   };
 
-  @Cron('0 */5 7-9 * * *', {
+  @Cron('0 */5 7-10 * * *', {
     name: 'guardarRutasActivas',
     timeZone: 'America/Lima'  
   })
@@ -71,27 +96,11 @@ export class AsistenciaService {
     };
   };
 
-  async crearAsistencias(tecnicos: string[], gestor: string, estado: string) {
-    
-    const fecha = DateTime.DATETIME_SHORT;
-
-    return await this.asistenciaModel.updateMany({
-      $and: [
-        { _id: { $in: tecnicos } },
-        { updateAt: { $gte: fecha } }
-      ]
-    }, {
-      tecnico: tecnicos, estado, gestor
-    }, {
-      upsert: true
-    })
-  };
-
   async actualizarAsistencia(id:string, gestor:string, estado:string, observacion?:string) {
     return await this.asistenciaModel.findByIdAndUpdate({
       _id: id
     }, {
-      estado, gestor,
+      estado,
       observacion: observacion ? observacion : '-'
     })
   };
@@ -101,8 +110,11 @@ export class AsistenciaService {
     const fechaFin = DateTime.fromISO(params.fecha_fin).set({day: diaFin+2});
 
     return await this.asistenciaModel.find({
-      createdAt: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) }
-    }).populate({
+      $and: [
+        { createdAt: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) } },
+        { tipo: params.tipo }
+      ]
+    }).populate('auditor', 'nombre apellidos carnet').populate('gestor', 'nombre apellidos carnet').populate({
       path: 'tecnico',
       select: 'nombre apellidos contrata gestor tipo_negocio sub_tipo_negocio',
       populate: [{
@@ -145,7 +157,8 @@ export class AsistenciaService {
     return await this.asistenciaModel.find({
       $and: [
         { createdAt: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) } },
-        { tecnico: { $in: tecnicos } }
+        { tecnico: { $in: tecnicos } },
+        { tipo: 'tecnico' }
       ]
     }).populate({
       path: 'tecnico',

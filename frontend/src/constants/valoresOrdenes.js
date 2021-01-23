@@ -218,7 +218,7 @@ export const altas = [
   {
     cabecera: 'movistar_total',
     propiedad: 'movistar_total',
-  },
+  }
 ]
 
 export const hfcLiquidadas = [
@@ -279,7 +279,8 @@ export const valoresExcelPendientes = {
   fecha_liquidado: 'Fecha Liquidado',
   horas_registro: 'Horas Registro',
   horas_asignado: 'Horas Asignado',
-  orden_devuelta: 'Orden Devuelta'
+  orden_devuelta: 'Orden Devuelta',
+  observacion_toa: 'Observacion Toa'
 };
 
 export const listaBuckets = [

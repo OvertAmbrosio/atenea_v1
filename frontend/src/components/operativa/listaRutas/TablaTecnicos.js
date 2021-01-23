@@ -251,7 +251,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
 
   return (
     <div>
-      <Row style={{ marginBottom: '.5rem' }}>
+      <Row style={{ marginBottom: '.5rem', marginTop: '.5rem' }}>
         <Col sm={12}>
           <p>Asignar Gestor:</p>
           <Select
@@ -262,6 +262,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
             onChange={e => setGestorSeleccionado(e)} 
             style={{ width: 300, marginBottom: '.5rem', marginRight: '.5rem' }}
             filterOption={(input, option) => {
+              console.log(input, option);
                 return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
             }

@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, DatePicker, Popover, Row, Statistic, Table, Tag } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Button, Col, DatePicker, Popover, Row, Statistic, Table } from 'antd';
+import { LoadingOutlined, ReloadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 import { getAsistencias, patchAsistencia } from '../../../services/apiAsistencia';
 import { asistencias } from '../../../constants/metodos';
-import colores from '../../../constants/colores';
-import ordenarAsistencia from '../../../libraries/ordenarAsistencias';
+import { ordenarAsistenciaAuditor } from '../../../libraries/ordenarAsistencias';
 import EstadoTag from './EstadoTag';
-import { obtenerFiltroId } from '../../../libraries/obtenerFiltro';
 import ModalEditarAsistencia from './ModalEditarAsistencia';
 
-export default function TablaAsistencias() {
+export default function TablaAsistenciasAuditores() {
   const [diaInicio, setDiaInicio] = useState(null);
   const [diaFin, setDiaFin] = useState(null);
   const [diasSemana, setDiasSemana] = useState([]);
@@ -19,34 +17,27 @@ export default function TablaAsistencias() {
   const [dataAsistencias, setDataAsistencias] = useState([]);
   const [loadingAsistencia, setLoadingAsistencia] = useState(false);
   const [loadingActualizar, setLoadingActualizar] = useState(false);
-  const [filtroGestores, setFiltroGestores] = useState([]);
-  const [filtroAuditores, setFiltroAuditores] = useState([]);
-  const [rutasAverias, setRutasAverias] = useState({total:0,activas:0});
-  const [rutasAltas, setRutasAltas] = useState({total:0,activas:0});
   const [modalEditar, setModalEditar] = useState(false);
   const [idAsistencia, setIdAsistencia] = useState(null);
 
   useEffect(() => {
     generarColumnas();
   //eslint-disable-next-line
-  }, [diasSemana, filtroGestores])
+  }, [diasSemana])
 
   async function listarAsistencias() {
     if (diaInicio && diaFin) {
       setLoadingAsistencia(true);
       await getAsistencias({
         metodo: asistencias.LISTAR_TODO,
+        tipo: 'auditor',
         fecha_inicio: diaInicio,
         fecha_fin: diaFin
       }).then(async({data}) => {
-        return await ordenarAsistencia(data.filter((e) => e.tecnico !== null))
+        return await ordenarAsistenciaAuditor(data.filter((e) => e.auditor !== null))
       }).then((resultado) => {
         if (resultado && resultado.length > 0) {
           setDataAsistencias(resultado);
-          obtenerFiltroId(resultado, 'gestor', true).then((f) => setFiltroGestores(f));
-          obtenerFiltroId(resultado, 'auditor', true).then((f) => setFiltroAuditores(f));
-          setRutasAverias(rutasAtivas(resultado.filter((e) => e.tipo_negocio === 'averias')))
-          setRutasAltas(rutasAtivas(resultado.filter((e) => e.tipo_negocio === 'altas')))
         }
       }).catch((err) => console.log(err)).finally(() => setLoadingAsistencia(false));
     };
@@ -65,7 +56,6 @@ export default function TablaAsistencias() {
   const abrirModalEditar = () => setModalEditar(!modalEditar);
 
   const editarAsistencia = (id) => {
-    console.log(modalEditar);
     abrirModalEditar();
     setIdAsistencia(id);
   };
@@ -88,72 +78,20 @@ export default function TablaAsistencias() {
   };
 
   function generarColumnas() {
-    let hoy = moment().format('DD-MM');
     if (diasSemana.length > 0) {
       const firstColumn = [{
         title: '#',
         width: 50,
         align: 'center',
         render: (_,__,i) => i+1
-      },{
-        title: 'Tecnico',
-        dataIndex: 'nombre',
-        width: 300,
-        render: (e, row) => row.nombre + ' ' + row.apellidos
-      }, {
-        title: 'Gestor',
-        dataIndex: 'gestor',
-        filters: filtroGestores,
-        onFilter: (c, record) => {
-          if (record.gestor && c) {
-            return record.gestor._id.indexOf(c) === 0;
-          } else {
-            return false;
-          }
-        },
-        width: 250,
-        render: (e) => e.nombre ? e.nombre + ' ' + e.apellidos : '-'
-      }, {
+      }, 
+      {
         title: 'Auditor',
         dataIndex: 'auditor',
-        filters: filtroAuditores,
-        onFilter: (c, record) => {
-          if (record.auditor && c) {
-            return record.auditor._id.indexOf(c) === 0;
-          } else {
-            return false;
-          }
-        },
-        width: 250,
-        render: (e) => e.nombre ? e.nombre + ' ' + e.apellidos : '-'
-      }, {
-        title: 'En Ruta',
-        dataIndex: hoy,
-        width: 150,
-        align: 'center',
-        filters: [{text:'Ok', value: true},{text:'No', value: false}],
-        onFilter: (c, record) => {
-          if (record[hoy]) {
-            if(!record[hoy].iniciado && !c) return true
-            return record[hoy].iniciado === c
-          } else {
-            return false;
-          }
-        },
-        render: (e) => {
-          if (e) {
-            if (e.iniciado) {
-              return (<Popover content={e.fecha_iniciado?moment(e.fecha_iniciado).format('HH:mm'):'-'} title="Fecha Iniciado" trigger="click">
-                <button className="boton-none"><Tag color={colores.success}><CheckCircleOutlined/></Tag></button>
-              </Popover>)
-            } else {
-              return <Tag color={colores.error}><CloseCircleOutlined/></Tag>
-            }
-          } else {
-            return <Tag color={colores.error}>No</Tag>
-          }
-        }
-      }]
+        width: 450,
+        render: (e, row) => row.nombre + ' ' + row.apellidos
+      }];
+
       const columnsAux = diasSemana.map((e) => {
         return ({
           title: e,
@@ -192,21 +130,6 @@ export default function TablaAsistencias() {
       setColumnas([]);
     }
   };
-  //funcion para contar las rutas activas
-  function rutasAtivas(data) {
-    let total = 0;
-    let activas = 0;
-    let hoy = moment().format('DD-MM');
-    if (data.length > 0) {
-      data.forEach((e) => {
-        if (e[hoy] && e[hoy].estado) {
-          total = total +1;
-          if (e[hoy].iniciado) activas = activas +1;
-        }
-      });
-    };
-    return ({total, activas})
-  };
 
   const columnasDefecto = [
     {
@@ -216,11 +139,7 @@ export default function TablaAsistencias() {
       render: (_,__,i) => i+1
     }, 
     {
-      title: 'Tecnico',
-      width: 200
-    },
-    {
-      title: 'Gestor',
+      title: 'Auditor',
       width: 200
     },
     {
@@ -230,7 +149,7 @@ export default function TablaAsistencias() {
   ];
 
   return (
-    <div>
+    <div style={{ marginBottom: '1rem'}}>
       <Row>
         <Col sm={24} style={{ marginBottom: '.5rem' }}>
           <p style={{ color: 'rgba(0,0,0,0.45)' }}>Seleccionar Fecha:</p>
@@ -247,20 +166,6 @@ export default function TablaAsistencias() {
             value={diaInicio && diaFin ? `${moment(diaInicio).format('DD-MM')} / ${moment(diaFin).format('DD-MM')}`:'-'}
           />
         </Col>
-        <Col sm={6} style={{ marginBottom: '1rem', marginRight: '.5rem' }}>
-          <Statistic 
-            title="Rutas Activas (Averias)" 
-            value={rutasAverias.activas} 
-            suffix={`/ ${rutasAverias.total}`}
-          />
-        </Col>
-        <Col>
-          <Statistic 
-            title="Rutas Activas (Altas)" 
-            value={rutasAltas.activas} 
-            suffix={`/ ${rutasAltas.total}`}
-          />
-        </Col>
       </Row>
       <Table
         rowKey="_id"
@@ -268,9 +173,7 @@ export default function TablaAsistencias() {
         loading={loadingAsistencia}
         columns={columnas !== null && columnas.length !== 0 ? columnas : columnasDefecto}
         dataSource={dataAsistencias}
-        pagination={{
-          defaultPageSize: 20
-        }}
+        pagination={false}
       />
       {/* MODAL PARA EDITAR LA ASISTENCIA */}
       <ModalEditarAsistencia visible={modalEditar} abrir={abrirModalEditar} loadingActualizar={loadingActualizar} actualizar={actualizarAsistencia} />

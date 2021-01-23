@@ -30,8 +30,8 @@ async function bootstrap() {
     },
   }))
   app.use(compression({level: 9}));
-  app.use(json({limit: '5mb'}));
-  app.use(urlencoded({ extended: true, limit: '5mb'}));
+  app.use(json({limit: '50mb'}));
+  app.use(urlencoded({ extended: true, limit: '20mb'}));
 
   await app.listen(port);
 };

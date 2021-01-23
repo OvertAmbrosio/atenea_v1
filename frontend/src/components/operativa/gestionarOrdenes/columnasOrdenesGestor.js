@@ -17,6 +17,7 @@ export default function columnasOrdenes(
   filtroEstadoGestor=[],
   filtroContrata=[], 
   filtroTecnico=[],
+  filtroGestor=[],
   abrirReiterada,
   abrirInfancia,
   abrirDetalle
@@ -125,8 +126,8 @@ export default function columnasOrdenes(
         }
       },
       render: (inf) => {
-        if (inf && inf.length > 0) {
-          return <Tag color={colores.warning} onClick={() => abrirInfancia(inf)} style={{ cursor: 'pointer' }}>Si</Tag>
+        if (inf && inf.codigo_requerimiento) {
+          return <Tag color="blue" onClick={() => abrirInfancia(inf)} style={{ cursor: 'pointer' }}>Si</Tag>
         } else {
           return '-'
         }
@@ -196,6 +197,29 @@ export default function columnasOrdenes(
       )
     },
     {
+      title: 'Gestor',
+      dataIndex: 'gestor',
+      width: 200,
+      ellipsis: {
+        showTitle: false,
+      },
+      filters: filtroGestor ? filtroGestor : [],
+      onFilter: (v,r) => {
+        if (v === '-') {
+          return !r.gestor
+        } else if( r.gestor !== undefined && r.gestor !== null) {
+          return r.gestor._id.indexOf(v) === 0
+        } else {
+          return false
+        }
+      },
+      render: (g) => (
+        <Tooltip placement="topLeft" title={g ? g.nombre+' '+g.apellidos:'-'}>
+          {g ? g.nombre+' '+g.apellidos:'-'}
+        </Tooltip>
+      )
+    },
+    {
       title: 'Tecnico',
       dataIndex: 'tecnico',
       width: 200,
@@ -211,6 +235,19 @@ export default function columnasOrdenes(
         } else {
           return false
         }
+      },
+      render: (t) => (
+        <Tooltip placement="topLeft" title={t ? t.nombre+' '+t.apellidos:'-'}>
+          {t ? t.nombre+' '+t.apellidos:'-'}
+        </Tooltip>
+      )
+    },
+    {
+      title: 'Auditor',
+      dataIndex: 'auditor',
+      width: 200,
+      ellipsis: {
+        showTitle: false,
       },
       render: (t) => (
         <Tooltip placement="topLeft" title={t ? t.nombre+' '+t.apellidos:'-'}>

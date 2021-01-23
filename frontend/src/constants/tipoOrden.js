@@ -22,14 +22,6 @@ export const tipoNegocio = [
   {
     text: 'Altas',
     value: 'altas'
-  },
-  {
-    text: 'Speedy',
-    value: 'speedy,'
-  },
-  {
-    text: 'Basicas',
-    value: 'basicas'
   }
 ];
 

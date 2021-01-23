@@ -50,7 +50,7 @@ function ModalDetalle({visible, abrir, loading, registros}) {
       title: 'Empleado Tipo',
       dataIndex: 'empleado_modificado',
       width: 150,
-      render: (u) => u ? <CargoTag cargo={u.cargo} /> : '-'
+      render: (u) => u && u.usuario && u.usuario.cargo ? <CargoTag cargo={u.usuario.cargo} /> : '-'
     },
     {
       title: 'Contrata Modificado',

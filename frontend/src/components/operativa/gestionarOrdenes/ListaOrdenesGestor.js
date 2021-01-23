@@ -26,7 +26,6 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
   const [loadingAgendar, setLoadingAgendar] = useState(false);
   const [loadingEstado, setLoadingEstado] = useState(false);
   const [loadingDetalle, setLoadingDetalle] = useState(false);
-  const [loadingInfancia, setLoadingInfancia] = useState(false);
   const [modalAgendar, setModalAgendar] = useState(false);
   const [modalReiterada, setModalReiterada] = useState(false);
   const [modalInfancia, setModalInfancia] = useState(false);
@@ -41,14 +40,8 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
   // eslint-disable-next-line
   },[ordenes]);
 
-  async function buscarInfancia(id_orden) {
-    setLoadingInfancia(true);
-    await getOrdenes( true, { metodo: ordenes.BUSCAR_INFANCIA, id: id_orden })
-      .then(({data}) => {
-        if (data && data._id ) {
-          setDataInfancia([data]);
-        }
-      }).catch((err) => console.log(err)).finally(() => setLoadingInfancia(false));
+  async function buscarInfancia(infancia) {
+    setDataInfancia([infancia]);
   };
 
   async function buscarRegistro(id_orden) {
@@ -110,12 +103,25 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
         data: dataOrdenes.map((o) => {
           return ({
             ...o,
-            fecha_cita: o.fecha_cita ? moment(o.fecha_cita).format('DD/MM/YY') : '-',
-            fecha_registro: o.fecha_registro ? moment(o.fecha_registro).format('DD/MM/YY HH:mm') : '-',
-            tecnico: o.tecnico && o.tecnico.nombre ? o.tecnico.nombre + ' ' + o.tecnico.apellidos : '-',
-            gestor: o.gestor ? o.gestor.nombre + ' ' + o.gestor.apellidos : '-',
-            auditor: o.tecnico && o.tecnico.auditor ? o.tecnico.auditor.nombre + ' ' + o.tecnico.auditor.apellidos : '-',
-            contrata: o.contrata ? o.contrata.nombre : '-'
+            infancia_requerimiento: o.infancia && o.infancia.codigo_requerimiento ? o.infancia.codigo_requerimiento: '-',
+            infancia_tecnico_nombre: o.infancia && o.infancia.tecnico_liquidado ? o.infancia.tecnico_liquidado.nombre+' '+o.infancia.tecnico_liquidado.apellidos:'-',
+            infancia_tecnico_carnet: o.infancia && o.infancia.tecnico_liquidado ? o.infancia.tecnico_liquidado.carnet:'-',
+            infancia_tecnico_gestor: o.infancia && o.infancia.tecnico_liquidado && o.infancia.tecnico_liquidado.gestor ? o.infancia.tecnico_liquidado.gestor.nombre+' '+o.infancia.tecnico_liquidado.gestor.apellidos:'-',
+            infancia_registro: o.infancia && o.infancia.fecha_registro ? moment(o.infancia.fecha_registro).format('DD/MM/YY HH:mm'): '-',
+            infancia_liquidado: o.infancia && o.infancia.fecha_liquidado ? moment(o.infancia.fecha_liquidado).format('DD/MM/YY HH:mm'): '-',
+            contrata: o.contrata && o.contrata.nombre ? o.contrata.nombre : '-',
+            gestor: o.gestor && o.gestor.nombre ? o.gestor.nombre+' '+ o.gestor.apellidos : '-',
+            gestor_carnet: o.gestor && o.gestor.carnet ? o.gestor.carnet : '-',
+            auditor: o.auditor && o.auditor.nombre ? o.auditor.nombre+' '+o.auditor.apellidos : '-',
+            tecnico: o.tecnico && o.tecnico.nombre ? o.tecnico.nombre+' '+o.tecnico.apellidos : '-',
+            tecnico_carnet: o.tecnico && o.tecnico.carnet ? o.tecnico.carnet : '-',
+            fecha_cita: o.fecha_cita ? moment(o.fecha_cita).format('DD/MM/YY HH:mm'):'-',
+            fecha_registro: o.fecha_registro ? moment(o.fecha_registro).format('DD/MM/YY HH:mm'):'-',
+            fecha_asignado: o.fecha_asignado ? moment(o.fecha_asignado).format('DD/MM/YY HH:mm'):'-',
+            fecha_liquidado: o.fecha_liquidado ? moment(o.fecha_liquidado).format('DD/MM/YY HH:mm'):'-',
+            horas_registro: o.fecha_registro ? moment().diff(o.fecha_registro, 'hours') : '-',
+            horas_asignado: o.fecha_asignado ? moment().diff(o.fecha_asignado, 'hours') : '-',
+            orden_devuelta: o.orden_devuelta ? 'Si':'-'
           })
         }), 
         fields: valoresExcelPendientes, 
@@ -195,7 +201,7 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
       {/* MODAL PARA BUSCAR LA REITERADA */}
       <ModalReiterada visible={modalReiterada} abrir={abrirModalReiterada} codigo_cliente={codigoCliente}/>
       {/* MODAL PARA BUSCAR LA INFANCIA */}
-      <ModalInfancia visible={modalInfancia} abrir={abrirModalInfancia} loading={loadingInfancia} orden={dataInfancia} />
+      <ModalInfancia visible={modalInfancia} abrir={abrirModalInfancia} loading={false} orden={dataInfancia} />
       {/* MODAL DETALLE PARA VER EL HISTORIAL DE CAMBIOS */}
       <ModalDetalle visible={modalDetalle} abrir={abrirModalDetalle} loading={loadingDetalle} registros={dataRegistros}/>
     </div>

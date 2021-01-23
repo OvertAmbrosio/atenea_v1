@@ -18,7 +18,7 @@ export class EmpleadosService {
     private readonly redisService: RedisService
   ) {}
 
-  async checkUsuario(password: string, username:string): Promise<IEmpleado> {
+  async checkUsuario(password: string, username:string): Promise<IEmpleado> {    
     return await this.empleadoModel.findOne({ 
       $or: [
         { 'usuario.email': username },
@@ -202,12 +202,30 @@ export class EmpleadosService {
     if (empleado && empleado.usuario.cargo > cargoUsuario) {
       if (empleado.usuario.cargo === tipos_usuario.GESTOR) {
         return await this.redisService.remove(cache_keys.GESTORES)
-          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: updateEmpleadoDto }));
+          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: {
+            ...updateEmpleadoDto,
+            usuario: {
+              email: updateEmpleadoDto.usuario.email,
+              cargo: updateEmpleadoDto.usuario.cargo
+            }
+          } }));
       } else if (empleado.usuario.cargo === tipos_usuario.TECNICO) {
         return await this.redisService.remove(cache_keys.TECNICOS_GLOBAL)
-          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: updateEmpleadoDto }));
+          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: {
+            ...updateEmpleadoDto,
+            usuario: {
+              email: updateEmpleadoDto.usuario.email,
+              cargo: updateEmpleadoDto.usuario.cargo
+            }
+          } }));
       } else {
-        return await this.empleadoModel.findByIdAndUpdate(id, { $set: updateEmpleadoDto });
+        return await this.empleadoModel.findByIdAndUpdate(id, { $set: {
+          ...updateEmpleadoDto,
+          usuario: {
+            email: updateEmpleadoDto.usuario.email,
+            cargo: updateEmpleadoDto.usuario.cargo
+          }
+        } });
       };
     } else {
       throw new HttpException({
@@ -219,7 +237,11 @@ export class EmpleadosService {
   async resetPassword(_id: string, usuarioCargo: number): Promise<IEmpleado> {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash('12345678', salt);
-    return this.empleadoModel.findOneAndUpdate({_id, 'usuario.cargo': { $lte: usuarioCargo }}, { $set: {'usuario.password': hash}})
+    
+    return await this.empleadoModel.findOneAndUpdate({
+      $and: [
+        { _id }, { 'usuario.cargo': { $gte: usuarioCargo } } 
+      ]}, { $set: {'usuario.password': hash}})
   };
 
   async cerrarSession(id: string): Promise<any> {

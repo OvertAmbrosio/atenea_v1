@@ -19,7 +19,7 @@ export default function ChartDevoluciones({data, loading}) {
       </div>)
   } else {
     return (
-      <Chart height={400} padding={[30, 20, 140, 40]} data={data.filter((d) => d.gestor !== '-')} autoFit filter={[
+      <Chart height={400} padding={[30, 20, 140, 40]} data={data} autoFit filter={[
         ['ordenes', val => val != null]
       ]}>
         <Interval
@@ -30,11 +30,11 @@ export default function ChartDevoluciones({data, loading}) {
             },
           ]}
           color={{
-            fields: ["motivo"]
+            fields: ["gestor"]
           }}
-          position="gestor*ordenes"
+          position="motivo*ordenes"
           label={{
-            fields: ['ordenes', 'motivo'],
+            fields: ['ordenes', 'gestor'],
           }}
         />
         <Tooltip shared />

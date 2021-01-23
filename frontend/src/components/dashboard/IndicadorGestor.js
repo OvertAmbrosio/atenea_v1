@@ -5,10 +5,11 @@ import moment from 'moment';
 
 import ChartGponGestor from './ChartGestor';
 import { separarGestor } from "../../libraries/separarField";
+import { gponAltas, gponAverias, gponRutinas, hfcAltas, hfcAverias, hfcRutinas } from "../../constants/valoresToa";
 
 const { Title } = Typography;
 
-function IndicadorGponGestor({data, titulo, tecnologia}) {
+function IndicadorGponGestor({data, titulo, tipo, tecnologia}) {
   const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
@@ -27,7 +28,18 @@ function IndicadorGponGestor({data, titulo, tecnologia}) {
     return new Promise((resolve, reject) => {
       try {
         if (data.length > 0) {
-          const ordenesFiltradas = data.filter((d) => tecnologia ? d.actividad_gpon : !d.actividad_gpon)
+          const ordenesFiltradas = data.filter((d) => {
+            switch (tipo) {
+              case 'averias':
+                return tecnologia ? gponAverias.includes(d.subtipo_actividad) : hfcAverias.includes(d.subtipo_actividad);
+              case 'altas':
+                return tecnologia ? gponAltas.includes(d.subtipo_actividad) : hfcAltas.includes(d.subtipo_actividad);
+              case 'rutinas':
+                return tecnologia ? gponRutinas.includes(d.subtipo_actividad) : hfcRutinas.includes(d.subtipo_actividad);
+              default:
+                return false;
+            };
+          })
           setTotalOrdenes(ordenesFiltradas.filter((d) => d.tecnico && d.gestor));
           return resolve(ordenesFiltradas)
         } else {
@@ -45,7 +57,7 @@ function IndicadorGponGestor({data, titulo, tecnologia}) {
     })
   };
 
-  if (data.length <= 0 ) {
+  if (data.length <= 0 || dataOrdenes.length <= 0 ) {
     return (
       <div>
         <Title level={2} style={{ marginTop: '1rem' }}>{titulo} / Actualizado: - </Title>
@@ -87,6 +99,7 @@ function IndicadorGponGestor({data, titulo, tecnologia}) {
 IndicadorGponGestor.propTypes = {
   data: PropTypes.array,
   titulo: PropTypes.string,
+  tipo: PropTypes.string,
   tecnologia: PropTypes.bool
 };
 

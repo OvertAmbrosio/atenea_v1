@@ -6,6 +6,8 @@ const estadoAsistencia = {
   SUSPENDIDO: 'S',
   DESCANSO_MEDICO: 'DM',
   EXAMEN_MEDICO: 'EM',
+  VACACIONES: 'V',
+  BAJA: 'BAJA',
 };
 
 export default estadoAsistencia;

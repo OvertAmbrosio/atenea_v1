@@ -32,6 +32,8 @@ export const estado_asistencia= {
   SUSPENDIDO: 'S',
   DESCANSO_MEDICO: 'DM',
   EXAMEN_MEDICO: 'EM',
+  VACACIONES: 'V',
+  BAJA: 'BAJA',
 };
 
 export const tipo_negocio = {

@@ -111,7 +111,8 @@ export function separarMotivo(data=[]) {
         }).length;
         newData.push({
           gestor: g,
-          motivo: m,
+          descripcion: m,
+          motivo: String(m).substr(9).replace(/-/g, ''),
           ordenes: numOrdenes,
         });
       })
@@ -120,4 +121,43 @@ export function separarMotivo(data=[]) {
   } else {
     return {ordenes: [], gestores} ;
   };
+};
+
+export function ordenarResumen(data=[], tipo) {
+  if (data && data.length > 0) {
+    let tipos = [];
+    let nuevaData = [];
+
+    data.forEach((d) => { if (!tipos.includes(d[tipo])) tipos.push(d[tipo]) });
+
+    tipos.filter((e) => e).forEach((e) => {
+      if (nuevaData.length <= 0) {
+        nuevaData = [{
+          [tipo]: e,
+          completado: data.filter((d) => d.estado === 'Completado' && e === d[tipo]).length,
+          iniciado: data.filter((d) => d.estado === 'Iniciado' && e === d[tipo]).length,
+          no_realizada: data.filter((d) => d.estado === 'No Realizado' && e === d[tipo]).length,
+          pendiente: data.filter((d) => d.estado === 'Pendiente' && e === d[tipo]).length,
+          suspendido: data.filter((d) => d.estado === 'Suspendido' && e === d[tipo]).length,
+          cancelado: data.filter((d) => d.estado === 'Cancelado' && e === d[tipo]).length,
+          total: data.filter((d) => e === d[tipo]).length,
+        }]
+      } else {
+        nuevaData.push({
+          [tipo]: e,
+          completado: data.filter((d) => d.estado === 'Completado' && e === d[tipo]).length,
+          iniciado: data.filter((d) => d.estado === 'Iniciado' && e === d[tipo]).length,
+          no_realizada: data.filter((d) => d.estado === 'No Realizado' && e === d[tipo]).length,
+          pendiente: data.filter((d) => d.estado === 'Pendiente' && e === d[tipo]).length,
+          suspendido: data.filter((d) => d.estado === 'Suspendido' && e === d[tipo]).length,
+          cancelado: data.filter((d) => d.estado === 'Cancelado' && e === d[tipo]).length,
+          total: data.filter((d) => e === d[tipo]).length,
+        })
+      }
+    })
+
+    return nuevaData;
+  } else {
+    return [];
+  }
 };

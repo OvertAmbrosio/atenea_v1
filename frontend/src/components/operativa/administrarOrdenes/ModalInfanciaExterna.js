@@ -83,7 +83,7 @@ function ModalInfanciaExterna({visible, abrir, orden={}}) {
       centered
     >
       <Table
-        rowKey="_id"
+        rowKey="codigo_requerimiento"
         columns={columnas}
         dataSource={dataOrden}
         size="small"

@@ -46,14 +46,6 @@ export default function columnasOrdenes(
       render: (req) => <Text copyable>{req}</Text>
     },
     {
-      title: 'Tipo Requerimiento',
-      dataIndex: 'tipo_requerimiento',
-      align: 'center',
-      width: 120,
-      filters: filtroTipoReq ? filtroTipoReq : [],
-      onFilter: (v,r) => r.tipo_requerimiento.indexOf(v) === 0
-    },
-    {
       title: 'Tipo Tecnologia',
       dataIndex: 'tipo_tecnologia',
       align: 'center',
@@ -132,7 +124,7 @@ export default function columnasOrdenes(
         }
       },
       render: (inf) => {
-        if (inf && inf.length > 0) {
+        if (inf && inf.codigo_requerimiento) {
           return <Tag color="geekblue" onClick={() => abrirInfanciaExterna(inf)} style={{ cursor: 'pointer' }}>Si</Tag>
         } else {
           return '-'
@@ -140,11 +132,37 @@ export default function columnasOrdenes(
       }
     },
     {
+      title: 'Cliente',
+      dataIndex: 'nombre_cliente',
+      width: 200,
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (c) => (
+        <Tooltip placement="topLeft" title={c}>
+          {c}
+        </Tooltip>
+      )
+    },
+    {
       title: 'Distrito',
       dataIndex: 'distrito',
       width: 160,
       filters: filtroDistrito ? filtroDistrito : [],
       onFilter: (v,r) => r.distrito.indexOf(v) === 0
+    },
+    {
+      title: 'Dirección',
+      dataIndex: 'direccion',
+      width: 200,
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (g) => (
+        <Tooltip placement="topLeft" title={g}>
+          {g}
+        </Tooltip>
+      )
     },
     {
       title: 'Bucket',

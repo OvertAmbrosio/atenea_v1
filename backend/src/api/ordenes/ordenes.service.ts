@@ -50,11 +50,11 @@ export class OrdenesService {
       grupo_entrada: Date.now(),
     };
 
-    return Promise.all(createOrdenesDto.map(async(o) => {
+    return await Promise.all(createOrdenesDto.map(async(o) => {
       if (o.tipo === tipos_orden.AVERIAS) {
         const dia = new Date().getDate();
-        const fechaInicio = DateTime.fromJSDate(o.fecha_registro).set({day: dia-32});
-  
+        const fechaInicio = DateTime.fromJSDate(o.fecha_registro).set({day: dia-31});
+        //buscar infancias
         return await this.ordenModel.findOne({ 
           $and: [
             { tipo: tipos_orden.ALTAS },
@@ -82,12 +82,12 @@ export class OrdenesService {
         })
       };
     })).then(async(ordenes) => {
-      return await this.ordenModel.insertMany(ordenes).then((d) => {      
+      return await this.ordenModel.insertMany(ordenes, { ordered: false }).then((d) => {      
         return ({
           status: 'success',
           message: `(${d.length}) Ordenes guardadas correctamente.`
         })
-      }).catch((e) => {
+      }).catch((e) => {        
         if (e.result && e.result.nInserted > 0 && (e.writeErrors).length === 0) {
           return ({
             status: 'success',
@@ -125,17 +125,18 @@ export class OrdenesService {
         { fecha_liquidado: null } ,
         { tipo: tipos_orden.AVERIAS }
       ]
-    }).select('codigo_cliente').then(async(data:IOrden[]) => {
+    }).select('codigo_cliente fecha_registro').then(async(data:IOrden[]) => {
       if (data) {
-        return await Promise.all(ordenesExternas.map(async(o) => {
-          const index = data.findIndex((e) => e.codigo_cliente === o.codigo_cliente);          
+        return await Promise.all(ordenesExternas.map(async(o, i) => {
+          const index = data.findIndex((e) => String(e.codigo_cliente).length > 3 && String(o.codigo_cliente).length > 3 && String(e.codigo_cliente) === String(o.codigo_cliente));   
+                           
           if (index !== -1) {
-            const fechaLiquidadoInfancia = DateTime.fromJSDate(o.fecha_liquidado);
-            const diasDiferencia = DateTime.fromJSDate(data[index].fecha_registro).diff(fechaLiquidadoInfancia, 'day').days;
-            console.log(diasDiferencia);
-            if (diasDiferencia < 31) {
+            const fechaLiquidadoInfancia = DateTime.fromJSDate(new Date(o.fecha_liquidado));
+            const diasDiferencia = DateTime.fromJSDate(new Date(data[index].fecha_registro)).diff(fechaLiquidadoInfancia, 'day').toObject().days;
+
+            if (diasDiferencia <= 31) {
               return await this.ordenModel.findOneAndUpdate({ 
-                _id: data[index]._id 
+                _id: data[index]._id  
               }, {
                 $set: { infancia_externa: o },
                 $push: { historial_registro: registroOrdenes }
@@ -161,6 +162,46 @@ export class OrdenesService {
       }
     });
   };
+  //comprobar infancias 
+  async comprobarInfancias() {
+    let now = new Date();
+    let startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    return await this.ordenModel.find({
+      $and: [
+        { $or: [
+          {fecha_liquidado: { $gte: startOfToday }},
+          {fecha_liquidado: null}
+        ]},
+        { tipo: tipos_orden.AVERIAS }
+      ]
+    }).select('fecha_registro codigo_cliente').then(async(ordenes:IOrden[]) => {
+      return await Promise.all(ordenes.map(async (o) => {
+        //obtener fecha_registro - 32 dias de garantia de la alta (la averia debe tener mas de 30 dias para pasar la garantia)
+        const dia = new Date().getDate();
+        const fechaInicio = DateTime.fromJSDate(o.fecha_registro).set({day: dia-31});
+        return await this.ordenModel.findOne({ 
+          $and: [
+            { tipo: tipos_orden.ALTAS },
+            { codigo_cliente: o.codigo_cliente },
+            { fecha_liquidado: { $gte: new Date(fechaInicio.toISO()) } }
+          ]
+        }).then(async(newOrden: IOrden) => {
+          if (newOrden) {
+            return await this.ordenModel.findByIdAndUpdate(o._id, {
+              $set: {
+                infancia: newOrden._id
+              }
+            }).then(() => {
+              return true
+            })
+          } else {
+            return false;
+          }
+        });
+      }));
+    });
+  }
   //subir la data del excel de liquidadas y actualizar las ordenes
   async liquidarOrdenes(updateOrdeneDto:UpdateOrdeneDto[], usuario:string) {
     const registroOrdenes:THistorial = {
@@ -259,7 +300,34 @@ export class OrdenesService {
     }).populate('contrata', 'nombre')
       .populate('gestor', 'nombre apellidos')
       .populate('tecnico', 'nombre apellidos carnet')
-      .select('codigo_requerimiento codigo_ctr codigo_nodo codigo_troba codigo_motivo codigo_trabajo codigo_peticion codigo_cliente distrito bucket tipo_requerimiento tipo_tecnologia estado_toa estado_gestor estado_liquidado contrata gestor fecha_cita fecha_asignado fecha_registro infancia infancia_externa numero_reiterada orden_devuelta')
+      .select({
+        direccion: 1,
+        nombre_cliente: 1,
+        codigo_requerimiento: 1,
+        codigo_ctr: 1,
+        codigo_nodo: 1,
+        codigo_troba: 1,
+        codigo_motivo: 1,
+        codigo_trabajo: 1,
+        codigo_peticion: 1,
+        codigo_cliente: 1,
+        distrito: 1,
+        bucket: 1,
+        tipo_requerimiento: 1,
+        tipo_tecnologia: 1,
+        estado_toa: 1,
+        estado_gestor: 1,
+        estado_liquidado: 1,
+        contrata: 1,
+        gestor: 1,
+        fecha_cita: 1,
+        fecha_asignado: 1,
+        fecha_registro: 1,
+        infancia: 1,
+        infancia_externa: 1,
+        numero_reiterada: 1,
+        orden_devuelta: 1
+      })
       .sort('bucket estado_toa contrata');
   };
   //funcion que obtiene las ordenes del dia actual POR GESTOR
@@ -273,12 +341,57 @@ export class OrdenesService {
           {fecha_liquidado: { $gte: startOfToday }},
           {fecha_liquidado: null}
         ]},
-        { gestor }
+        { $or: [
+          { gestor },
+          { gestor: null }
+        ]},
       ]
     }).populate('contrata', 'nombre')
       .populate('tecnico', 'nombre apellidos carnet')
-      .select('codigo_requerimiento tipo codigo_ctr codigo_nodo codigo_troba codigo_motivo codigo_trabajo codigo_peticion codigo_cliente distrito bucket tipo_requerimiento tipo_tecnologia estado_toa estado_gestor contrata gestor fecha_cita fecha_asignado fecha_registro infancia numero_reiterada orden_devuelta')
-      .sort('bucket estado_toa');
+      .populate('gestor', 'nombre apellidos carnet')
+      .populate('auditor', 'nombre apellidos carnet')
+      .populate({
+        path: 'infancia', 
+        select: 'codigo_requerimiento tecnico_liquidado estado_gestor fecha_registro fecha_liquidado',
+        populate: {
+          path: 'tecnico_liquidado',
+          select: 'nombre apellidos carnet gestor',
+          populate: {
+            path: 'gestor',
+            select: 'nombre apellidos carnet'
+          }
+        }
+      })
+      .select({
+        tipo: 1,
+        codigo_requerimiento: 1,
+        codigo_cliente: 1,
+        codigo_trabajo: 1,
+        codigo_peticion: 1,
+        direccion: 1,
+        nombre_cliente: 1,
+        tipo_requerimiento: 1,
+        tipo_tecnologia: 1,
+        codigo_ctr: 1,
+        codigo_nodo: 1,
+        codigo_troba: 1,
+        numero_reiterada: 1,
+        infancia: 1,
+        distrito: 1,
+        bucket: 1,
+        estado_toa: 1,
+        estado_gestor: 1,
+        contrata: 1,
+        gestor: 1,
+        auditor: 1,
+        tecnico: 1,
+        fecha_cita: 1,
+        fecha_registro: 1,
+        fecha_asignado: 1,
+        fecha_liquidado: 1,
+        orden_devuelta: 1,
+        observacion_toa: 1
+      }).sort('bucket estado_toa');
   };
   //FUNCION PARA OBTENER LAS ORDENES REITERADAS
   async obtenerReiteradas(codigo_cliente: string):Promise<IOrden[]> {
@@ -328,7 +441,10 @@ export class OrdenesService {
     return await this.ordenModel.findOne({ _id: id_orden })
       .select('historial_registro')
       .populate('historial_registro.usuario_entrada', 'nombre apellidos cargo')
-      .populate('historial_registro.empleado_modificado', 'nombre apellidos cargo')
+      .populate({
+        path: 'historial_registro.empleado_modificado', 
+        select: 'nombre apellidos usuario.cargo',
+      })
       .populate('historial_registro.contrata_modificado', 'nombre')
       .then((data: IOrden) => {
         if (data) {
@@ -390,6 +506,7 @@ export class OrdenesService {
       fecha_asignado: 1,
       fecha_liquidado: 1,
       orden_devuelta: 1,
+      observacion_toa: 1
     }).populate({
       path: 'infancia',
       select: 'codigo_requerimiento tecnico_liquidado fecha_registro fecha_liquidado',

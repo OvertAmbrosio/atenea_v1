@@ -121,7 +121,24 @@ export class OrdenesController {
           message: err.message
         });
       });
-    } else if (metodo === 'ordenesHoy' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+    } else if (metodo === 'comprobarInfancias') {
+      return await this.ordenesService.comprobarInfancias().then((res:Array<boolean>) => {
+        const infanciasEncontradas = res && res.length > 0 ? res.filter((e:boolean) => e) : null;
+        
+        return ({
+          status: 'success',
+          message: `(${infanciasEncontradas ? infanciasEncontradas.length : 0}) Infancias encontradas.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(comprobarInfancias)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    }else if (metodo === 'ordenesHoy' && user.cargo <= tipos_usuario.LIDER_GESTION) {
       return await this.ordenesService.obtenerOrdenesHoy(tipo).then((res) => {
         return ({
           status: 'success',

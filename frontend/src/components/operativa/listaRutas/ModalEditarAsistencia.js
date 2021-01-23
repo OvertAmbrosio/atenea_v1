@@ -53,6 +53,8 @@ function ModalEditarAsistencia({visible, abrir, loadingActualizar, actualizar}) 
         <Option value={estadoAsistencia.DESCANSO_MEDICO}>Descanso Médico</Option>
         <Option value={estadoAsistencia.EXAMEN_MEDICO}>Examen Médico</Option>
         <Option value={estadoAsistencia.SUSPENDIDO}>Suspendido</Option>
+        <Option value={estadoAsistencia.VACACIONES}>Vacaciones</Option>
+        <Option value={estadoAsistencia.BAJA}>Baja</Option>
       </Select>
       <p>Observación:</p>
       <TextArea

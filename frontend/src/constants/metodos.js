@@ -22,6 +22,7 @@ export const contratas = {
 
 export const ordenes = {
   SUBIR_DATA: 'subirData',
+  COMPROBAR_INFANCIAS: 'comprobarInfancias',
   SUBIR_INFANCIAS_EXTERNAS: 'subirInfanciasExternas',
   ACTUALIZAR_DATA: 'actualizarLiquidadas',
   CRUZAR_DATA: 'cruzarData',

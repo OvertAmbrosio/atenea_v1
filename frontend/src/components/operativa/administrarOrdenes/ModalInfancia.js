@@ -11,11 +11,6 @@ function ModalInfancia({visible, abrir, loading, orden}) {
 
   const columnas = [
     {
-      title: 'Tipo',
-      dataIndex: 'tipo',
-      width: 120,
-    },
-    {
       title: 'Requerimiento',
       dataIndex: 'codigo_requerimiento',
       width: 120,
