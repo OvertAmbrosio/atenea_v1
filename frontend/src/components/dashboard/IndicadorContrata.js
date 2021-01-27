@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
-import { Col, Empty, Row, Statistic, Typography } from "antd";
+import { Button, Col, Empty, Row, Table, Typography } from "antd";
 import moment from 'moment';
+import { useJsonToCsv } from 'react-json-csv';
 
 import ChartContrata from './ChartContrata';
-import { separarContrata } from "../../libraries/separarField";
-import { gponAltas, gponAverias, gponRutinas, hfcAltas, hfcAverias, hfcRutinas } from "../../constants/valoresToa";
+import { ordenarResumenId, separarContrata } from "../../libraries/separarField";
+import { gponAltas, gponAverias, gponRutinas, hfcAltas, hfcAverias, hfcRutinas, valoresExcelToa } from "../../constants/valoresToa";
+import { columnasResumen, columnasTotal } from "./columnasResumen";
 
 const { Title } = Typography;
 
@@ -13,8 +15,8 @@ function IndicadorGponContrata({data, titulo, tipo, tecnologia}) {
   const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
-  const [contratas, setContratas] = useState([]);
   const [horaActualizado, setHoraActualizado] = useState(null);
+  const { saveAsCsv } = useJsonToCsv();
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -49,7 +51,6 @@ function IndicadorGponContrata({data, titulo, tipo, tecnologia}) {
         return reject(error)
       }
     }).then((ordenesFiltradas) => separarContrata(ordenesFiltradas)).then(({ordenes, contratas}) => {
-      setContratas(contratas);
       setDataOrdenes(ordenes)
     }).catch((err) => console.log(err)).finally(() => {
       setHoraActualizado(moment(new Date()).format('HH:mm:ss'))
@@ -73,22 +74,35 @@ function IndicadorGponContrata({data, titulo, tipo, tecnologia}) {
         <Col sm={24}>
           <ChartContrata data={dataOrdenes} loading={loadingOrdenes}/>
         </Col>
-      </Row>
-      <Row>
         <Col sm={24}>
-        <Row>
-          {
-            contratas && contratas.length > 0 ?
-            contratas.filter((e) => e !== '-').map((g, i) => (
-              <Col key={i} style={{ margin: '1rem' }}>
-                <Statistic
-                  title={g} 
-                  value={totalOrdenes.length > 0 ? totalOrdenes.filter((e) => e.contrata.nombre === g).length : 0} 
-                  suffix={`/ ${totalOrdenes.length} total`}
-                />
-              </Col>
-            )):null
-          }
+          <Row style={{ margin: '1rem 0' }}>
+            <Table
+              rowKey="key"
+              columns={columnasResumen('contrata')}
+              dataSource={ordenarResumenId(totalOrdenes, 'contrata')}
+              size="small"
+              bordered
+              sticky
+              footer={() => <Button onClick={() => 
+                  saveAsCsv({ 
+                    data: totalOrdenes.map((o) => {
+                      return ({
+                        ...o,
+                        tecnico: o.tecnico && o.tecnico.nombre ? o.tecnico.nombre + ' ' + o.tecnico.apellidos : '-',
+                        gestor: o.gestor ? o.gestor.nombre + ' ' + o.gestor.apellidos : '-',
+                        auditor: o.auditor ? o.auditor.nombre + ' ' + o.auditor.apellidos : '-',
+                        contrata: o.contrata ? o.contrata.nombre : '-'
+                      })
+                    }), 
+                    fields: valoresExcelToa, 
+                    filename: `data_${tipo}_${tecnologia ? 'gpon':'hfc'}_${moment().format('DD_MM_YY_HH_mm')}`
+                  })
+                }>
+                  Exportar
+                </Button>
+              }
+              summary={columnasTotal}
+            />
           </Row>
         </Col>
       </Row>

@@ -20,7 +20,7 @@
       background-color: #f6f6f6;
       font-family: sans-serif;
       -webkit-font-smoothing: antialiased;
-      font-size: 14px;
+      font-size: 12px;
       line-height: 1.4;
       margin: 0;
       padding: 0;
@@ -37,7 +37,7 @@
 
     table td {
       font-family: sans-serif;
-      font-size: 14px;
+      font-size: 12px;
       vertical-align: top;
     }
 
@@ -54,9 +54,7 @@
       display: block;
       margin: 0 auto !important;
       /* makes it centered */
-      max-width: 580px;
       padding: 10px;
-      width: 580px;
     }
 
     /* This should also be a block element, so that it will fill 100% of the .container */
@@ -64,7 +62,6 @@
       box-sizing: border-box;
       display: block;
       margin: 0 auto;
-      max-width: 580px;
       padding: 10px;
     }
 
@@ -146,55 +143,6 @@
       color: #3498db;
       text-decoration: underline;
     }
-
-    /* -------------------------------------
-          BUTTONS
-      ------------------------------------- */
-    .btn {
-      box-sizing: border-box;
-      width: 100%;
-    }
-
-    .btn>tbody>tr>td {
-      padding-bottom: 15px;
-    }
-
-    .btn table {
-      width: auto;
-    }
-
-    .btn table td {
-      background-color: #ffffff;
-      border-radius: 5px;
-      text-align: center;
-    }
-
-    .btn a {
-      background-color: #ffffff;
-      border: solid 1px #3498db;
-      border-radius: 5px;
-      box-sizing: border-box;
-      color: #3498db;
-      cursor: pointer;
-      display: inline-block;
-      font-size: 14px;
-      font-weight: bold;
-      margin: 0;
-      padding: 12px 25px;
-      text-decoration: none;
-      text-transform: capitalize;
-    }
-
-    .btn-primary table td {
-      background-color: #3498db;
-    }
-
-    .btn-primary a {
-      background-color: #3498db;
-      border-color: #3498db;
-      color: #ffffff;
-    }
-
     /* -------------------------------------
           OTHER STYLES THAT MIGHT BE USEFUL
       ------------------------------------- */
@@ -258,7 +206,7 @@
       ------------------------------------- */
     @media only screen and (max-width: 620px) {
       table[class=body] h1 {
-        font-size: 28px !important;
+        font-size: 20px !important;
         margin-bottom: 10px !important;
       }
 
@@ -268,12 +216,12 @@
       table[class=body] td,
       table[class=body] span,
       table[class=body] a {
-        font-size: 16px !important;
+        font-size: 14px !important;
       }
 
       table[class=body] .wrapper,
       table[class=body] .article {
-        padding: 10px !important;
+        padding: 12px !important;
       }
 
       table[class=body] .content {
@@ -370,109 +318,35 @@
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                   <tr>
                     <td>
-                      <p>🤖 AteneaBot@v1.2</p>
+                      <h2>🤖 AteneaBot</h2>
                       <p>Fecha: {{ fecha }} </p>
                       <p>Esto es un envío de reporte automatizado.</p>
                       <p>Se detalla el resultado de la extracción de datos.</p></br>
-                      <h2>Resumen General</h2>
-                      <table
-                        style="border-collapse:collapse;margin: 25px 0;font-size: 0.9em;min-width: 400px;-webkit-border-radius: 5px 5px 0 0;border-radius: 5px 5px 0 0;
-                      overflow: hidden;-webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);">
-                        <thead style="background-color: #0daf50;color: #ffffff;text-align: left;font-weight: bold;">
-                          <tr style="background-color: #0daf50;color: #ffffff;text-align: left;font-weight: bold;">
-                            <th style="padding: 12px 15px;">Negocio</th>
-                            <th style="padding: 12px 15px;">Liquidadas</th>
-                            <th style="padding: 12px 15px;">Pendientes</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr style="border-bottom: 1px solid #dddddd;text-align: center;">
-                            <td style="padding: 12px 15px;">Averias</td>
-                            <td style="padding: 12px 15px;">11</td>
-                            <td style="padding: 12px 15px;">88</td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid #dddddd;text-align: center;">
-                            <td style="padding: 12px 15px;">Altas</td>
-                            <td style="padding: 12px 15px;">11</td>
-                            <td style="padding: 12px 15px;">88</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td>
-                      <h2>Detalle de Altas GPON</h2>
-                      <table style="border-collapse:collapse;margin: 25px 0;font-size: 0.9em;min-width: 400px;-webkit-border-radius: 5px 5px 0 0;border-radius: 5px 5px 0 0;overflow: hidden;-webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);">
-                        <thead style="background-color: #1f67ec;color: #ffffff;text-align: left;font-weight: bold;">
-                          <tr style="background-color: #1f67ec;color: #ffffff;text-align: left;font-weight: bold;">
-                            <th style="padding: 12px 15px;">Tecnico</th>
-                            <th style="padding: 12px 15px;">Completadas</th>
-                            <th style="padding: 12px 15px;">Iniciado</th>
-                            <th style="padding: 12px 15px;">No Realizado</th>
-                            <th style="padding: 12px 15px;">Suspendido</th>
-                            <th style="padding: 12px 15px;">Pendiente</th>
-                            <th style="padding: 12px 15px;">Total</th>
-                          </tr>
-                        </thead>
-                        <tbody> 
-                        {{#each detalle}}
-                          {{#if fin }}
-                            <tr key={{@index}} style="border-bottom: 1px solid #dddddd;text-align: center;border-bottom: 2px solid #2297e6;">
-                              <td style="padding: 12px 15px;">{{tecnico}}</td>
-                              <td style="padding: 12px 15px;">{{completadas}}</td>
-                              <td style="padding: 12px 15px;">{{iniciado}}</td>
-                              <td style="padding: 12px 15px;">{{no_realizado}}</td>
-                              <td style="padding: 12px 15px;">{{suspendido}}</td>
-                              <td style="padding: 12px 15px;">{{pendiente}}</td>
-                              <td style="padding: 12px 15px;">{{total}}</td>
-                            </tr>
-                          {{else}}
-                            <tr key={{@index}} style="border-bottom: 1px solid #dddddd;text-align: center;"></tr>
-                              <td style="padding: 12px 15px;">{{tecnico}}</td>
-                              <td style="padding: 12px 15px;">{{completadas}}</td>
-                              <td style="padding: 12px 15px;">{{iniciado}}</td>
-                              <td style="padding: 12px 15px;">{{no_realizado}}</td>
-                              <td style="padding: 12px 15px;">{{suspendido}}</td>
-                              <td style="padding: 12px 15px;">{{pendiente}}</td>
-                              <td style="padding: 12px 15px;">{{total}}</td>
-                            </tr>
-                          {{/if}}
-                        {{/each}}
-                        </tbody>
-                      </table>
+                      <p style="color: #EC7063;">No se encontraron datos en el servidor, revisar el proceso de extracción.</p>
                     </td>
                   </tr>
                 </table>
               </td>
             </tr>
+            <!-- END MAIN CONTENT AREA -->
           </table>
+          <!-- END CENTERED WHITE CONTAINER -->
+          <!-- START FOOTER -->
+          <div class="footer">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+              <tr>
+                <td class="content-block">
+                  <span class="apple-link">Atenea System - 2021</span>
+                  <br><a href="https://atenea-v2.herokuapp.com/login">Entrar</a>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <!-- END FOOTER -->
+        </div>
       </td>
+      <td>&nbsp;</td>
     </tr>
-
-    <!-- END MAIN CONTENT AREA -->
-  </table>
-  <!-- END CENTERED WHITE CONTAINER -->
-
-  <!-- START FOOTER -->
-  <div class="footer">
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-      <tr>
-        <td class="content-block">
-          <span class="apple-link">Atenea System - 2021</span>
-          <br><a href="https://atenea-v2.herokuapp.com/login">Entrar</a>
-        </td>
-      </tr>
-    </table>
-  </div>
-  <!-- END FOOTER -->
-
-  </div>
-  </td>
-  <td>&nbsp;</td>
-  </tr>
   </table>
 </body>
 

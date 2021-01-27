@@ -66,7 +66,7 @@ export class AsistenciaController {
   @Patch()
   async actualizarAsistencia(@Body() data:any , @Req() req: Request): Promise<TRespuesta> {
     const user:any = req.user;
-    return await this.asistenciaService.actualizarAsistencia(data.id, user.id, data.estado, data.observacion).then(() => {
+    return await this.asistenciaService.actualizarAsistencia(data.id, data.estado, data.observacion).then(() => {
       this.logger.info({
         service: `El gestor -${user.id}- actualizo al tecnico -${data.tecnico}- con el estado -${data.estado}-`
       })

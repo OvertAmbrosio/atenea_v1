@@ -1,6 +1,5 @@
 import { Table, Tooltip } from 'antd';
 import Text from 'antd/lib/typography/Text';
-import colores from '../../constants/colores';
 import capitalizar from '../../libraries/capitalizar';
 
 export function columnasResumen(tipo) {

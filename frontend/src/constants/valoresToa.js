@@ -67,3 +67,12 @@ export const valoresExcelToa = {
   sla_inicio: "SLA_INICIO",
   sla_fin: "SLA_FIN"
 };
+
+export const estadosToa = {
+  CANCELADO: 'Cancelado',
+  COMPLETADO: 'Completado',
+  INICIADO: 'Iniciado',
+  NO_REALIZADA: 'No Realizada',
+  PENDIENTE: 'Pendiente',
+  SUSPENDIDO: 'Suspendido'
+}

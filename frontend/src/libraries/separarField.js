@@ -1,3 +1,5 @@
+import { estadosToa } from "../constants/valoresToa";
+
 export function separarBucket(data=[]) {
   let buckets = [];
   if (data && data.length !== 0) {
@@ -130,28 +132,71 @@ export function ordenarResumen(data=[], tipo) {
 
     data.forEach((d) => { if (!tipos.includes(d[tipo])) tipos.push(d[tipo]) });
 
-    tipos.filter((e) => e).forEach((e) => {
+    tipos.filter((e) => e).forEach((e, i) => {
       if (nuevaData.length <= 0) {
         nuevaData = [{
+          key: i,
           [tipo]: e,
-          completado: data.filter((d) => d.estado === 'Completado' && e === d[tipo]).length,
-          iniciado: data.filter((d) => d.estado === 'Iniciado' && e === d[tipo]).length,
-          no_realizada: data.filter((d) => d.estado === 'No Realizado' && e === d[tipo]).length,
-          pendiente: data.filter((d) => d.estado === 'Pendiente' && e === d[tipo]).length,
-          suspendido: data.filter((d) => d.estado === 'Suspendido' && e === d[tipo]).length,
-          cancelado: data.filter((d) => d.estado === 'Cancelado' && e === d[tipo]).length,
+          completado: data.filter((d) => d.estado === estadosToa.COMPLETADO && e === d[tipo]).length,
+          iniciado: data.filter((d) => d.estado === estadosToa.INICIADO && e === d[tipo]).length,
+          no_realizada: data.filter((d) => d.estado === estadosToa.NO_REALIZADA && e === d[tipo]).length,
+          pendiente: data.filter((d) => d.estado === estadosToa.PENDIENTE && e === d[tipo]).length,
+          suspendido: data.filter((d) => d.estado === estadosToa.SUSPENDIDO && e === d[tipo]).length,
+          cancelado: data.filter((d) => d.estado === estadosToa.CANCELADO && e === d[tipo]).length,
           total: data.filter((d) => e === d[tipo]).length,
         }]
       } else {
         nuevaData.push({
+          key: i,
           [tipo]: e,
-          completado: data.filter((d) => d.estado === 'Completado' && e === d[tipo]).length,
-          iniciado: data.filter((d) => d.estado === 'Iniciado' && e === d[tipo]).length,
-          no_realizada: data.filter((d) => d.estado === 'No Realizado' && e === d[tipo]).length,
-          pendiente: data.filter((d) => d.estado === 'Pendiente' && e === d[tipo]).length,
-          suspendido: data.filter((d) => d.estado === 'Suspendido' && e === d[tipo]).length,
-          cancelado: data.filter((d) => d.estado === 'Cancelado' && e === d[tipo]).length,
+          completado: data.filter((d) => d.estado === estadosToa.COMPLETADO && e === d[tipo]).length,
+          iniciado: data.filter((d) => d.estado === estadosToa.INICIADO && e === d[tipo]).length,
+          no_realizada: data.filter((d) => d.estado === estadosToa.NO_REALIZADA && e === d[tipo]).length,
+          pendiente: data.filter((d) => d.estado === estadosToa.PENDIENTE && e === d[tipo]).length,
+          suspendido: data.filter((d) => d.estado === estadosToa.SUSPENDIDO && e === d[tipo]).length,
+          cancelado: data.filter((d) => d.estado === estadosToa.CANCELADO && e === d[tipo]).length,
           total: data.filter((d) => e === d[tipo]).length,
+        })
+      }
+    })
+
+    return nuevaData;
+  } else {
+    return [];
+  }
+};
+
+export function ordenarResumenId(data=[], tipo) {
+  if (data && data.length > 0) {
+    let tipos = [];
+    let nuevaData = [];
+
+    data.forEach((d) => { if (!tipos.includes(d[tipo].nombre)) tipos.push(d[tipo].nombre) });
+
+    tipos.filter((e) => e).forEach((e, i) => {
+      if (nuevaData.length <= 0) {
+        nuevaData = [{
+          key: i,
+          [tipo]: e,
+          completado: data.filter((d) => d.estado === estadosToa.COMPLETADO && e === d[tipo].nombre).length,
+          iniciado: data.filter((d) => d.estado === estadosToa.INICIADO && e === d[tipo].nombre).length,
+          no_realizada: data.filter((d) => d.estado === estadosToa.NO_REALIZADA && e === d[tipo].nombre).length,
+          pendiente: data.filter((d) => d.estado === estadosToa.PENDIENTE && e === d[tipo].nombre).length,
+          suspendido: data.filter((d) => d.estado === estadosToa.SUSPENDIDO && e === d[tipo].nombre).length,
+          cancelado: data.filter((d) => d.estado === estadosToa.CANCELADO && e === d[tipo].nombre).length,
+          total: data.filter((d) => e === d[tipo].nombre).length,
+        }]
+      } else {
+        nuevaData.push({
+          key: i,
+          [tipo]: e,
+          completado: data.filter((d) => d.estado === estadosToa.COMPLETADO && e === d[tipo].nombre).length,
+          iniciado: data.filter((d) => d.estado === estadosToa.INICIADO && e === d[tipo].nombre).length,
+          no_realizada: data.filter((d) => d.estado === estadosToa.NO_REALIZADA && e === d[tipo].nombre).length,
+          pendiente: data.filter((d) => d.estado === estadosToa.PENDIENTE && e === d[tipo].nombre).length,
+          suspendido: data.filter((d) => d.estado === estadosToa.SUSPENDIDO && e === d[tipo].nombre).length,
+          cancelado: data.filter((d) => d.estado === estadosToa.CANCELADO && e === d[tipo].nombre).length,
+          total: data.filter((d) => e === d[tipo].nombre).length,
         })
       }
     })

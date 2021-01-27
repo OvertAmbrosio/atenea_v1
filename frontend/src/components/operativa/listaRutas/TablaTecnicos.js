@@ -60,13 +60,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
       if (tecnicosSeleccionados.length > 0) {
         setLoadingAsignarGestor(true);
         await patchEmpleados(true, { metodo: empleados.ACTUALIZAR_GESTOR, gestor: gestorSeleccionado === '-' ? null: gestorSeleccionado, tecnicos: tecnicosSeleccionados })
-          .then(async() => {
-            setTecnicosSeleccionados([]);
-            await cargarEmpleados();
-          }).catch((err) => {
-            setTecnicosSeleccionados([]);
-            console.log(err);
-          }).finally(() => setLoadingAsignarGestor(false));
+          .then(async() => await cargarEmpleados()).catch((err) => console.log(err)).finally(() => setLoadingAsignarGestor(false));
       } else {
         console.log('no hay tecnicos seleccionado')
       }; 
@@ -74,13 +68,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
       if (auditorSeleccionado && tecnicosSeleccionados.length > 0) {
         setLoadingAsignarAuditor(true);
         await patchEmpleados(true, { metodo: empleados.ACTUALIZAR_AUDITOR, auditor: auditorSeleccionado, tecnicos: tecnicosSeleccionados })
-          .then(async() => {
-            setTecnicosSeleccionados([]);
-            await cargarEmpleados();
-          }).catch((err) => {
-            setTecnicosSeleccionados([]);
-            console.log(err);
-          }).finally(() => setLoadingAsignarAuditor(false));
+          .then(async() => await cargarEmpleados()).catch((err) => console.log(err)).finally(() => setLoadingAsignarAuditor(false));
       } else {
         console.log('no hay tecnicos o auditor seleccionado')
       }
@@ -88,13 +76,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
       if (negocioSeleccionado && tecnicosSeleccionados.length > 0) {
         setLoadingAsignarNegocio(true);
         await patchEmpleados(true, { metodo: empleados.ACTUALIZAR_NEGOCIO, negocio: negocioSeleccionado, tecnicos: tecnicosSeleccionados })
-          .then(async() => {
-            setTecnicosSeleccionados([]);
-            await cargarEmpleados();
-          }).catch((err) => {
-            setTecnicosSeleccionados([]);
-            console.log(err);
-          }).finally(() => setLoadingAsignarNegocio(false));
+          .then(async() => await cargarEmpleados()).catch((err) => console.log(err)).finally(() => setLoadingAsignarNegocio(false));
       } else {
         console.log('no hay tecnicos o negocio seleccionado')
       }
@@ -102,13 +84,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
       if (subNegocioSeleccionado && tecnicosSeleccionados.length > 0) {
         setLoadingAsignarSubNegocio(true);
         await patchEmpleados(true, { metodo: empleados.ACTUALIZAR_SUB_NEGOCIO, subNegocio: subNegocioSeleccionado, tecnicos: tecnicosSeleccionados })
-          .then(async() => {
-            setTecnicosSeleccionados([]);
-            await cargarEmpleados();
-          }).catch((err) => {
-            setTecnicosSeleccionados([]);
-            console.log(err);
-          }).finally(() => setLoadingAsignarSubNegocio(false));
+          .then(async() => await cargarEmpleados()).catch((err) => console.log(err)).finally(() => setLoadingAsignarSubNegocio(false));
       } else {
         console.log('no hay tecnicos o sub negocio seleccionado')
       }
@@ -261,11 +237,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
             defaultValue={gestorSeleccionado}
             onChange={e => setGestorSeleccionado(e)} 
             style={{ width: 300, marginBottom: '.5rem', marginRight: '.5rem' }}
-            filterOption={(input, option) => {
-              console.log(input, option);
-                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-            }
+            filterOption={(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 }
           >
           {
             gestores.length > 0 ? 

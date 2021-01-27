@@ -27,6 +27,7 @@ export async function ordenarAsistencia(data=[]) {
             const field = moment(obj.createdAt).format('DD-MM');
             const objetoNuevo = {
               _id: obj._id,
+              estado_empresa: obj.tecnico.estado_empresa,
               tipo_negocio: obj.tecnico.tipo_negocio,
               sub_tipo_negocio: obj.tecnico.sub_tipo_negocio,
               nombre: obj.tecnico.nombre,
@@ -56,6 +57,7 @@ export async function ordenarAsistencia(data=[]) {
           const field = moment(obj.createdAt).format('DD-MM');
           nuevoArray = [{
             _id: obj._id,
+            estado_empresa: obj.tecnico.estado_empresa,
             tipo_negocio: obj.tecnico.tipo_negocio,
             sub_tipo_negocio: obj.tecnico.sub_tipo_negocio,
             nombre: obj.tecnico.nombre,
@@ -114,6 +116,7 @@ export async function ordenarAsistenciaGestor(data=[]) {
             const field = moment(obj.createdAt).format('DD-MM');
             const objetoNuevo = {
               _id: obj._id,
+              estado_empresa: obj.gestor.estado_empresa,
               nombre: obj.gestor.nombre,
               apellidos: obj.gestor.apellidos,
               observacion: obj.observacion,
@@ -131,6 +134,7 @@ export async function ordenarAsistenciaGestor(data=[]) {
           const field = moment(obj.createdAt).format('DD-MM');
           nuevoArray = [{
             _id: obj._id,
+            estado_empresa: obj.gestor.estado_empresa,
             nombre: obj.gestor.nombre,
             apellidos: obj.gestor.apellidos,
             observacion: obj.observacion,
@@ -177,6 +181,7 @@ export async function ordenarAsistenciaAuditor(data=[]) {
             const field = moment(obj.createdAt).format('DD-MM');
             const objetoNuevo = {
               _id: obj._id,
+              estado_empresa: obj.auditor.estado_empresa,
               nombre: obj.auditor.nombre,
               apellidos: obj.auditor.apellidos,
               observacion: obj.observacion,
@@ -194,6 +199,7 @@ export async function ordenarAsistenciaAuditor(data=[]) {
           const field = moment(obj.createdAt).format('DD-MM');
           nuevoArray = [{
             _id: obj._id,
+            estado_empresa: obj.auditor.estado_empresa,
             nombre: obj.auditor.nombre,
             apellidos: obj.auditor.apellidos,
             observacion: obj.observacion,

@@ -3,6 +3,7 @@ import { CheckCircleOutlined, ExclamationCircleOutlined, CloseCircleOutlined } f
 import React from 'react';
 import cargos from '../../../constants/cargos';
 import colores from '../../../constants/colores';
+import estadoEmpleado from '../../../constants/estadoEmpleado';
 
 export function CargoTag({cargo}) {
   switch (cargo) {
@@ -33,11 +34,11 @@ export function CargoTag({cargo}) {
 
 export function EstadoTag({estado}) {
   switch (estado) {
-    case 'Activo': 
+    case estadoEmpleado.ACTIVO: 
       return (<Tag icon={<CheckCircleOutlined/>} color={colores.success}>{estado}</Tag>);
-    case 'Suspendido':
+    case estadoEmpleado.SUSPENDIDO:
       return (<Tag icon={<ExclamationCircleOutlined/>} color={colores.warning}>{estado}</Tag>)
-    case 'Inactivo':
+    case estadoEmpleado.INACTIVO:
       return (<Tag icon={<CloseCircleOutlined />} color={colores.error}>{estado}</Tag>)
     default:
       return (<Tag>Desconocido</Tag>);

@@ -198,33 +198,44 @@ export class EmpleadosService {
 
   async actualizarEmpleado(id: string, cargoUsuario: number, updateEmpleadoDto: UpdateEmpleadoDto) {
     const empleado = await this.empleadoModel.findById(id).select('usuario.cargo');
+    console.log(updateEmpleadoDto);
+    
     //validar que el usuario a actualizar no es uno de los jefes o administrador
     if (empleado && empleado.usuario.cargo > cargoUsuario) {
       if (empleado.usuario.cargo === tipos_usuario.GESTOR) {
         return await this.redisService.remove(cache_keys.GESTORES)
           .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: {
-            ...updateEmpleadoDto,
-            usuario: {
-              email: updateEmpleadoDto.usuario.email,
-              cargo: updateEmpleadoDto.usuario.cargo
-            }
+            nombre: updateEmpleadoDto.nombre,
+            apellidos: updateEmpleadoDto.apellidos,
+            carnet: updateEmpleadoDto.carnet,
+            contrata: updateEmpleadoDto.contrata,
+            tipo_documento: updateEmpleadoDto.tipo_documento,
+            numero_documento: updateEmpleadoDto.numero_documento,
+            "usuario.email": updateEmpleadoDto.usuario.email,
+            "usuario.cargo": updateEmpleadoDto.usuario.cargo
           } }));
       } else if (empleado.usuario.cargo === tipos_usuario.TECNICO) {
         return await this.redisService.remove(cache_keys.TECNICOS_GLOBAL)
           .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: {
-            ...updateEmpleadoDto,
-            usuario: {
-              email: updateEmpleadoDto.usuario.email,
-              cargo: updateEmpleadoDto.usuario.cargo
-            }
+            nombre: updateEmpleadoDto.nombre,
+            apellidos: updateEmpleadoDto.apellidos,
+            carnet: updateEmpleadoDto.carnet,
+            contrata: updateEmpleadoDto.contrata,
+            tipo_documento: updateEmpleadoDto.tipo_documento,
+            numero_documento: updateEmpleadoDto.numero_documento,
+            "usuario.email": updateEmpleadoDto.usuario.email,
+            "usuario.cargo": updateEmpleadoDto.usuario.cargo
           } }));
       } else {
         return await this.empleadoModel.findByIdAndUpdate(id, { $set: {
-          ...updateEmpleadoDto,
-          usuario: {
-            email: updateEmpleadoDto.usuario.email,
-            cargo: updateEmpleadoDto.usuario.cargo
-          }
+          nombre: updateEmpleadoDto.nombre,
+          apellidos: updateEmpleadoDto.apellidos,
+          carnet: updateEmpleadoDto.carnet,
+          contrata: updateEmpleadoDto.contrata,
+          tipo_documento: updateEmpleadoDto.tipo_documento,
+          numero_documento: updateEmpleadoDto.numero_documento,
+          "usuario.email": updateEmpleadoDto.usuario.email,
+          "usuario.cargo": updateEmpleadoDto.usuario.cargo
         } });
       };
     } else {

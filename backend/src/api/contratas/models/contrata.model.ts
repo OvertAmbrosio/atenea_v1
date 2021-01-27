@@ -1,5 +1,5 @@
-import { Schema, Types } from 'mongoose';
-import * as mongoosePaginate from 'mongoose-paginate-v2';
+import { Schema } from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 export const ContrataSchema = new Schema({
   nombre: {

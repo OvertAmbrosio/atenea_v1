@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import * as mongoosePaginate from 'mongoose-paginate-v2';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 import { tipos_usuario, estado_empresa } from '../../../constants/enum';
 

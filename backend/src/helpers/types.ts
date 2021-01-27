@@ -41,9 +41,9 @@ export type TOrdenesToa = {
   fecha_cancelado?: string|Date,
   observacion_toa?: string,
 
-  tecnico?: string|Partial<IEmpleado>,
+  tecnico?: IEmpleado,
   gestor?: string|IEmpleado,
-  gestor_liquidado_toa?: string|Partial<IEmpleado>,
+  gestor_liquidado_toa?: string|IEmpleado,
   auditor?: string|IEmpleado,
   contrata?: string|IContrata,
   estado?: string,
@@ -55,7 +55,10 @@ export type TOrdenesToa = {
   tipo_agenda?:string,
   motivo_no_realizado: string,
   sla_inicio?: string|Date,
-  sla_fin?: string|Date
+  sla_fin?: string|Date,
+
+  fecha_pre_no_realizado?: string|Date,
+  fecha_registro_legados?: string|Date,
 };
 
 export type TInfanciasExternas = {

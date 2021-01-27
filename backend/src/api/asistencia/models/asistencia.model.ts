@@ -30,7 +30,9 @@ export const AsistenciaSchema = new Schema({
       estado_asistencia.EXAMEN_MEDICO,
       estado_asistencia.FALTA,
       estado_asistencia.PERMISO,
-      estado_asistencia.SUSPENDIDO
+      estado_asistencia.SUSPENDIDO,
+      estado_asistencia.VACACIONES,
+      estado_asistencia.BAJA
     ],
     default: 'F'
   },

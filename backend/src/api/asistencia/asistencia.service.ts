@@ -96,7 +96,7 @@ export class AsistenciaService {
     };
   };
 
-  async actualizarAsistencia(id:string, gestor:string, estado:string, observacion?:string) {
+  async actualizarAsistencia(id:string, estado:string, observacion?:string) {
     return await this.asistenciaModel.findByIdAndUpdate({
       _id: id
     }, {
@@ -114,9 +114,9 @@ export class AsistenciaService {
         { createdAt: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) } },
         { tipo: params.tipo }
       ]
-    }).populate('auditor', 'nombre apellidos carnet').populate('gestor', 'nombre apellidos carnet').populate({
+    }).populate('auditor', 'nombre apellidos carnet estado_empresa').populate('gestor', 'nombre apellidos carnet estado_empresa').populate({
       path: 'tecnico',
-      select: 'nombre apellidos contrata gestor tipo_negocio sub_tipo_negocio',
+      select: 'nombre apellidos contrata gestor tipo_negocio sub_tipo_negocio estado_empresa',
       populate: [{
         path: 'contrata',
         select: 'nombre'
@@ -162,7 +162,7 @@ export class AsistenciaService {
       ]
     }).populate({
       path: 'tecnico',
-      select: 'nombre apellidos contrata gestor',
+      select: 'nombre apellidos contrata gestor estado_empresa',
       populate: [{
         path: 'contrata',
         select: 'nombre'

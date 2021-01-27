@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
-import { Button, Col, Empty, Row, Statistic, Table, Typography } from "antd";
+import { Button, Col, Empty, Row, Table, Typography } from "antd";
 import moment from 'moment';
 import { useJsonToCsv } from 'react-json-csv';
 
@@ -15,7 +15,6 @@ function IndicadorBucket({data=[], titulo, tipo, tecnologia}) {
   const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
-  const [estadosOrdenes, setEstadosOrdenes] = useState([])
   const [horaActualizado, setHoraActualizado] = useState(null);
   const { saveAsCsv } = useJsonToCsv();
 
@@ -52,7 +51,6 @@ function IndicadorBucket({data=[], titulo, tipo, tecnologia}) {
        return reject(error)
      }
     }).then((ordenesFiltradas) => separarBucket(ordenesFiltradas)).then(({ordenes, buckets, estados}) => {
-      setEstadosOrdenes(estados);
       setDataOrdenes(ordenes)
     }).catch((err) => console.log(err)).finally(() => {
       setHoraActualizado(moment(new Date()).format('HH:mm:ss'))
@@ -104,21 +102,6 @@ function IndicadorBucket({data=[], titulo, tipo, tecnologia}) {
               }
               summary={columnasTotal}
             />
-          {/* {
-            estadosOrdenes && estadosOrdenes.length > 0 ?
-            estadosOrdenes.map((e, i) => (
-              <Col key={i} style={{ margin: '1rem' }}>
-                <Statistic
-                  title={e} 
-                  value={totalOrdenes.length > 0 ? totalOrdenes.filter((o) => o.estado === e).length : 0} 
-                  suffix={`/ ${totalOrdenes.length} total`}
-                />
-              </Col>
-            )):null
-          } */}
-          </Row>
-          <Row>
-            
           </Row>
         </Col>
       </Row>

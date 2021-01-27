@@ -88,7 +88,9 @@ function ModalEmpleado({accion, visible, setVisible, empleado={}, contratas=[], 
           label="Cargo"
           rules={[{ required: true, type: "number" }]}
         >
-          <Select placeholder="Seleccionar cargo" onChange={(e) => setEmpleadoObj({...empleadoObj, cargo: e})} allowClear>
+          <Select disabled={empleadoObj.cargo < cargos.JEFE_LOGISTICA} placeholder="Seleccionar cargo" onChange={(e) => setEmpleadoObj({...empleadoObj, cargo: e})} allowClear>
+            <Option value={cargos.JEFE_OPERACIONES}>Jefe de Operaciones</Option>
+            <Option value={cargos.LIDER_GESTION}>Lider de Gestión</Option>
             <Option value={cargos.ASISTENTE_LOGISTICA}>Asistente de Logistica</Option>
             <Option value={cargos.JEFE_CONTRATA}>Jefe de Contrata</Option>
             <Option value={cargos.GESTOR}>Gestor</Option>

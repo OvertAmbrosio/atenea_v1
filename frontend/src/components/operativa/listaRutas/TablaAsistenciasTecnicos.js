@@ -5,6 +5,7 @@ import moment from 'moment';
 
 import { getAsistencias, patchAsistencia } from '../../../services/apiAsistencia';
 import { asistencias } from '../../../constants/metodos';
+import estadoEmpleado from '../../../constants/estadoEmpleado';
 import colores from '../../../constants/colores';
 import { ordenarAsistencia } from '../../../libraries/ordenarAsistencias';
 import EstadoTag from './EstadoTag';
@@ -150,7 +151,7 @@ export default function TablaAsistenciasTecnicos() {
               return <Tag color={colores.error}><CloseCircleOutlined/></Tag>
             }
           } else {
-            return <Tag color={colores.error}>No</Tag>
+            return <Tag color="error">BAJA</Tag>
           }
         }
       }]
@@ -161,6 +162,7 @@ export default function TablaAsistenciasTecnicos() {
           align: 'center',
           dataIndex: e,
           render: (a, row) => {
+            console.log(row);
             if (a && a.estado && a.observacion) {
               return (
                 <Popover 
@@ -179,7 +181,7 @@ export default function TablaAsistenciasTecnicos() {
                 </Popover>
               )
             } else {
-              return (<EstadoTag estado={a && a.estado ? a.estado :'-'}/>)
+              return (<EstadoTag estado={a && a.estado_empresa ? a.estado_empresa : row.estado_empresa === estadoEmpleado.INACTIVO ? 'BAJA' : '-'}/>)
             };
           }
         })
