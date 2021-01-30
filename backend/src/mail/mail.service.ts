@@ -16,14 +16,14 @@ export class MailService {
     private readonly updateDataService:UpdateDataService,
   ) { }
 
-  @Cron('0 5 10,12,15,17,20 * * *', {
-    name: 'obtenerOrdenes',
-    timeZone: 'America/Lima',
-  })
-  async enviarReportesDeGestion() { 
-    console.log('-------------------------Enviando Reportes de gestión--------------------------');
-    return await this.reportesToa().then((e) => console.log(e));
-  };
+  // @Cron('0 5 10,12,15,17,20 * * *', {
+  //   name: 'enviarReportesGestion',
+  //   timeZone: 'America/Lima',
+  // })
+  // async enviarReportesDeGestion() { 
+  //   console.log('-------------------------Enviando Reportes de gestión--------------------------');
+  //   return await this.reportesToa().then((e) => console.log(e));
+  // };
   
   public async reportesToa() {    
     const dataAverias = await this.redisService.get(cache_keys.ORDENES_AVERIAS).then((data) => JSON.parse(data));
@@ -35,8 +35,8 @@ export class MailService {
     const tcflAltas = await this.updateDataService.ordenarDataTcflAltas(dataAltas);
     const prodDirectos = await this.updateDataService.ordenarDataProdDirectos(dataAverias, dataAltas);
 
-    const fecha = `${DateTime.fromJSDate(new Date()).get('day')}-${DateTime.fromJSDate(new Date()).get('month')}-${DateTime.fromJSDate(new Date()).get('year')}`;
-    const hora = `${DateTime.fromJSDate(new Date()).get('hour')}:${DateTime.fromJSDate(new Date()).get('minute')}:${DateTime.fromJSDate(new Date()).get('second')}`;
+    const fecha = `${DateTime.fromJSDate(new Date(), { zone: 'America/Lima' }).get('day')}-${DateTime.fromJSDate(new Date(), { zone: 'America/Lima' }).get('month')}-${DateTime.fromJSDate(new Date(), { zone: 'America/Lima' }).get('year')}`;
+    const hora = `${DateTime.fromJSDate(new Date(), { zone: 'America/Lima' }).get('hour')}:${DateTime.fromJSDate(new Date(), { zone: 'America/Lima' }).get('minute')}:${DateTime.fromJSDate(new Date(), { zone: 'America/Lima' }).get('second')}`;
 
     if (dataAverias && dataAltas && dataAverias.length > 0 && dataAltas.length > 0) {
       
@@ -66,7 +66,8 @@ export class MailService {
           'karumi.amado@liteyca.pe',
           'edgar.garcia@liteyca.pe',
           'alfredo.sierra@liteyca.pe',
-          'julio.purizaca@liteyca.pe'
+          'julio.purizaca@liteyca.pe',
+          'ana.garcia@liteyca.pe'
         ], // List of receivers email address
         subject: '✔ Reporte de Extracción',
         context: {

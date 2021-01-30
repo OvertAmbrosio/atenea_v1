@@ -6,7 +6,7 @@ import { useJsonToCsv } from 'react-json-csv';
 import moment from 'moment';
 import cogoToast from 'cogo-toast';
 
-import TablaOrdenes from './TablaOrdenes';
+import TablaOrdenesPendientes from './TablaOrdenesPendientes';
 import { getOrdenes, patchOrdenes, patchFilesOrdenes } from '../../../services/apiOrden';
 import { ordenes } from '../../../constants/metodos';
 import ModalAgendar from './ModalAgendar';
@@ -21,7 +21,7 @@ import ModalInfanciaExterna from './ModalInfanciaExterna';
 
 const { Search } = Input;
 
-function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
+function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
   const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [dataRegistros, setDataRegistros] = useState([]);
@@ -330,7 +330,7 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
           allowClear 
         />
       </div>
-      <TablaOrdenes 
+      <TablaOrdenesPendientes 
         tipo={tipo}
         data={dataOrdenes} 
         loading={loadingOrdenes} 
@@ -362,12 +362,12 @@ function ListarOrdenes({ contratas, gestores, tecnicos, tipo }) {
   )
 }
 
-ListarOrdenes.propTypes = {
+OrdenesPendientes.propTypes = {
   contratas: PropTypes.array,
   gestores: PropTypes.array,
   tecnicos: PropTypes.array,
   tipo: PropTypes.string
 }
 
-export default ListarOrdenes
+export default OrdenesPendientes
 

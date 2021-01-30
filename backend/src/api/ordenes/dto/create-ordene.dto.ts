@@ -9,7 +9,7 @@ export class CreateOrdeneDto {
   readonly codigo_peticion?: string;
   readonly codigo_cliente?: string;
   readonly nombre_cliente?: string;
-  readonly codigo_ctr?: string;
+  readonly codigo_ctr?: number;
   readonly descripcion_ctr?: string;
   readonly codigo_nodo?: string;
   readonly codigo_troba?: string;
@@ -31,7 +31,11 @@ export class CreateOrdeneDto {
   //datos de liquidacion
   readonly estado_liquidado?: string;
   readonly tecnico_liquidado?: IEmpleado['_id'];
+  readonly carnet_liquidado?: string;
+  readonly nombre_liquidado?: string;
   readonly fecha_liquidado?: Date;
   readonly tipo_averia?: string;
   readonly codigo_usuario_liquidado?: string;
+  readonly observacion_liquidado?: string;
+  readonly descripcion_codigo_liquidado?: string;
 }

@@ -46,5 +46,7 @@ export const subTipoNegocio = [
     text: 'EMPRESAS',
     value: tipoTecnologia.EMPRESAS
   }
-]
+];
+
+export const nodosLiteyca = ["D4","D5","MA","MAU2","MAU3","MR","P0","PB","SJ","SJU1","SJU2","SJU3","SM","SU","SV","VN","W5","W6"];
 

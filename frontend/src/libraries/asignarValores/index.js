@@ -7,8 +7,10 @@ export default async function asignarValores(obj, tipo, estado, tecnicos) {
     case tipoOrdenes.AVERIAS:
       if (estado === 1) {
         return await pendientesAverias(obj);
-      } else {
+      } else if(estado === 2) {
         return await liquidadasAverias(obj, tecnicos);   
+      } else {
+        return [];
       }
     case 'infancias' :
       return await infanciasExternas(obj);

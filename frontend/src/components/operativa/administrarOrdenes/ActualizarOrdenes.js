@@ -1,51 +1,98 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Col, Radio, Row, Statistic, Upload } from 'antd';
+import { Button, Col, Radio, Row, Statistic, Table, Tag, Upload } from 'antd';
 import { UploadOutlined, SaveOutlined, LoadingOutlined } from '@ant-design/icons';
 import cogoToast from 'cogo-toast';
 
 import variables from '../../../constants/config';
 import convertirExcel from '../../../libraries/convertirExcel';
 import asignarValores from '../../../libraries/asignarValores';
-import { getOrdenes, postOrdenes, putOrdenes } from '../../../services/apiOrden';
+import { postOrdenes, putOrdenes } from '../../../services/apiOrden';
 import { ordenes } from '../../../constants/metodos';
+import fragmentarArray from '../../../libraries/fragmentarArray';
 
 function ActualizarOrdenes({tipoOrden, tecnicos}) {
   const [estadoOrden, setEstadoOrden] = useState(1)
   const [estadoArchivo, setEstadoArchivo] = useState('done');
   const [nombreArchivo, setNombreArchivo] = useState('');
   const [ordenesObtenidas, setOrdenesObtenidas] = useState([]);
+  const [ordenesTotal, setOrdenesTotal] = useState(0);
+  const [ordenesFiltradas, setOrdenesFiltradas] = useState(0);
   const [loadingButton, setLoadingButton] = useState(false);
+  const [resultado, setResultado] = useState([])
 
   useEffect(() => {
     setEstadoArchivo('done');
     setNombreArchivo('');
     setOrdenesObtenidas([]);
+    setOrdenesTotal(0);
+    setOrdenesFiltradas(0);
+    setResultado([]);
   },[estadoOrden]);
+
+  async function enviarOrdenesPendientes(data, i) {
+    cogoToast.info(`Enviando paquetes de datos ${i}/${ordenesObtenidas.length} (300u.)...`, { position: 'top-right' });
+    return await postOrdenes({
+      metodo: ordenes.SUBIR_DATA, 
+      ordenes: data 
+    }).then((res) => {
+      let resultadoAux = resultado;
+      let infoResponse = res && res.data ? res.data: {};
+      resultadoAux.push({
+        ...infoResponse,
+        id: Date.now(), 
+        cantidad: data.length
+      })
+      setResultado(resultadoAux.filter(e => e))
+    }).catch((err) => console.log(err));;
+  };
+
+  async function enviarOrdenesLiquidadas(data, i) {
+    cogoToast.info(`Enviando paquetes de datos ${i}/${ordenesObtenidas.length} (300u.)...`, { position: 'top-right' });
+    await putOrdenes({
+      metodo: ordenes.ACTUALIZAR_DATA, 
+      ordenes: data 
+    }).then((res) => {
+      let resultadoAux = resultado;
+      let infoResponse = res && res.data ? res.data: {};
+      resultadoAux.push({
+        ...infoResponse,
+        id: Date.now(), 
+        cantidad: data.length
+      })
+      setResultado(resultadoAux.filter(e => e))
+    }).catch((err) => console.log(err));
+  };
 
   async function guardarArchivo() {
     if (ordenesObtenidas.length === 0) {
       cogoToast.warn('No hay ordenes para subir.', { position: 'top-right' });
     } else {
-      setLoadingButton(true);
       if (estadoOrden === 1) {
-        await postOrdenes({
-          metodo: ordenes.SUBIR_DATA, 
-          ordenes: ordenesObtenidas 
-        }).then(async() => {
-          cogoToast.info('Sincronizando ordenes con TOA...', { position: 'top-right' });
-          return await getOrdenes(true, { metodo: ordenes.CRUZAR_DATA, tipo: tipoOrden})
-        }).catch((err) => console.log(err));
+        try {
+          setLoadingButton(true);
+          let index = 1;
+          for await ( let obj of ordenesObtenidas) {
+            await enviarOrdenesPendientes(obj, index)
+            index = index+1
+          };
+        } catch (error) {
+          cogoToast.error("Error en el cliente.", { position: 'top-right' });
+          console.log(error);
+        } finally { setLoadingButton(false) }; 
       } else {
-        await putOrdenes({
-          metodo: ordenes.ACTUALIZAR_DATA, 
-          ordenes: ordenesObtenidas 
-        }).then(async() => {
-          cogoToast.info('Sincronizando ordenes con TOA...', { position: 'top-right' });
-          return await getOrdenes(true, { metodo: ordenes.CRUZAR_DATA, tipo: tipoOrden})
-        }).catch((err) => console.log(err));
+        try {
+          setLoadingButton(true);
+          let index = 1;
+          for await ( let obj of ordenesObtenidas) {
+            await enviarOrdenesLiquidadas(obj, index);
+            index = index+1
+          };
+        } catch (error) {
+          cogoToast.error("Error en el cliente.", { position: 'top-right' });
+          console.log(error);
+        } finally { setLoadingButton(false) };
       };
-      setLoadingButton(false);  
     }
   };
 
@@ -53,6 +100,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
     //actualizar el estado y el no mbre del archivo
     setEstadoArchivo('uploading');
     setNombreArchivo(file.name);
+    setResultado([]);
     //validar si es un archivo excel
     if (!variables.formatosAdmitidos.includes(file.type)) {
       setEstadoArchivo('error');
@@ -63,8 +111,12 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
     convertirExcel(file).then(async(objJson) => {
       //obtener los valores necesarios, actualizar estado y guardar
       await asignarValores(objJson, tipoOrden, estadoOrden, tecnicos).then((data) => {
+        setOrdenesTotal(data.length);
+        return data.filter((e) => e.verificado)
+      }).then(async(data) => {
         setEstadoArchivo('done');
-        setOrdenesObtenidas(data.filter((e) => e.verificado));
+        setOrdenesObtenidas(await fragmentarArray(data, 300));
+        setOrdenesFiltradas(data.length);
         cogoToast.success(`${data.length} Ordenes encontradas.`, {position: 'top-right'});
       }).catch((err) => console.log(err, 'Error asignando valores'));
     }).catch((err) => {
@@ -72,7 +124,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
       cogoToast.error('Error convirtiendo el archivo', {position: 'top-right'})
       console.log(err);
     })
-    //evita enviar peticiuones http
+    //evita enviar peticiones http
     return false;
   };
 
@@ -81,6 +133,44 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
     setEstadoArchivo('done');
     setOrdenesObtenidas([]);
   };
+
+  const columnas = [
+    {
+      title: '#',
+      width: 50,
+      render: (_,__,i) => i+1
+    },
+    {
+      title: 'Cantidad',
+      width: 100,
+      dataIndex: 'cantidad',
+      render: (o) => o ? <Tag color="blue">{o}</Tag> : '-' 
+    },
+    {
+      title: 'Nuevos',
+      width: 100,
+      dataIndex: 'nuevos',
+      render: (o) => o ? <Tag color="green">{o}</Tag> : '-' 
+    },
+    {
+      title: 'Actualizados',
+      width: 100,
+      dataIndex: 'actualizados',
+      render: (o) => o ? <Tag color="geekblue">{o}</Tag> : '-' 
+    },
+    {
+      title: 'Duplicados',
+      width: 100,
+      dataIndex: 'duplicados',
+      render: (o) => o ? <Tag color="warning">{o}</Tag> : '-' 
+    },
+    {
+      title: 'Errores',
+      width: 100,
+      dataIndex: 'errores',
+      render: (e) => e ? <Tag color="error">{e}</Tag> : <Tag>-</Tag>
+    }
+  ]
 
   return (
     <div>
@@ -93,6 +183,9 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
             </Radio>
             <Radio value={2}>
               Liquidadas
+            </Radio>
+            <Radio value={3}>
+              Anuladas
             </Radio>
           </Radio.Group>
           <div style={{width: '14rem', margin: '1rem 0', }}>
@@ -109,7 +202,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
           </div>
         </Col>
         <Col sm={14} md={14} lg={12} xl={12}>
-          <Statistic title="Ordenes" value={ordenesObtenidas.length}/>
+          <Statistic title="Ordenes:" value={ordenesFiltradas} suffix={`/ ${ordenesTotal}`}/>
           <Button 
             style={{ marginTop: '.5rem' }} 
             type="primary" 
@@ -120,7 +213,13 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
           </Button>
         </Col>
       </Row>
-     
+      <Table
+        rowKey="id"
+        columns={columnas}
+        dataSource={resultado.filter((e) => e)}
+        pagination={false}
+        bordered
+      />
     </div>
   )
 };

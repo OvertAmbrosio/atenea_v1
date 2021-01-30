@@ -318,6 +318,7 @@ export class UpdateDataService {
   public async generarImagen(data:Array<any>, tipo:string): Promise<String> {
     const img =  await this.htmlToImage.default({
       content: { data },
+      puppeteerArgs: { args: ["--no-sandbox"] },
       html: tipo,
     });
     const img64 = function () {
@@ -334,6 +335,7 @@ export class UpdateDataService {
   public async generarImagenMulti(buckets:Array<any>, contratas:Array<any>, gestores:Array<any>, tipo:string): Promise<String> {
     const img =  await this.htmlToImage.default({
       content: { buckets, contratas, gestores },
+      puppeteerArgs: { args: ["--no-sandbox"] },
       html: tipo,
     });
     const img64 = function () {

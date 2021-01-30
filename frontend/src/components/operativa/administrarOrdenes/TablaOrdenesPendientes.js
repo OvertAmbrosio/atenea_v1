@@ -13,6 +13,8 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
   const [filtroContrata, setFiltroContrata] = useState([]);
   const [filtroGestor, setFiltroGestor] = useState([]);
   const [filtroTipoReq, setFiltroTipoReq] = useState([]);
+  const [filtroTecnologia, setFiltroTecnologia] = useState([]);
+  const [filtroNodo, setFiltroNodo] = useState([]);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -21,6 +23,8 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
       obtenerFiltroNombre(data, 'estado_toa').then((f) => setFiltroEstadoToa(f));
       obtenerFiltroNombre(data, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
       obtenerFiltroNombre(data, 'tipo_requerimiento').then((f) => setFiltroTipoReq(f));
+      obtenerFiltroNombre(data, 'tipo_tecnologia').then((f) => setFiltroTecnologia(f));
+      obtenerFiltroNombre(data, 'codigo_nodo').then((f) => setFiltroNodo(f));
       obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f));
       obtenerFiltroId(data, 'gestor', true).then((f) => setFiltroGestor(f));
     };
@@ -48,6 +52,8 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
         filtroContrata,
         filtroGestor, 
         filtroTipoReq,
+        filtroTecnologia,
+        filtroNodo,
         abrirReiterada, 
         abrirInfancia,
         abrirInfanciaExterna,

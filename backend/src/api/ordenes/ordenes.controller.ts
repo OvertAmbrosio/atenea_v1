@@ -35,13 +35,17 @@ export class OrdenesController {
     //metodo para subir las data del excel de cms
     if (metodo === 'subirData' && user && user.cargo <= tipos_usuario.LIDER_GESTION) {
       return await this.ordenesService.subirData(createOrdenesDto, user.id).then((resp) => {
-        return (resp)
+        return ({
+          status: 'success',
+          message: 'Ordenes subidas correctamente.',
+          data: resp
+        })
       }).catch((err) => {
         this.logger.error({
           message: err.message,
           service: 'Error subiendo las ordenes (subirData)'
         });
-        return ({status: 'error', message: 'Error subiendo las ordenes (subirData)'});
+        return ({status: 'error', message: 'Error subiendo las ordenes (subirData)', data: []});
       });
     } else if (metodo === 'subirInfanciasExternas' && user && user.cargo <= tipos_usuario.LIDER_GESTION) {
       return await this.ordenesService.subirInfanciasExternas(ordenesExternas, user.id).then((resp) => {
@@ -138,15 +142,60 @@ export class OrdenesController {
           data: null
         });
       });
-    }else if (metodo === 'ordenesHoy' && user.cargo <= tipos_usuario.LIDER_GESTION) {
-      return await this.ordenesService.obtenerOrdenesHoy(tipo).then((res) => {
+    } else if (metodo === 'obtenerOrdenesPendientes' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+      return await this.ordenesService.obtenerOrdenesPendientes(tipo).then((res) => {
         return ({
           status: 'success',
           message: `(${res.length}) Ordenes encontradas.`,
           data: res
         });
       }).catch((err) => {
-        this.logger.error({message: err.message,service: 'getOrdenes(ordenesHoy)'});
+        this.logger.error({message: err.message,service: 'getOrdenes(obtenerOrdenesPendientes)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    } else if (metodo === 'obtenerOrdenesLiquidadas' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+      return await this.ordenesService.obtenerOrdenesLiquidadas(tipo).then((res) => {
+        return ({
+          status: 'success',
+          message: `(${res.length}) Ordenes encontradas.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(obtenerOrdenesLiquidadas)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    } else if (metodo === 'obtenerOrdenesOtrasBandejas' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+      return await this.ordenesService.obtenerOrdenesOtrasBandejas(tipo).then((res) => {
+        return ({
+          status: 'success',
+          message: `(${res.length}) Ordenes encontradas.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(obtenerOrdenesOtrasBandejas)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    } else if (metodo === 'obtenerOrdenesAnuladas' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+      return await this.ordenesService.obtenerOrdenesAnuladas(tipo).then((res) => {
+        return ({
+          status: 'success',
+          message: `(${res.length}) Ordenes encontradas.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(obtenerOrdenesAnuladas)'});
         return ({
           status: 'error',
           message: err.message,
@@ -246,13 +295,15 @@ export class OrdenesController {
       return await this.ordenesService.liquidarOrdenes(updateOrdeneDto, user.id).then((data) => {
         return ({
           status: 'success',
-          message: `(${data.filter((d) => d).length}) Ordenes actualizadas.`,
+          message: `(${data.actualizados}) Ordenes actualizadas.`,
+          data
         })
       }).catch((err) => {
         this.logger.error({ message: err.message, service: 'editarOrdenes(actualizarLiquidadas)' });
         return ({
           status: 'error',
-          message: 'Error actualizando las ordenes.'
+          message: 'Error actualizando las ordenes.',
+          data: null,
         })
       });
     } else {

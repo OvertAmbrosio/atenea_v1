@@ -228,6 +228,14 @@ export const hfcLiquidadas = [
     propiedad: 'codigo_requerimiento',
   },
   {
+    cabecera: 'codctr',
+    propiedad: 'codigo_ctr'
+  },
+  {
+    cabecera: 'desnomctr',
+    propiedad: 'descripcion_ctr'
+  },
+  {
     cabecera: 'fec_liquid',
     cabecera_2: 'fechorliq',
     fecha: true,
@@ -238,8 +246,24 @@ export const hfcLiquidadas = [
     propiedad: 'tipo_averia',
   },
   {
+    cabecera: 'codtecliq',
+    propiedad: 'carnet_liquidado',
+  },
+  {
+    cabecera: 'nomtec',
+    propiedad: 'nombre_liquidado',
+  },
+  {
     cabecera: 'codusr',
     propiedad: 'usuario_liquidado',
+  },
+  {
+    cabecera: 'desobsordtrab',
+    propiedad: 'observacion_liquidado',
+  },
+  {
+    cabecera: 'des_cod_liq',
+    propiedad: 'descripcion_codigo_liquidado',
   },
 ]
 

@@ -176,6 +176,11 @@ export const OrdenSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Empleado'
     },
+    codigo_ctr: {
+      type: Number,
+      trim: true,
+      default: null
+    },
     imagenes: [{
       url: String,
       public_id: String,
@@ -214,7 +219,6 @@ export const OrdenSchema = new Schema({
     lowercase: true,
     trim: true,
     default: '-',
-    enum: ['efectiva', 'inefectiva', 'no_corresponde', '-']
   },
   //datos toa
   bucket: {
@@ -280,14 +284,36 @@ export const OrdenSchema = new Schema({
     type: Types.ObjectId,
     ref: 'Contrata'
   },
+  observacion_gestor: {
+    type: String,
+    trim: true,
+    default: '-'
+  },
   //datos de liquidacion
   tecnico_liquidado: {
     type: Types.ObjectId,
     ref: 'Empleado',
   },
+  carnet_liquidado: {
+    type: String,
+    trim: true,
+    uppercase: true,
+    default: null
+  },
+  nombre_liquidado: {
+    type: String,
+    trim: true,
+    uppercase: true,
+    default: null,
+  },
   fecha_liquidado: {
     type: Date,
     default: null,
+  },
+  codigo_usuario_liquidado: {
+    type: String,
+    trim: true,
+    default: null
   },
   tipo_averia: {
     type: String,
@@ -295,9 +321,15 @@ export const OrdenSchema = new Schema({
     uppercase: true,
     default: null
   },
-  codigo_usuario_liquidado: {
+  observacion_liquidado: {
     type: String,
     trim: true,
+    default: '-'
+  },
+  descripcion_codigo_liquidado: {
+    type: String,
+    trim: true,
+    lowercase: true,
     default: null
   },
   orden_devuelta: {

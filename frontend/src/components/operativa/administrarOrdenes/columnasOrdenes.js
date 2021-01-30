@@ -18,6 +18,8 @@ export default function columnasOrdenes(
   filtroContrata=[], 
   filtroGestor=[], 
   filtroTipoReq=[],
+  filtroTecnologia=[],
+  filtroNodo=[],
   abrirReiterada,
   abrirInfancia,
   abrirInfanciaExterna,
@@ -49,7 +51,9 @@ export default function columnasOrdenes(
       title: 'Tipo Tecnologia',
       dataIndex: 'tipo_tecnologia',
       align: 'center',
-      width: 120
+      width: 120,
+      filters: filtroTecnologia ? filtroTecnologia : [],
+      onFilter: (v,r) => r.tipo_tecnologia.indexOf(v) === 0,
     },
     {
       title: 'CTR',
@@ -59,7 +63,9 @@ export default function columnasOrdenes(
     {
       title: 'Nodo',
       dataIndex: 'codigo_nodo',
-      width: 60
+      width: 60,
+      filters: filtroNodo ? filtroNodo : [],
+      onFilter: (v,r) => r.codigo_nodo.indexOf(v) === 0,
     },
     {
       title: 'Troba',

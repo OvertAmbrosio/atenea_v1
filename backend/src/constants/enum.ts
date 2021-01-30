@@ -39,9 +39,9 @@ export const estado_asistencia= {
 export const tipo_negocio = {
   AVERIAS: 'averias',
   ALTAS: 'altas',
-  SPEEDY: 'speedy',
-  BASICAS: 'basicas',
 };
+
+export const tipos_negocios = [tipo_negocio.ALTAS,tipo_negocio.AVERIAS]
 
 export const sub_tipo_negocio = {
   GPON: 'gpon',
@@ -50,6 +50,8 @@ export const sub_tipo_negocio = {
   CRITICOS: 'criticos',
   EMPRESAS: 'empresas'
 };
+
+export const sub_tipos_negocios = [sub_tipo_negocio.GPON,sub_tipo_negocio.HFC,sub_tipo_negocio.COBRE,sub_tipo_negocio.CRITICOS,sub_tipo_negocio.EMPRESAS];
 
 export const estado_gestor = {
   PENDIENTE: 'pendiente',
@@ -61,4 +63,5 @@ export const estado_gestor = {
   MASIVO: 'masivo',
   PEXT: 'pext',
   REMEDY: 'remedy',
+  ANULADO: 'anulado'
 };

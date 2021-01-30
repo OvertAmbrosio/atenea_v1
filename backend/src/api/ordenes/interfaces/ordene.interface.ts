@@ -47,15 +47,20 @@ export interface IOrden extends Document {
   readonly sla_inicio?: Date,
   readonly sla_fin?: Date,
   readonly observacion_toa?: string,
-  //atos de asignacion
+  //datos de asignacion
   readonly tecnico?: IEmpleado['_id'],
   readonly gestor?: IEmpleado['_id'],
   readonly auditor?: IEmpleado['_id'],
   readonly contrata?: IContrata['_id'],
+  readonly observacion_gestor?: string,
   //datos de liquidacion
   readonly tecnico_liquidado?: IEmpleado['_id'],
+  readonly carnet_liquidado?: string,
+  readonly nombre_liquidado?: string,
   readonly fecha_liquidado?: Date,
   readonly tipo_averia?: string
   readonly codigo_usuario_liquidado?: string,
+  readonly observacion_liquidado?: string,
+  readonly descripcion_codigo_liquidado?: string,
   readonly orden_devuelta?: boolean,
 };

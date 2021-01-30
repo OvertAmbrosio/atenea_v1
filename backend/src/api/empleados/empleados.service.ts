@@ -6,7 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { CreateEmpleadoDto } from './dto/create-empleado.dto';
 import { UpdateEmpleadoDto } from './dto/update-empleado.dto';
 import { IEmpleado } from './interfaces/empleados.interface';
-import { tipos_usuario, estado_empresa, tipo_negocio, sub_tipo_negocio } from '../../constants/enum';
+import { tipos_usuario, estado_empresa, tipo_negocio, sub_tipo_negocio, tipos_negocios, sub_tipos_negocios } from '../../constants/enum';
 import { cache_keys, variables } from '../../config/variables';
 import { TPayload } from 'src/helpers/types';
 import { RedisService } from 'src/database/redis.service';
@@ -347,8 +347,7 @@ export class EmpleadosService {
   };
   //funcion para asignar el tipo de negocio
   async actualizarNegocio(tecnicos: string[], negocio:string): Promise<IEmpleado> {
-    const negocios = [tipo_negocio.AVERIAS,tipo_negocio.ALTAS,tipo_negocio.SPEEDY,tipo_negocio.BASICAS];
-    if (negocios.includes(negocio)) {
+    if (tipos_negocios.includes(negocio)) {
       return this.empleadoModel.updateMany({_id: { $in: tecnicos } }, { tipo_negocio: negocio }).then(async(data) => {
         await this.redisService.remove(cache_keys.TECNICOS_GLOBAL);
         return data;
@@ -359,8 +358,7 @@ export class EmpleadosService {
   };
   //funcion para asignar el subtipo de negocio
   async actualizarSubNegocio(tecnicos: string[], subNegocio: string): Promise<IEmpleado> {
-    const subNegocios = [sub_tipo_negocio.GPON,sub_tipo_negocio.HFC,sub_tipo_negocio.COBRE,sub_tipo_negocio.CRITICOS,sub_tipo_negocio.EMPRESAS];
-    if (subNegocios.includes(subNegocio)) {
+    if (sub_tipos_negocios.includes(subNegocio)) {
       return this.empleadoModel.updateMany({_id: { $in: tecnicos } }, { sub_tipo_negocio: subNegocio }).then(async(data) => {
         await this.redisService.remove(cache_keys.TECNICOS_GLOBAL);
         return data;

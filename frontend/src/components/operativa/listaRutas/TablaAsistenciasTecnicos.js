@@ -24,6 +24,7 @@ export default function TablaAsistenciasTecnicos() {
   const [filtroAuditores, setFiltroAuditores] = useState([]);
   const [rutasAverias, setRutasAverias] = useState({total:0,activas:0});
   const [rutasAltas, setRutasAltas] = useState({total:0,activas:0});
+  const [rutasGpon, setRutasGpon] = useState({total:0,activas:0});
   const [modalEditar, setModalEditar] = useState(false);
   const [idAsistencia, setIdAsistencia] = useState(null);
 
@@ -47,8 +48,9 @@ export default function TablaAsistenciasTecnicos() {
           setDataAsistencias(resultado);
           obtenerFiltroId(resultado, 'gestor', true).then((f) => setFiltroGestores(f));
           obtenerFiltroId(resultado, 'auditor', true).then((f) => setFiltroAuditores(f));
-          setRutasAverias(rutasAtivas(resultado.filter((e) => e.tipo_negocio === 'averias')))
-          setRutasAltas(rutasAtivas(resultado.filter((e) => e.tipo_negocio === 'altas')))
+          setRutasAverias(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.tipo_negocio === 'averias' && ['hfc','gpon'].includes(e.sub_tipo_negocio))));
+          setRutasAltas(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.tipo_negocio === 'altas' && ['hfc','gpon'].includes(e.sub_tipo_negocio))));
+          setRutasGpon(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.sub_tipo_negocio === 'gpon' && e.tipo_negocio === 'altas')))
         }
       }).catch((err) => console.log(err)).finally(() => setLoadingAsistencia(false));
     };
@@ -162,7 +164,6 @@ export default function TablaAsistenciasTecnicos() {
           align: 'center',
           dataIndex: e,
           render: (a, row) => {
-            console.log(row);
             if (a && a.estado && a.observacion) {
               return (
                 <Popover 
@@ -249,18 +250,25 @@ export default function TablaAsistenciasTecnicos() {
             value={diaInicio && diaFin ? `${moment(diaInicio).format('DD-MM')} / ${moment(diaFin).format('DD-MM')}`:'-'}
           />
         </Col>
-        <Col sm={6} style={{ marginBottom: '1rem', marginRight: '.5rem' }}>
+        <Col sm={4} style={{ marginBottom: '1rem', marginRight: '.5rem' }}>
           <Statistic 
             title="Rutas Activas (Averias)" 
             value={rutasAverias.activas} 
             suffix={`/ ${rutasAverias.total}`}
           />
         </Col>
-        <Col>
+        <Col sm={4} style={{ marginBottom: '1rem', marginRight: '.5rem' }}>
           <Statistic 
             title="Rutas Activas (Altas)" 
             value={rutasAltas.activas} 
             suffix={`/ ${rutasAltas.total}`}
+          />
+        </Col>
+        <Col sm={4} style={{ marginBottom: '1rem', marginRight: '.5rem' }}>
+          <Statistic 
+            title="Rutas Activas (GPON)" 
+            value={rutasGpon.activas} 
+            suffix={`/ ${rutasGpon.total}`}
           />
         </Col>
       </Row>

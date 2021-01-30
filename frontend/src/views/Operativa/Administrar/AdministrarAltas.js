@@ -9,7 +9,7 @@ import { getContratas } from '../../../services/apiContrata';
 import TituloContent from '../../../components/common/TituloContent';
 import Contenedor from '../../../components/common/Contenedor';
 import ActualizarOrdenes from '../../../components/operativa/administrarOrdenes/ActualizarOrdenes';
-import ListarOrdenes from '../../../components/operativa/administrarOrdenes/ListarOrdenes';
+import OrdenesPendientes from '../../../components/operativa/administrarOrdenes/OrdenesPendientes';
 
 
 const { TabPane } = Tabs;
@@ -71,7 +71,7 @@ export default function AdministrarAltas() {
               }
               key="2"
             >
-              <ListarOrdenes 
+              <OrdenesPendientes 
                 contratas={listaContratas}
                 gestores={listaGestores}
                 tecnicos={listaTecnicos}

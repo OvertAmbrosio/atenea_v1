@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs } from 'antd';
-import { CloudUploadOutlined, CheckCircleOutlined, ScheduleOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, CheckCircleOutlined, ScheduleOutlined, UnorderedListOutlined, BugOutlined } from '@ant-design/icons';
 
 import { tipoOrdenes } from '../../../constants/tipoOrden';
 import { empleados, contratas } from '../../../constants/metodos';
@@ -9,8 +9,9 @@ import { getContratas } from '../../../services/apiContrata';
 import TituloContent from '../../../components/common/TituloContent';
 import Contenedor from '../../../components/common/Contenedor';
 import ActualizarOrdenes from '../../../components/operativa/administrarOrdenes/ActualizarOrdenes';
-import ListarOrdenes from '../../../components/operativa/administrarOrdenes/ListarOrdenes';
-import ActualizarInfanciasExternas from '../../../components/operativa/administrarOrdenes/ActualizarInfanciasExternas';
+import OrdenesPendientes from '../../../components/operativa/administrarOrdenes/OrdenesPendientes';
+import OrdenesLiquidadas from '../../../components/operativa/administrarOrdenes/OrdenesLiquidadas';
+// import ActualizarInfanciasExternas from '../../../components/operativa/administrarOrdenes/ActualizarInfanciasExternas';
 
 
 const { TabPane } = Tabs;
@@ -63,19 +64,19 @@ export default function AdministrarAverias() {
                   tipoOrden={tipoOrdenes.AVERIAS}
                   tecnicos={listaTecnicos}
                 />
-                <ActualizarInfanciasExternas/>
+                {/* <ActualizarInfanciasExternas/> */}
               </div>
             </TabPane>
             <TabPane
               tab={
                 <span>
-                  <CheckCircleOutlined/>
-                  Lista de Ordenes
+                  <UnorderedListOutlined />
+                  Ordenes Pendientes
                 </span>
               }
               key="2"
             >
-              <ListarOrdenes 
+              <OrdenesPendientes 
                 contratas={listaContratas}
                 gestores={listaGestores}
                 tecnicos={listaTecnicos}
@@ -85,11 +86,33 @@ export default function AdministrarAverias() {
             <TabPane
               tab={
                 <span>
+                  <CheckCircleOutlined/>
+                  Ordenes Liquidadas
+                </span>
+              }
+              key="3"
+            >
+              <OrdenesLiquidadas tipo={tipoOrdenes.AVERIAS}/>
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <BugOutlined />
+                  Otras Bandejas
+                </span>
+              }
+              key="4"
+            >
+              {/* ----------------------- */}
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
                   <ScheduleOutlined/>
                   Aprobar Ordenes
                 </span>
               }
-              key="3"
+              key="5"
             >
 
             </TabPane>
