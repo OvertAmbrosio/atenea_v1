@@ -7,6 +7,7 @@ export const gponAltas = [
   'Instalación Gpon New',
   'Instalación Migración HFC a Gpon',
   'Instalación Migración HFC a Gpon CC',
+  'Instalacion B2B Tradicional GPON'
 ];
 
 export const hfcAltas = [
@@ -15,18 +16,21 @@ export const hfcAltas = [
   'Instalación Movistar Total',
   'Instalación Movistar uno',
   'Instalación CATV',
+  'Instalacion B2B Tradicional HFC'
 ];
 
 export const gponAverias = [
   'Reparación GPON',
   'Reparación Gpon Movistar Uno',
   'Reparacion Movistar Total Gpon',
+  'Reparacion B2B Tradicional GPON',
 ];
 
 export const hfcAverias =[
   'Reparación Movistar Total',
   'Reparación Movistar uno',
   'Reparación CATV',
+  'Reparacion B2B Tradicional HFC'
 ];
 
 export const gponRutinas = [
@@ -38,6 +42,8 @@ export const gponRutinas = [
   'Instalación rutina MT Gpon',
   'Instalación rutina Bucle Gpon',
   'Traslado GPON Movistar Total',
+  'Instalación rutina AT Gpon',
+  'Rutina AT GPON MT'
 ];
 
 export const hfcRutinas = [
@@ -49,6 +55,7 @@ export const hfcRutinas = [
   'Instalación Rutina VA Movistar Total',
   'Traslado HFC Mov Total',
   'Instalación Rutina AT Movistar Total',
+  'Instalación Rutina CATV_MT'
 ];
 
 export const valoresExcelToa = {
@@ -75,4 +82,15 @@ export const estadosToa = {
   NO_REALIZADA: 'No Realizada',
   PENDIENTE: 'Pendiente',
   SUSPENDIDO: 'Suspendido'
-}
+};
+
+export const bajas = [
+  'Baja de Acometida'
+];
+
+export const ordenesB2B = [
+  'Instalacion B2B Tradicional GPON',
+  'Instalacion B2B Tradicional HFC',
+  'Reparacion B2B Tradicional GPON',
+  'Reparacion B2B Tradicional HFC',
+]

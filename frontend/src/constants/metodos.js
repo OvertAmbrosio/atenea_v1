@@ -4,6 +4,7 @@ export const empleados = {
   LISTA_TECNICOS_GESTOR: 'listaTecnicosGestor',
   LISTA_GESTORES: 'listaGestores',
   LISTA_AUDITORES: 'listaAuditores',
+  OBTENER_COLUMNAS: 'obtenerColumnas',
   RESET_PASS: 'resetPassword',
   CERRAR_SESSION: 'cerrarSesion',
   ACTUALIZAR_CARGO: 'actualizarPermisos',
@@ -12,7 +13,8 @@ export const empleados = {
   ACTUALIZAR_GESTOR: 'actualizarGestor',
   ACTUALIZAR_AUDITOR: 'actualizarAuditor',
   ACTUALIZAR_NEGOCIO: 'actualizarNegocio',
-  ACTUALIZAR_SUB_NEGOCIO: 'actualizarSubNegocio'
+  ACTUALIZAR_SUB_NEGOCIO: 'actualizarSubNegocio',
+  ACTUALIZAR_COLUMNAS_GESTOR: 'actualizarColumnasGestor'
 };
 
 export const contratas = {
@@ -28,17 +30,22 @@ export const ordenes = {
   CRUZAR_DATA: 'cruzarData',
   ORDENES_HOY: 'obtenerOrdenesPendientes',
   ORDENES_LIQUIDADAS: 'obtenerOrdenesLiquidadas',
+  ORDENES_ANULADAS: 'obtenerOrdenesAnuladas',
   ORDENES_OTRAS_BANDEJAS: 'obtenerOrdenesOtrasBandejas',
   EXPORTAR_PENDIENTES: 'exportarPendientes',
-  ORDENES_HOY_GESTOR: 'ordenesHoyGestor',
+  EXPORTAR_LIQUIDADAS: 'exportarLiquidadas',
+  EXPORTAR_PENDIENTES_GESTOR: 'exportarPendientesGestor',
+  ORDENES_HOY_GESTOR: 'obtenerOrdenesPendientesGestor',
   BUSCAR_REITERADA: 'buscarReiterada',
   BUSCAR_INFANCIA: 'buscarInfancia',
   BUSCAR_REGISTROS: 'buscarRegistro',
+  BUSCAR_DETALLE: 'obtenerDetalleOrden',
   AGENDAR_ORDEN: 'agendarOrden',
   AGENDAR_ORDEN_GESTOR: 'agendarOrdenGestor',
   ASIGNAR_ORDEN: 'asignarOrden',
   ACTUALIZAR_ESTADO: 'actualizarEstado',
-  DEVOLVER_ORDEN: 'devolverOrden'
+  AGREGAR_OBSERVACION: 'agregarObservacion',
+  // DEVOLVER_ORDEN: 'devolverOrden'
 };
 
 export const asistencias = {

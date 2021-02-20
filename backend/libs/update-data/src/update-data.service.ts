@@ -30,8 +30,8 @@ export class UpdateDataService {
     // this.v2 = this.cloudinary.v2
   };
 
-  private async ordenarBuckets(data:TOrdenesToa[], tiempo:number): Promise<{nombre:string,en_plazo:number,vencidas:number, porcentaje:any, style:string}[]>{
-    const completas = data.filter((e) => e.estado_toa === estados_toa.COMPLETADO && !e.tipo_agenda);
+  private async ordenarBuckets(data:TOrdenesToa[], tiempo:number): Promise<{nombre:string,en_plazo:number,vencidas:number, porcentaje:any, agendadas:number, total:number, style:string}[]>{
+    const completas = data.filter((e) => e.estado_toa === estados_toa.COMPLETADO);
     const buckets = [];
     completas.forEach((e) => {
       if (!buckets.includes(e.bucket)) {
@@ -41,9 +41,10 @@ export class UpdateDataService {
     
     const aux = buckets.filter(e => e).map((b) => {      
       let ep =  completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
-        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo && c.bucket === b).length;
+        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo && !c.tipo_agenda && c.bucket === b).length;
       let vn = completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
-        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo && c.bucket === b).length;
+        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo && !c.tipo_agenda && c.bucket === b).length;
+      let agendadas = data.filter((c) => c.estado_toa === estados_toa.COMPLETADO && c.tipo_agenda && c.bucket === b).length;
       let porcnt = Math.round((ep*100) / (ep + vn) );
 
       return({  
@@ -51,14 +52,17 @@ export class UpdateDataService {
         en_plazo: ep,
         vencidas: vn,
         porcentaje: String(porcnt) === 'NaN' ? '-':porcnt,
+        agendadas,
+        total: ep+vn+agendadas,
         style: porcnt < 50 ? 'background-color: #EC7063;' : porcnt >= 50 && porcnt < 80 ? 'background-color: #F4D03F;' : 'background-color: #82E0AA',
       });
     });
 
     let ep =  completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
-        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo).length;
+        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo && !c.tipo_agenda).length;
     let vn = completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
-      .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo).length;
+      .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo && !c.tipo_agenda).length;
+    let agendadas = data.filter((e) => e.estado_toa === estados_toa.COMPLETADO && e.tipo_agenda).length;
     let porcnt = Math.round((ep*100) / (ep + vn) );
 
     return [
@@ -68,13 +72,15 @@ export class UpdateDataService {
         en_plazo: ep,
         vencidas: vn,
         porcentaje: porcnt,
+        agendadas,
+        total: ep+vn+agendadas,
         style: porcnt < 50 ? 'background-color: #EC7063;' : porcnt >= 50 && porcnt < 80 ? 'background-color: #F4D03F;' : 'background-color: #82E0AA',
       }
     ]
   };
 
   private async ordenarObjeto(data:TOrdenesToa[], tipo:string, tiempo:number): Promise<{nombre:string,en_plazo:number,vencidas:number, porcentaje:any, style:string}[]>{
-    const completas:TOrdenesToa[] = data.filter((e) => e.estado_toa === estados_toa.COMPLETADO && !e.tipo_agenda);
+    const completas:TOrdenesToa[] = data.filter((e) => e.estado_toa === estados_toa.COMPLETADO);
     const objetos = [];
     completas.forEach((e) => {
       if (e[tipo] && !objetos.includes(e[tipo].nombre)) {
@@ -84,23 +90,28 @@ export class UpdateDataService {
 
     const aux = objetos.filter(e => e).map((b) => {
       let ep =  completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
-        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo && c[tipo] !== null && c[tipo].nombre === b).length;
+        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo && !c.tipo_agenda && c[tipo] !== null && c[tipo].nombre === b).length;
       let vn = completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
-        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo && c[tipo] !== null && c[tipo].nombre === b).length;
-      let porcnt = Math.round((ep*100) / (ep + vn) )
+        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo && !c.tipo_agenda && c[tipo] !== null && c[tipo].nombre === b).length;
+      let agendadas = data.filter((c) => c.estado_toa === estados_toa.COMPLETADO && c.tipo_agenda && c[tipo].nombre === b).length;
+      let porcnt = Math.round((ep*100) / (ep + vn) );
+
       return({  
         nombre: b,
         en_plazo: ep,
         vencidas: vn,
         porcentaje: String(porcnt) === 'NaN' ? '-':porcnt,
+        agendadas,
+        total: ep+vn+agendadas,
         style: porcnt < 50 ? 'background-color: #EC7063;' : porcnt >= 50 && porcnt < 80 ? 'background-color: #F4D03F;' : 'background-color: #82E0AA',
       });
     });
 
     let ep =  completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
-        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo).length;
+        .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo && !c.tipo_agenda).length;
     let vn = completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
-      .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo).length;
+      .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo && !c.tipo_agenda).length;
+    let agendadas = data.filter((e) => e.estado_toa === estados_toa.COMPLETADO && e.tipo_agenda).length;
     let porcnt = Math.round((ep*100) / (ep + vn) );
 
     return [
@@ -110,6 +121,8 @@ export class UpdateDataService {
         en_plazo: ep,
         vencidas: vn,
         porcentaje: porcnt,
+        agendadas,
+        total: ep+vn+agendadas,
         style: porcnt < 50 ? 'background-color: #EC7063;' : porcnt >= 50 && porcnt < 80 ? 'background-color: #F4D03F;' : 'background-color: #82E0AA',
       }
     ]

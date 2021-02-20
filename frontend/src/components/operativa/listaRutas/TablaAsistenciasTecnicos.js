@@ -11,6 +11,8 @@ import { ordenarAsistencia } from '../../../libraries/ordenarAsistencias';
 import EstadoTag from './EstadoTag';
 import { obtenerFiltroId } from '../../../libraries/obtenerFiltro';
 import ModalEditarAsistencia from './ModalEditarAsistencia';
+import ExcelAsistenciaTecnico from '../../excelExports/ExcelAsistenciaTecnico'
+import cogoToast from 'cogo-toast';
 
 export default function TablaAsistenciasTecnicos() {
   const [diaInicio, setDiaInicio] = useState(null);
@@ -22,6 +24,7 @@ export default function TablaAsistenciasTecnicos() {
   const [loadingActualizar, setLoadingActualizar] = useState(false);
   const [filtroGestores, setFiltroGestores] = useState([]);
   const [filtroAuditores, setFiltroAuditores] = useState([]);
+  const [filtroContrata, setFiltroContrata] = useState([])
   const [rutasAverias, setRutasAverias] = useState({total:0,activas:0});
   const [rutasAltas, setRutasAltas] = useState({total:0,activas:0});
   const [rutasGpon, setRutasGpon] = useState({total:0,activas:0});
@@ -29,9 +32,19 @@ export default function TablaAsistenciasTecnicos() {
   const [idAsistencia, setIdAsistencia] = useState(null);
 
   useEffect(() => {
+    cambiarSemana(moment())
+  //eslint-disable-next-line
+  }, [])
+
+  useEffect(() => {
+    listarAsistencias()
+  //eslint-disable-next-line
+  }, [diaInicio, diaFin])
+  
+  useEffect(() => {
     generarColumnas();
   //eslint-disable-next-line
-  }, [diasSemana, filtroGestores])
+  }, [diasSemana, filtroGestores]);
 
   async function listarAsistencias() {
     if (diaInicio && diaFin) {
@@ -48,12 +61,17 @@ export default function TablaAsistenciasTecnicos() {
           setDataAsistencias(resultado);
           obtenerFiltroId(resultado, 'gestor', true).then((f) => setFiltroGestores(f));
           obtenerFiltroId(resultado, 'auditor', true).then((f) => setFiltroAuditores(f));
+          obtenerFiltroId(resultado, 'contrata', true).then((f) => setFiltroContrata(f));
           setRutasAverias(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.tipo_negocio === 'averias' && ['hfc','gpon'].includes(e.sub_tipo_negocio))));
           setRutasAltas(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.tipo_negocio === 'altas' && ['hfc','gpon'].includes(e.sub_tipo_negocio))));
           setRutasGpon(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.sub_tipo_negocio === 'gpon' && e.tipo_negocio === 'altas')))
+        } else {
+          cogoToast.warn('No se encontraron registros.', { position: 'top-right' });
         }
       }).catch((err) => console.log(err)).finally(() => setLoadingAsistencia(false));
-    };
+    } else {
+      cogoToast.warn('Debes seleccionar un rango de fechas primero.', { position: 'top-right' });
+    }
   };
 
   async function actualizarAsistencia(estado, observacion) {
@@ -62,6 +80,7 @@ export default function TablaAsistenciasTecnicos() {
       .catch((err) => console.log(err))
       .finally(() => {
         setLoadingActualizar(false);
+        setModalEditar(false);
         listarAsistencias();
       });
   };
@@ -101,7 +120,8 @@ export default function TablaAsistenciasTecnicos() {
       },{
         title: 'Tecnico',
         dataIndex: 'nombre',
-        width: 300,
+        width: 230,
+        ellipsis: true,
         render: (e, row) => row.nombre + ' ' + row.apellidos
       }, {
         title: 'Gestor',
@@ -114,7 +134,8 @@ export default function TablaAsistenciasTecnicos() {
             return false;
           }
         },
-        width: 250,
+        ellipsis: true,
+        width: 200,
         render: (e) => e.nombre ? e.nombre + ' ' + e.apellidos : '-'
       }, {
         title: 'Auditor',
@@ -127,12 +148,27 @@ export default function TablaAsistenciasTecnicos() {
             return false;
           }
         },
-        width: 250,
+        ellipsis: true,
+        width: 200,
         render: (e) => e.nombre ? e.nombre + ' ' + e.apellidos : '-'
+      }, {
+        title: 'Contrata',
+        dataIndex: 'contrata',
+        filters: filtroContrata,
+        onFilter: (c, record) => {
+          if (record && record.contrata && c) {
+            return record.contrata._id.indexOf(c) === 0;
+          } else {
+            return false;
+          }
+        },
+        ellipsis: true,
+        width: 200,
+        render: (e) => e && e.nombre ? e.nombre : '-'
       }, {
         title: 'En Ruta',
         dataIndex: hoy,
-        width: 150,
+        width: 100,
         align: 'center',
         filters: [{text:'Ok', value: true},{text:'No', value: false}],
         onFilter: (c, record) => {
@@ -160,7 +196,7 @@ export default function TablaAsistenciasTecnicos() {
       const columnsAux = diasSemana.map((e) => {
         return ({
           title: e,
-          width: 100,
+          width: 60,
           align: 'center',
           dataIndex: e,
           render: (a, row) => {
@@ -238,7 +274,8 @@ export default function TablaAsistenciasTecnicos() {
         <Col sm={24} style={{ marginBottom: '.5rem' }}>
           <p style={{ color: 'rgba(0,0,0,0.45)' }}>Seleccionar Fecha:</p>
           <DatePicker 
-            onChange={cambiarSemana} 
+            onChange={cambiarSemana}
+            defaultValue={moment()}
             picker="week" 
             style={{ marginRight: '.5rem' }}
           />
@@ -281,6 +318,8 @@ export default function TablaAsistenciasTecnicos() {
         pagination={{
           defaultPageSize: 50
         }}
+        scroll={{ x: '1100px', y: '70vh' }}
+        footer={() => <ExcelAsistenciaTecnico data={dataAsistencias} dias={diasSemana} nombre="tecnico"/>}
       />
       {/* MODAL PARA EDITAR LA ASISTENCIA */}
       <ModalEditarAsistencia visible={modalEditar} abrir={abrirModalEditar} loadingActualizar={loadingActualizar} actualizar={actualizarAsistencia} />

@@ -202,7 +202,7 @@ export class EmpleadosService {
     
     //validar que el usuario a actualizar no es uno de los jefes o administrador
     if (empleado && empleado.usuario.cargo > cargoUsuario) {
-      if (empleado.usuario.cargo === tipos_usuario.GESTOR) {
+      if (empleado.usuario.cargo === tipos_usuario.GESTOR || updateEmpleadoDto.usuario.cargo === tipos_usuario.GESTOR) {
         return await this.redisService.remove(cache_keys.GESTORES)
           .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: {
             nombre: updateEmpleadoDto.nombre,
@@ -214,7 +214,7 @@ export class EmpleadosService {
             "usuario.email": updateEmpleadoDto.usuario.email,
             "usuario.cargo": updateEmpleadoDto.usuario.cargo
           } }));
-      } else if (empleado.usuario.cargo === tipos_usuario.TECNICO) {
+      } else if (empleado.usuario.cargo === tipos_usuario.TECNICO || updateEmpleadoDto.usuario.cargo === tipos_usuario.TECNICO) {
         return await this.redisService.remove(cache_keys.TECNICOS_GLOBAL)
           .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: {
             nombre: updateEmpleadoDto.nombre,
@@ -367,4 +367,12 @@ export class EmpleadosService {
       throw new HttpException('Sub Negocio fuera de rango', HttpStatus.NOT_FOUND);
     };
   };
+  //cargar las columnas del gestor
+  async obtenerColumnasGestor(user:string): Promise<IEmpleado> {
+    return await this.empleadoModel.findById(user).select('columnas');
+  };
+  //guardar las preferencias de las columnas mostradas
+  async actualizarColumnasGestor(user:string, columnas: string[]) {
+    return await this.empleadoModel.findByIdAndUpdate(user, { columnas }).select('columnas')
+  }
 }

@@ -107,7 +107,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
         filename: `data_personal_${moment().format('DD_MM_YY_HH_mm')}`
       })
     }
-  }
+  };
 
   const columnas = [
     {

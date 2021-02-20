@@ -12,7 +12,10 @@ export class AppService {
     return 'Hello World!';
   }
 
-  @Cron('0 0 0 * * *')
+  @Cron('0 0 0 * * *', {
+    name: 'enviarReportesGestion',
+    timeZone: 'America/Lima',
+  })
   handleCreon() {
     this.redisService.reset()
       .then(() => console.log('se resetea el registro de la caché'))

@@ -51,16 +51,30 @@ export default function GestionarAsistencia() {
   const [idAsistencia, setIdAsistencia] = useState(null);
 
   useEffect(() => {
+    cambiarSemana(moment())
+  //eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    listarAsistencias()
+  //eslint-disable-next-line
+  }, [diaInicio, diaFin])
+
+  useEffect(() => {
     generarColumnas();
   //eslint-disable-next-line
   }, [diasSemana, filtroGestores])
 
   async function actualizarAsistencia(estado, observacion) {
     setLoadingActualizar(true);
+    console.log(estado);
     return await patchAsistencia({id: idAsistencia, estado, observacion})
-      .then(() => listarAsistencias())
       .catch((err) => console.log(err))
-      .finally(() => setLoadingActualizar(false));
+      .finally(() => {
+        setLoadingActualizar(false);
+        setModalEditar(false);
+        listarAsistencias();
+      });
   };
   
   const abrirModalEditar = () => setModalEditar(!modalEditar);
@@ -88,7 +102,6 @@ export default function GestionarAsistencia() {
       }).catch((err) => console.log(err)).finally(() => setLoadingAsistencia(false));
     };
   };
-
   
   function cambiarSemana(dia) {
     if (dia) {

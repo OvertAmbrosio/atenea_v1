@@ -5,7 +5,7 @@ import capitalizar from '../../../libraries/capitalizar';
 import { listaEstadosGestor } from '../../../constants/valoresOrdenes';
 
 function TagEstado({estado}) {
-  switch (estado) {
+  switch (String(estado).toLowerCase()) {
     case 'cancelado':
       return <Tag>{capitalizar(estado)}</Tag>
     case 'completado':
@@ -33,6 +33,8 @@ function TagEstado({estado}) {
     case 'efectiva':
       return <Tag color="green">{capitalizar(estado)}</Tag>
     case 'inefectiva':
+      return <Tag color="red">{capitalizar(estado)}</Tag>
+    case 'anulado':
       return <Tag color="red">{capitalizar(estado)}</Tag>
     default:
       return <Tag>-</Tag>

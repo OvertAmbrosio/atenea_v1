@@ -21,8 +21,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
   //el token es decodificado y llega como parametro el payload 
   async validate(payload: any) {
-    return await this.redisService.get(String(payload.id)).then((usuario) => {
-      if (!usuario) {
+    return await this.redisService.get(String(payload.id)).then((token) => {
+      if (!token) {
         throw new UnauthorizedException("Sesión inválida")
       } else {
         return payload;

@@ -31,7 +31,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
   },[estadoOrden]);
 
   async function enviarOrdenesPendientes(data, i) {
-    cogoToast.info(`Enviando paquetes de datos ${i}/${ordenesObtenidas.length} (300u.)...`, { position: 'top-right' });
+    cogoToast.info(`Enviando paquetes de datos ${i}/${ordenesObtenidas.length} (500u.)...`, { position: 'top-right' });
     return await postOrdenes({
       metodo: ordenes.SUBIR_DATA, 
       ordenes: data 
@@ -48,7 +48,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
   };
 
   async function enviarOrdenesLiquidadas(data, i) {
-    cogoToast.info(`Enviando paquetes de datos ${i}/${ordenesObtenidas.length} (300u.)...`, { position: 'top-right' });
+    cogoToast.info(`Enviando paquetes de datos ${i}/${ordenesObtenidas.length} (500u.)...`, { position: 'top-right' });
     await putOrdenes({
       metodo: ordenes.ACTUALIZAR_DATA, 
       ordenes: data 
@@ -115,7 +115,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
         return data.filter((e) => e.verificado)
       }).then(async(data) => {
         setEstadoArchivo('done');
-        setOrdenesObtenidas(await fragmentarArray(data, 300));
+        setOrdenesObtenidas(await fragmentarArray(data, 500));
         setOrdenesFiltradas(data.length);
         cogoToast.success(`${data.length} Ordenes encontradas.`, {position: 'top-right'});
       }).catch((err) => console.log(err, 'Error asignando valores'));
@@ -184,9 +184,6 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
             <Radio value={2}>
               Liquidadas
             </Radio>
-            <Radio value={3}>
-              Anuladas
-            </Radio>
           </Radio.Group>
           <div style={{width: '14rem', margin: '1rem 0', }}>
             <Upload 
@@ -204,6 +201,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
         <Col sm={14} md={14} lg={12} xl={12}>
           <Statistic title="Ordenes:" value={ordenesFiltradas} suffix={`/ ${ordenesTotal}`}/>
           <Button 
+            disabled={loadingButton}
             style={{ marginTop: '.5rem' }} 
             type="primary" 
             icon={loadingButton ? <LoadingOutlined spin/> : <SaveOutlined/>}
@@ -218,6 +216,7 @@ function ActualizarOrdenes({tipoOrden, tecnicos}) {
         columns={columnas}
         dataSource={resultado.filter((e) => e)}
         pagination={false}
+        style={{ marginBottom: '1rem' }}
         bordered
       />
     </div>

@@ -32,6 +32,8 @@ export async function ordenarAsistencia(data=[]) {
               sub_tipo_negocio: obj.tecnico.sub_tipo_negocio,
               nombre: obj.tecnico.nombre,
               apellidos: obj.tecnico.apellidos,
+              carnet: obj.tecnico.carnet,
+              dni: obj.tecnico.numero_documento,
               gestor: {
                 nombre: obj.tecnico.gestor ? obj.tecnico.gestor.nombre : '-',
                 apellidos: obj.tecnico.gestor ? obj.tecnico.gestor.apellidos: '-',
@@ -41,6 +43,10 @@ export async function ordenarAsistencia(data=[]) {
                 nombre: obj.tecnico.auditor ? obj.tecnico.auditor.nombre : '-',
                 apellidos: obj.tecnico.auditor ? obj.tecnico.auditor.apellidos: '-',
                 _id: obj.tecnico.auditor ? obj.tecnico.auditor._id: '-',
+              },
+              contrata: {
+                nombre: obj.tecnico.contrata ? obj.tecnico.contrata.nombre : '-',
+                _id: obj.tecnico.contrata ? obj.tecnico.contrata._id: '-',
               },
               observacion: obj.observacion,
               [field]: {
@@ -62,6 +68,8 @@ export async function ordenarAsistencia(data=[]) {
             sub_tipo_negocio: obj.tecnico.sub_tipo_negocio,
             nombre: obj.tecnico.nombre,
             apellidos: obj.tecnico.apellidos,
+            carnet: obj.tecnico.carnet,
+            dni: obj.tecnico.numero_documento,
             gestor: {
               nombre: obj.tecnico.gestor ? obj.tecnico.gestor.nombre : '-',
               apellidos: obj.tecnico.gestor ? obj.tecnico.gestor.apellidos: '-',
@@ -71,6 +79,10 @@ export async function ordenarAsistencia(data=[]) {
               nombre: obj.tecnico.auditor ? obj.tecnico.auditor.nombre: '-',
               apellidos: obj.tecnico.auditor ? obj.tecnico.auditor.apellidos: '-',
               _id: obj.tecnico.auditor ? obj.tecnico.auditor._id: '-',
+            },
+            contrata: {
+              nombre: obj.tecnico.contrata ? obj.tecnico.contrata.nombre : '-',
+              _id: obj.tecnico.contrata ? obj.tecnico.contrata._id: '-',
             },
             observacion: obj.observacion,
             [field]: {
@@ -96,7 +108,6 @@ export async function ordenarAsistenciaGestor(data=[]) {
       let nuevoArray = [];
       if (data.length === 0 ) return resolve(nuevoArray)
       data.forEach((obj) => {
-        if(obj.estado === 'P') console.log(obj.observacion);
         if (nuevoArray.length > 0) {
           const aux = nuevoArray.findIndex((i) => i.nombre === obj.gestor.nombre && i.apellidos === obj.gestor.apellidos);
           if (aux !== -1 && obj.createdAt ) {
@@ -161,7 +172,6 @@ export async function ordenarAsistenciaAuditor(data=[]) {
       let nuevoArray = [];
       if (data.length === 0 ) return resolve(nuevoArray)
       data.forEach((obj) => {
-        if(obj.estado === 'P') console.log(obj.observacion);
         if (nuevoArray.length > 0) {
           const aux = nuevoArray.findIndex((i) => i.nombre === obj.auditor.nombre && i.apellidos === obj.auditor.apellidos);
           if (aux !== -1 && obj.createdAt ) {

@@ -1,57 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Input } from 'antd';
-import { ScheduleOutlined, LoadingOutlined, ReloadOutlined, ExportOutlined, FileSyncOutlined } from '@ant-design/icons';
-import { useJsonToCsv } from 'react-json-csv';
-import moment from 'moment'
+import { Button, Dropdown, Input } from 'antd';
+import { ScheduleOutlined, LoadingOutlined, ReloadOutlined, ExportOutlined, FileSyncOutlined, UserSwitchOutlined } from '@ant-design/icons';
 
-import { listaBuckets, valoresExcelPendientes } from '../../../constants/valoresOrdenes';
-import TablaOrdenes from '../../../components/operativa/gestionarOrdenes/TablaOrdenes';
-import ModalDetalle from '../../../components/operativa/administrarOrdenes/ModalDetalle';
-import ModalInfancia from '../../../components/operativa/administrarOrdenes/ModalInfancia';
-import ModalReiterada from '../../../components/operativa/administrarOrdenes/ModalReiterada';
-import ModalEstado from '../../../components/operativa/administrarOrdenes/ModalEstado';
-import ModalAgendarTecnico from '../../../components/operativa/gestionarOrdenes/ModalAgendarTecnico';
+import { listaBuckets } from '../../../constants/valoresOrdenes';
+import TablaOrdenes from './TablaOrdenes';
+import ModalRegistro from '../administrarOrdenes/ModalsTabla/ModalRegistro';
+import ModalInfancia from '../administrarOrdenes/ModalsTabla/ModalInfancia';
+import ModalReiterada from '../administrarOrdenes/ModalsTabla/ModalReiterada';
+import ModalEstado from '../administrarOrdenes/ModalsTabla/ModalEstado';
+import ModalAgendarTecnico from './ModalAgendarTecnico';
 import { getOrdenes, patchFilesOrdenes, patchOrdenes } from '../../../services/apiOrden';
-import { ordenes as ordenesMetodo } from '../../../constants/metodos';
+import { ordenes, ordenes as ordenesMetodo } from '../../../constants/metodos';
+import ModalAsignar from '../administrarOrdenes/ModalsTabla/ModalAsignar';
+import ExcelOrdenesPendientes from '../../excelExports/ExcelOrdenesPendientes';
+import cogoToast from 'cogo-toast';
 
 const { Search } = Input;
 
-function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTecnicos, listarOrdenes}) {
+function OrdenesPendientesGestor({gestores=[], tecnicos=[]}) {
+  const [listaOrdenes, setListaOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
+  const [loadingOrdenes, setLoadingOrdenes] = useState(false);
   const [dataRegistros, setDataRegistros] = useState([]);
   const [dataInfancia, setDataInfancia] = useState([]);
-  const { saveAsCsv } = useJsonToCsv();
   const [ordenesSeleccionadas, setOrdenesSeleccionadas] = useState([]);
   const [loadingAgendar, setLoadingAgendar] = useState(false);
   const [loadingEstado, setLoadingEstado] = useState(false);
-  const [loadingDetalle, setLoadingDetalle] = useState(false);
+  const [loadingRegistro, setLoadingRegistro] = useState(false);
+  const [loadingAsignar, setLoadingAsignar] = useState(false);
+  const [loadingExportar, setLoadingExportar] = useState(false);
   const [modalAgendar, setModalAgendar] = useState(false);
   const [modalReiterada, setModalReiterada] = useState(false);
   const [modalInfancia, setModalInfancia] = useState(false);
   const [modalEstado, setModalEstado] = useState(false);
-  const [modalDetalle, setModalDetalle] = useState(false);
+  const [modalRegistro, setModalRegistro] = useState(false);
+  const [modalAsignar, setModalAsignar] = useState(false);
   const [codigoCliente, setCodigoCliente] = useState(null);
 
   useEffect(() => {
-    if (ordenes.length>0) {
-      setDataOrdenes(ordenes);
+    listarOrdenes()
+  }, []);
+
+  useEffect(() => {
+    if (listaOrdenes.length>0) {
+      setDataOrdenes(listaOrdenes);
     }
   // eslint-disable-next-line
-  },[ordenes]);
+  },[listaOrdenes]);
+
+  async function listarOrdenes() {
+    setLoadingOrdenes(true);
+    return await getOrdenes(true, { metodo: ordenesMetodo.ORDENES_HOY_GESTOR, todo: true })
+      .then(({data}) => {
+        if(data) setListaOrdenes(data);
+      }).catch((err) => console.log(err)).finally(() => setLoadingOrdenes(false));
+  };
 
   async function buscarInfancia(infancia) {
     setDataInfancia([infancia]);
   };
 
   async function buscarRegistro(id_orden) {
-    setLoadingDetalle(true);
+    setLoadingRegistro(true);
     await getOrdenes( true, { metodo: ordenesMetodo.BUSCAR_REGISTROS, id: id_orden })
       .then(({data}) => {
         if (data && data.length > 0) {
           setDataRegistros(data);
         }
-      }).catch((err) => console.log(err)).finally(() => setLoadingDetalle(false));
+      }).catch((err) => console.log(err)).finally(() => setLoadingRegistro(false));
   };
 
   async function agendarOrdenes(bucketSeleccionado, contrataSeleccionada, tecnicoSeleccionado, fechaCita, observacion) {
@@ -72,8 +89,8 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
   async function actualizarEstado(estado, observacion, files=[]) {
     if (ordenesSeleccionadas && ordenesSeleccionadas.length > 0) {
       let orden_imagen = new FormData();
-      orden_imagen.append('metodo', ordenes.ACTUALIZAR_ESTADO);
-      orden_imagen.append('ordenes', ordenesSeleccionadas);
+      orden_imagen.append('metodo', ordenesMetodo.ACTUALIZAR_ESTADO);
+      orden_imagen.append('ordenes', JSON.stringify(ordenesSeleccionadas));
       orden_imagen.append('estado', estado);
       orden_imagen.append('observacion', observacion);
       files.forEach((f) => {
@@ -91,42 +108,9 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
 
   function buscarRequerimiento(e) {
     if (e && e.length > 1) {
-      setDataOrdenes(ordenes.filter((o) => String(o.codigo_requerimiento).includes(e)))
+      setDataOrdenes(listaOrdenes.filter((o) => String(o.codigo_requerimiento).includes(e)))
     } else {
-      setDataOrdenes(ordenes);
-    }
-  }
-
-  function exportarExcel() {
-    if (dataOrdenes && dataOrdenes.length > 0) {
-      return saveAsCsv({ 
-        data: dataOrdenes.map((o) => {
-          return ({
-            ...o,
-            infancia_requerimiento: o.infancia && o.infancia.codigo_requerimiento ? o.infancia.codigo_requerimiento: '-',
-            infancia_tecnico_nombre: o.infancia && o.infancia.tecnico_liquidado ? o.infancia.tecnico_liquidado.nombre+' '+o.infancia.tecnico_liquidado.apellidos:'-',
-            infancia_tecnico_carnet: o.infancia && o.infancia.tecnico_liquidado ? o.infancia.tecnico_liquidado.carnet:'-',
-            infancia_tecnico_gestor: o.infancia && o.infancia.tecnico_liquidado && o.infancia.tecnico_liquidado.gestor ? o.infancia.tecnico_liquidado.gestor.nombre+' '+o.infancia.tecnico_liquidado.gestor.apellidos:'-',
-            infancia_registro: o.infancia && o.infancia.fecha_registro ? moment(o.infancia.fecha_registro).format('DD/MM/YY HH:mm'): '-',
-            infancia_liquidado: o.infancia && o.infancia.fecha_liquidado ? moment(o.infancia.fecha_liquidado).format('DD/MM/YY HH:mm'): '-',
-            contrata: o.contrata && o.contrata.nombre ? o.contrata.nombre : '-',
-            gestor: o.gestor && o.gestor.nombre ? o.gestor.nombre+' '+ o.gestor.apellidos : '-',
-            gestor_carnet: o.gestor && o.gestor.carnet ? o.gestor.carnet : '-',
-            auditor: o.auditor && o.auditor.nombre ? o.auditor.nombre+' '+o.auditor.apellidos : '-',
-            tecnico: o.tecnico && o.tecnico.nombre ? o.tecnico.nombre+' '+o.tecnico.apellidos : '-',
-            tecnico_carnet: o.tecnico && o.tecnico.carnet ? o.tecnico.carnet : '-',
-            fecha_cita: o.fecha_cita ? moment(o.fecha_cita).format('DD/MM/YY HH:mm'):'-',
-            fecha_registro: o.fecha_registro ? moment(o.fecha_registro).format('DD/MM/YY HH:mm'):'-',
-            fecha_asignado: o.fecha_asignado ? moment(o.fecha_asignado).format('DD/MM/YY HH:mm'):'-',
-            fecha_liquidado: o.fecha_liquidado ? moment(o.fecha_liquidado).format('DD/MM/YY HH:mm'):'-',
-            horas_registro: o.fecha_registro ? moment().diff(o.fecha_registro, 'hours') : '-',
-            horas_asignado: o.fecha_asignado ? moment().diff(o.fecha_asignado, 'hours') : '-',
-            orden_devuelta: o.orden_devuelta ? 'Si':'-'
-          })
-        }), 
-        fields: valoresExcelPendientes, 
-        filename: `data_ordenes_${moment().format('DD_MM_YY_HH_mm')}`
-      })
+      setDataOrdenes(listaOrdenes);
     }
   };
 
@@ -134,7 +118,8 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
   const abrirModalReiterada = () => setModalReiterada(!modalReiterada);
   const abrirModalInfancia = () => setModalInfancia(!modalInfancia);
   const abrirModalEstado = () => setModalEstado(!modalEstado);
-  const abrirModalDetalle = () => setModalDetalle(!modalDetalle);
+  const abrirModalRegistro = () => setModalRegistro(!modalRegistro);
+  const abrirModalAsignar = () => setModalAsignar(!modalAsignar);
  
   const abrirReiterada = (c) => {
     setCodigoCliente(c);
@@ -146,9 +131,22 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
     await buscarInfancia(id);
   };
 
-  const abrirDetalle = async (id) => {
-    abrirModalDetalle();
+  const abrirRegistro = async (id) => {
+    abrirModalRegistro();
     await buscarRegistro(id);
+  };
+
+  async function asignarOrdenes(data) {
+    if (ordenesSeleccionadas && ordenesSeleccionadas.length > 0) {
+      const auxData = data;
+      setLoadingAsignar(true);
+      abrirModalAsignar();
+      await patchOrdenes({
+        metodo: ordenes.ASIGNAR_ORDEN, ordenes: ordenesSeleccionadas, ...auxData
+      }).then(async() => await listarOrdenes()).catch((err) => console.log(err)).finally(() => setLoadingAsignar(false));
+    } else {
+      cogoToast.warn('No hay ordenes seleccionadas.', { position: 'top-right' })
+    }
   };
 
   return (
@@ -167,6 +165,12 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
           onClick={abrirModalAgendar}
         >Agendar</Button>
         <Button 
+          icon={loadingAsignar ? <LoadingOutlined spin/>:<UserSwitchOutlined/>}
+          style={{ marginBottom: '1rem', marginRight: '.5rem' }}
+          disabled={ordenesSeleccionadas.length === 0}
+          onClick={abrirModalAsignar}
+        >Asignar</Button>
+        <Button 
           icon={loadingEstado ? <LoadingOutlined spin/>:<FileSyncOutlined/>}
           style={{ marginBottom: '1rem', marginRight: '.5rem' }}
           disabled={ordenesSeleccionadas.length === 0}
@@ -178,22 +182,32 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
           style={{ width: 180, marginRight: '.5rem' }} 
           allowClear 
         />
-        <Button 
-          icon={<ExportOutlined/>}
-          style={{ marginBottom: '1rem', marginRight: '.5rem' }}
-          disabled={!dataOrdenes || dataOrdenes.length === 0}
-          onClick={exportarExcel}
-        >Exportar</Button>
+        <Dropdown
+          overlay={<ExcelOrdenesPendientes metodo={ordenes.EXPORTAR_PENDIENTES_GESTOR} tipo="gestor" setLoading={setLoadingExportar} ordenesSeleccionadas={ordenesSeleccionadas}/>} 
+          placement="bottomLeft" 
+          trigger={['click']}
+          arrow
+        >
+          <Button
+            icon={loadingExportar ? <LoadingOutlined spin/>:<ExportOutlined/>}
+            style={{ marginBottom: '1rem', marginRight: '.5rem' }}
+          >
+            Exportar
+          </Button>
+        </Dropdown>
       </div>
       <TablaOrdenes
+        asignadas={true}
         data={dataOrdenes} 
         loading={loadingOrdenes} 
         ordenesSeleccionadas={ordenesSeleccionadas} 
         setOrdenesSeleccionadas={setOrdenesSeleccionadas}
         abrirReiterada={abrirReiterada}
         abrirInfancia={abrirInfancia}
-        abrirDetalle={abrirDetalle}
+        abrirRegistro={abrirRegistro}
       />
+      {/* MODAL PARA ASIGNAR CONTRATA, GESTOR O TECNICO */}
+      <ModalAsignar tipo={true} visible={modalAsignar} abrir={abrirModalAsignar} gestores={gestores} tecnicos={tecnicos} asignar={asignarOrdenes}/>
       {/* MODAL PARA AGENDAR LA ORDEN */}
       <ModalAgendarTecnico visible={modalAgendar} abrir={abrirModalAgendar} buckets={listaBuckets} tecnicos={tecnicos} agendar={agendarOrdenes}/>
       {/* MODAL PARA ACTUALIZAR EL ESTADO_GESTOR DE LA ORDEN */}
@@ -203,17 +217,15 @@ function ListaOrdenesGestor({ordenes=[], loadingOrdenes, tecnicos=[], loadingTec
       {/* MODAL PARA BUSCAR LA INFANCIA */}
       <ModalInfancia visible={modalInfancia} abrir={abrirModalInfancia} loading={false} orden={dataInfancia} />
       {/* MODAL DETALLE PARA VER EL HISTORIAL DE CAMBIOS */}
-      <ModalDetalle visible={modalDetalle} abrir={abrirModalDetalle} loading={loadingDetalle} registros={dataRegistros}/>
+      <ModalRegistro visible={modalRegistro} abrir={abrirModalRegistro} loading={loadingRegistro} registros={dataRegistros}/>
     </div>
   )
 };
 
-ListaOrdenesGestor.propTypes = {
-  ordenes: PropTypes.array,
-  loadingOrdenes: PropTypes.bool,
+OrdenesPendientesGestor.propTypes = {
+  gestores: PropTypes.array,
   tecnicos: PropTypes.array,
-  loadingTecnicos: PropTypes.bool,
-  listarOrdenes: PropTypes.func
+  loadingTecnicos: PropTypes.bool
 };
 
-export default ListaOrdenesGestor;
+export default OrdenesPendientesGestor;

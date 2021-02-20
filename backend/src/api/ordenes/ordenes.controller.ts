@@ -12,7 +12,7 @@ import { CreateOrdeneDto } from './dto/create-ordene.dto';
 import { UpdateOrdeneDto } from './dto/update-ordene.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { tipos_orden, tipos_usuario } from 'src/constants/enum';
-import { TBodyUpdateOrden, TInfanciasExternas, TRespuesta } from 'src/helpers/types';
+import { TBodyUpdateOrden, TRespuesta } from 'src/helpers/types';
 import { cache_keys } from 'src/config/variables';
 
 @Controller('ordenes/')
@@ -28,7 +28,6 @@ export class OrdenesController {
     @Req() req:Request,
     @Body('metodo') metodo:string, 
     @Body('ordenes') createOrdenesDto:CreateOrdeneDto[],
-    @Body('ordenesExternas') ordenesExternas:TInfanciasExternas[],
     @Body('orden') createOrdenDto:CreateOrdeneDto
   ): Promise<TRespuesta> {
     const user:any = req.user;
@@ -46,16 +45,6 @@ export class OrdenesController {
           service: 'Error subiendo las ordenes (subirData)'
         });
         return ({status: 'error', message: 'Error subiendo las ordenes (subirData)', data: []});
-      });
-    } else if (metodo === 'subirInfanciasExternas' && user && user.cargo <= tipos_usuario.LIDER_GESTION) {
-      return await this.ordenesService.subirInfanciasExternas(ordenesExternas, user.id).then((resp) => {
-        return (resp)
-      }).catch((err) => {
-        this.logger.error({
-          message: err.message,
-          service: 'Error subiendo las ordenes (subirData)'
-        });
-        return ({status: 'error', message: 'Error subiendo las ordenes (subirData)'});
       });
     } else {
       return ({
@@ -105,7 +94,9 @@ export class OrdenesController {
     @Query('codigo_cliente') codigo_cliente:string,
     @Query('id') id_orden: string,
     @Query('id_ordenes') id_ordenes: string[],
-    @Query('todo') todo: string
+    @Query('todo') todo: string,
+    @Query('fechaInicio') fechaInicio: Date,
+    @Query('fechaFin') fechaFin: Date
   ): Promise<TRespuesta> {
     const user:any = req.user;
     const key = tipo === tipos_orden.AVERIAS ? cache_keys.ORDENES_AVERIAS : 
@@ -157,8 +148,9 @@ export class OrdenesController {
           data: null
         });
       });
-    } else if (metodo === 'obtenerOrdenesLiquidadas' && user.cargo <= tipos_usuario.LIDER_GESTION) {
-      return await this.ordenesService.obtenerOrdenesLiquidadas(tipo).then((res) => {
+    } else if (metodo === 'obtenerOrdenesLiquidadas') {
+      let gestor = user.cargo <= tipos_usuario.LIDER_GESTION ? false : user.id;
+      return await this.ordenesService.obtenerOrdenesLiquidadas(gestor, tipo, fechaInicio, fechaFin).then((res) => {
         return ({
           status: 'success',
           message: `(${res.length}) Ordenes encontradas.`,
@@ -202,15 +194,15 @@ export class OrdenesController {
           data: null
         });
       });
-    } else if (metodo === 'ordenesHoyGestor') {
-      return await this.ordenesService.obtenerOrdenesHoyGestor(user.id).then((res) => {
+    } else if (metodo === 'obtenerOrdenesPendientesGestor') {
+      return await this.ordenesService.obtenerOrdenesPendientesGestor(user.id, todo).then((res) => {
         return ({
           status: 'success',
           message: `(${res.length}) Ordenes encontradas.`,
           data: res
         });
       }).catch((err) => {
-        this.logger.error({message: err.message,service: 'getOrdenes(ordenesHoyGestor)'});
+        this.logger.error({message: err.message,service: 'getOrdenes(obtenerOrdenesPendientesGestor)'});
         return ({
           status: 'error',
           message: err.message,
@@ -262,6 +254,21 @@ export class OrdenesController {
           data: null
         });
       });
+    } else if (metodo === 'obtenerDetalleOrden' && id_orden) {
+      return await this.ordenesService.obtenerDetalleOrden(id_orden).then((res) => {
+        return ({
+          status: 'success',
+          message: `Orden encontrada correctamente.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(obtenerDetalleOrden)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
     } else if (metodo === 'exportarPendientes' && tipo) {
       return await this.ordenesService.obtenerPendientesExportar(todo, tipo, id_ordenes).then((res) => {
         return ({
@@ -277,13 +284,44 @@ export class OrdenesController {
           data: null
         });
       });
+    } else if (metodo === 'exportarPendientesGestor') {
+      return await this.ordenesService.obtenerPendientesExportarGestor(user.id, todo, id_ordenes).then((res) => {
+        return ({
+          status: 'success',
+          message: `Registros encontrados correctamente.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(exportarPendientesGestor)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
+    } else if (metodo === 'exportarLiquidadas') {
+      let gestor = user.cargo <= tipos_usuario.LIDER_GESTION ? false : user.id;
+      return await this.ordenesService.obtenerLiquidadasExportar(gestor, todo, tipo, id_ordenes, fechaInicio, fechaFin).then((res) => {
+        return ({
+          status: 'success',
+          message: `Registros encontrados correctamente.`,
+          data: res
+        });
+      }).catch((err) => {
+        this.logger.error({message: err.message,service: 'getOrdenes(exportarLiquidadas)'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: null
+        });
+      });
     } else {
       this.logger.error({message: `Usuario: ${user.id} - intentó acceder con metodo incorrecto.`, service: 'getOrdenes'});
       return({
         status: 'error',
         message: 'Metodo incorrecto o permisos insuficientes.'
       });
-    };
+    }; 
   };
 
   @Put()
@@ -326,9 +364,9 @@ export class OrdenesController {
     const user:any = req.user;    
     
     if (data.metodo === 'agendarOrden' && user.cargo <= tipos_usuario.LIDER_GESTION) {
-      return await this.ordenesService.agendarOrden(data.ordenes, user.id, data.bucket, data.contrata, data.gestor, data.fecha_cita, data.observacion)
+      return await this.ordenesService.agendarOrden(data.ordenes, user.id, data.bucket, data.contrata, data.gestor, data.tecnico, data.fecha_cita, data.observacion)
         .then((data) => ({status: 'success', message: `(${data.nModified}) Ordenes actualizadas correctamente.`}))
-        .catch((err) => {
+        .catch((err) => {          
           this.logger.error({message: err.message, service: 'actualizarOrden(agendarOrden)'})
           return ({status: 'error', message: 'Error actualizando las ordenes.'})
         })
@@ -339,7 +377,7 @@ export class OrdenesController {
           this.logger.error({message: err.message, service: 'actualizarOrden(agendarOrden)'})
           return ({status: 'error', message: 'Error actualizando las ordenes.'})
         })
-    } else if (data.metodo === 'asignarOrden' && user.cargo <= tipos_usuario.LIDER_GESTION) {
+    } else if (data.metodo === 'asignarOrden') {
       return await this.ordenesService.asignarOrden(data.ordenes, user.id, data.contrata, data.gestor, data.auditor, data.tecnico, data.observacion)
         .then((data) => ({status: 'success', message: `(${data.nModified}) Ordenes actualizadas correctamente.`}))
         .catch((err) => {
@@ -354,6 +392,16 @@ export class OrdenesController {
         return ({
           status: 'error',
           message: 'Error actualizando las ordenes.'
+        })
+      })
+    } else if (data.metodo === 'agregarObservacion') {      
+      return await this.ordenesService.agregarObservacion(user.id, data.id, data.observacion)
+        .then(() => ({ status: 'success', message: 'Orden actualizadas correctamente.'}))
+        .catch((err) => {
+        this.logger.error({ message: err.message, service: 'actualizarOrden(agregarObservacion)'});
+        return ({
+          status: 'error',
+          message: 'Error agregando la observacion.'
         })
       })
     } else if (data.metodo === 'devolverOrden') {      

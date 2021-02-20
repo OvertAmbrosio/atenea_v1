@@ -51,6 +51,11 @@ const items = [
             icon: DashboardOutlined,
             titulo: 'Indicadores HFC'
           },
+          {
+            ruta: rutas.resumenTcfl,
+            icon: DashboardOutlined,
+            titulo: 'Resumen TCFL'
+          },
         ]
       }
     ]

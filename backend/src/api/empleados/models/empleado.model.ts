@@ -110,6 +110,12 @@ export const EmpleadoSchema = new Schema({
     uppercase: true,
     default: 'PERUANA'
   },
+  columnas: [{
+    type: String,
+    trim: true,
+    lowercase: true,
+    default: null
+  }],
   observacion: {
     type: String,
     default: '-'

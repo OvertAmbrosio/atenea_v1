@@ -35,7 +35,8 @@ export class AuthService {
           if(empleado.usuario.activo && !session) {
             return empleado
           } else if (session) {
-            throw ({message: 'Ya hay una sesión activa.'})
+            return await this.redisService.remove(String(empleado._id)).then(() => empleado);
+            // throw ({message: 'Ya hay una sesión activa.'})
           } else {
             throw ({message: 'El usuario se encuentra inactivo'})
           }
@@ -53,7 +54,8 @@ export class AuthService {
       gestor: empleado.gestor,
       contrata: empleado.contrata,
       cargo:  empleado && empleado.usuario && empleado.usuario.cargo ? empleado.usuario.cargo : null,
-      imagen: empleado.usuario.imagen  
+      imagen: empleado.usuario.imagen, 
+      dia: Date.now()
     };
     //generar el token segun los datos dados
     const token = this.jwtService.sign(payload);

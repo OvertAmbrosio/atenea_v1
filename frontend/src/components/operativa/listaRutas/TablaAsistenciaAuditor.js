@@ -8,6 +8,7 @@ import { asistencias } from '../../../constants/metodos';
 import { ordenarAsistenciaAuditor } from '../../../libraries/ordenarAsistencias';
 import EstadoTag from './EstadoTag';
 import ModalEditarAsistencia from './ModalEditarAsistencia';
+import ExcelAsistencia from '../../excelExports/ExcelAsistencia';
 
 export default function TablaAsistenciasAuditores() {
   const [diaInicio, setDiaInicio] = useState(null);
@@ -21,9 +22,19 @@ export default function TablaAsistenciasAuditores() {
   const [idAsistencia, setIdAsistencia] = useState(null);
 
   useEffect(() => {
+    cambiarSemana(moment())
+  //eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    listarAsistencias()
+  //eslint-disable-next-line
+  }, [diaInicio, diaFin]);
+
+  useEffect(() => {
     generarColumnas();
   //eslint-disable-next-line
-  }, [diasSemana])
+  }, [diasSemana]);
 
   async function listarAsistencias() {
     if (diaInicio && diaFin) {
@@ -49,6 +60,7 @@ export default function TablaAsistenciasAuditores() {
       .catch((err) => console.log(err))
       .finally(() => {
         setLoadingActualizar(false);
+        setModalEditar(false);
         listarAsistencias();
       });
   };
@@ -154,6 +166,7 @@ export default function TablaAsistenciasAuditores() {
         <Col sm={24} style={{ marginBottom: '.5rem' }}>
           <p style={{ color: 'rgba(0,0,0,0.45)' }}>Seleccionar Fecha:</p>
           <DatePicker 
+            defaultValue={moment()}
             onChange={cambiarSemana} 
             picker="week" 
             style={{ marginRight: '.5rem' }}
@@ -174,6 +187,7 @@ export default function TablaAsistenciasAuditores() {
         columns={columnas !== null && columnas.length !== 0 ? columnas : columnasDefecto}
         dataSource={dataAsistencias}
         pagination={false}
+        footer={() => <ExcelAsistencia data={dataAsistencias} dias={diasSemana} nombre="auditor"/>}
       />
       {/* MODAL PARA EDITAR LA ASISTENCIA */}
       <ModalEditarAsistencia visible={modalEditar} abrir={abrirModalEditar} loadingActualizar={loadingActualizar} actualizar={actualizarAsistencia} />

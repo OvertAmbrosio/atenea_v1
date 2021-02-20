@@ -12,6 +12,7 @@ import { UpdateEmpleadoDto } from './dto/update-empleado.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TPaginateParams, TPayload, TRespuesta } from 'src/helpers/types';
 import { tipos_usuario } from 'src/constants/enum';
+import { userInfo } from 'os';
 
 @UseGuards(JwtAuthGuard)
 @Controller('empleados/')
@@ -39,24 +40,20 @@ export class EmpleadosController {
         return ({status: 'error', message: error.message})
       }); 
     } else if (params.metodo === 'listaTecnicosGlobal') {
-      if (usuario.cargo <= tipos_usuario.ASISTENTE_LOGISTICA) {
-        return this.empleadosService.listarTecnicosGlobal().then((data) => {
-          return ({
-            status: 'success',
-            message: 'Empleados obtenidos correctamente.',
-            data: data
-          })
-        }).catch((err) => {
-          this.logger.error({message: err.message, service: 'listaTecnicosGlobal'});
-          return ({
-            status: 'error',
-            message: err.message,
-            data: []
-          })
+      return this.empleadosService.listarTecnicosGlobal().then((data) => {
+        return ({
+          status: 'success',
+          message: 'Empleados obtenidos correctamente.',
+          data: data
         })
-      } else {
-        throw new HttpException({status: 'error', message: 'Metodo incorrecto.'}, HttpStatus.FORBIDDEN);
-      } 
+      }).catch((err) => {
+        this.logger.error({message: err.message, service: 'listaTecnicosGlobal'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: []
+        })
+      });
     } else if (params.metodo === 'listaTecnicosGestor') {
       return this.empleadosService.listarTecnicosGestor(usuario.id).then((data) => {
         return ({
@@ -102,6 +99,21 @@ export class EmpleadosController {
           data: []
         })
       })
+    } else if (params.metodo === 'obtenerColumnas') {
+      return this.empleadosService.obtenerColumnasGestor(usuario.id).then((data) => {
+        return ({
+          status: 'success',
+          message: 'Configuración obtenida correctamente.',
+          data
+        })
+      }).catch((err) => {
+        this.logger.error({message: err.message, service: 'obtenerColumnas'});
+        return ({
+          status: 'error',
+          message: err.message,
+          data: []
+        })
+      })
     } else {
       throw new HttpException({status: 'error', message: 'Metodo incorrecto.'}, HttpStatus.FORBIDDEN);
     }
@@ -129,7 +141,7 @@ export class EmpleadosController {
   async create(@Body() createEmpleadoDto: CreateEmpleadoDto, @Req() req: Request) {
     const usuario:any = req.user;
 
-    if (createEmpleadoDto.usuario.cargo <= tipos_usuario.LIDER_GESTION) {
+    if (createEmpleadoDto.usuario.cargo <= tipos_usuario.JEFE_OPERACIONES) {
       throw new HttpException({status: 'error', message: 'Cargo fuera de rango.'}, HttpStatus.FORBIDDEN);
     } else {
       const usuariosCarnet = [tipos_usuario.TECNICO,tipos_usuario.AUDITOR]
@@ -177,11 +189,12 @@ export class EmpleadosController {
     @Body('negocio') negocio: string,
     @Body('subNegocio') subNegocio: string,
     @Body('tecnicos') tecnicos: string[],
+    @Body('columnas') columnas: string[],
     @Req() req: Request 
   ): Promise<TRespuesta> {
     const usuario:any = req.user;
 
-    this.logger.info({ message: `Usuario ${usuario.id} edita al usuario ${id} actualizarEmpleado(${metodo})`});
+    if(id) this.logger.info({ message: `Usuario ${usuario.id} edita al usuario ${id} actualizarEmpleado(${metodo})`});
 
     if (metodo === 'resetPassword' && usuario) {
       return await this.empleadosService.resetPassword(id, usuario.cargo).then((e) => {
@@ -297,6 +310,13 @@ export class EmpleadosController {
       }).catch((error) => {
         this.logger.error({message: error.message, service: 'actualizarSubNegocio'});
         return ({status: 'error', message: 'Error actualizando el sub tipo de negocio'})
+      });
+    } else if (metodo === 'actualizarColumnasGestor') {
+      return await this.empleadosService.actualizarColumnasGestor(usuario.id, columnas).then(() => {
+        return ({status: 'success', message: 'Configuración guardada correctamente.'})
+      }).catch((error) => {
+        this.logger.error({message: error.message, service: 'actualizarColumnasGestor'});
+        return ({status: 'error', message: 'Error guardando la configuración del usuario.'})
       });
     } else {
       throw new HttpException({status: 'error', message: 'Metodo incorrecto.'}, HttpStatus.FORBIDDEN);

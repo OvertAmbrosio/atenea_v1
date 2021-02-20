@@ -133,7 +133,7 @@ export const altas = [
   },
   {
     cabecera: 'codreq',
-    cabecera_2: 'codreqatn',
+    cabecera_2: 'numreq',
     propiedad: 'codigo_requerimiento',
   },
   {
@@ -146,6 +146,7 @@ export const altas = [
   },
   {
     cabecera: 'codordtrab',
+    cabecera_2: 'ordtrab',
     propiedad: 'codigo_trabajo',
   },
   {
@@ -159,6 +160,7 @@ export const altas = [
   },
   {
     cabecera: 'codctr',
+    cabecera_2: 'codres',
     propiedad: 'codigo_ctr',
   },
   {
@@ -192,6 +194,8 @@ export const altas = [
   },
   {
     cabecera: 'fechorasig',
+    cabecera_2: 'fecasig',
+    hora: 'horasig',
     fecha: true,
     propiedad: 'fecha_registro'
   },
@@ -225,10 +229,12 @@ export const hfcLiquidadas = [
   {
     cabecera: 'codreq',
     cabecera_2: 'codreqatn',
+    cabecera_3: 'numreq',
     propiedad: 'codigo_requerimiento',
   },
   {
     cabecera: 'codctr',
+    cabecera_2: 'codres',
     propiedad: 'codigo_ctr'
   },
   {
@@ -270,10 +276,12 @@ export const hfcLiquidadas = [
 export const valoresExcelPendientes = {
   codigo_requerimiento: "Requerimiento",
   codigo_cliente: 'Codigo Cliente',
+  nombre_cliente: 'Cliente',
   codigo_trabajo: 'Orden Trabajo',
   codigo_peticion: 'Peticion',
   tipo_requerimiento: 'Tipo Requerimiento',
   tipo_tecnologia: 'Tipo Tecnologia',
+  indicador_pai: 'PAI',
   codigo_ctr: "CTR",
   codigo_nodo: "Nodo",
   codigo_troba: "Troba",
@@ -288,6 +296,7 @@ export const valoresExcelPendientes = {
   infancia_externa_ctr: 'Infancia Externa CTR',
   infancia_externa_observacion: 'Infancia Externa Obs.',
   distrito: "Distrito",
+  direccion: 'Dirección',
   bucket: "Bucket",
   estado_toa: "Estado Toa",
   estado_gestor: "Estado Gestor",
@@ -337,13 +346,14 @@ export const listaEstadosGestor = {
   INICIADO: 'iniciado',
   LIQUIDADO: 'liquidado',
   SUSPENDIDO: 'suspendido',
+  CANCELADO: 'cancelado',
   MASIVO: 'masivo',
   PEXT: 'pext',
   REMEDY: 'remedy',
 }
 
 export const codigosLiquidadasEfectivas = [
-  '2','3','6','7','10','1C','1D','1H','1I','1N','1P','1Q','1S','1O','1T','1U','1L',
+  '02','2','03','3','06','6','07','7','10','1C','1D','1H','1I','1N','1P','1Q','1S','1O','1T','1U','1L',
   'G1','G3','G4','G5','2A','2B','2C','2D','2E','2F','2G','2H',
   'HC','H0','H1','H2','H3','H4','H5','H6','H8','H9','HA','HB','HC','HD'
 ];

@@ -7,6 +7,7 @@ import { RedisService } from 'src/database/redis.service';
 import { cache_keys } from 'src/config/variables';
 import { reporteResumen, reporteDetalleTecnicosGpon, reporteTcflAverias, reporteTcflAltas, reporteProdDirectos } from 'templates/reportes';
 import { Cron } from '@nestjs/schedule';
+import { bajas } from 'src/constants/valoresToa';
 
 @Injectable()
 export class MailService {
@@ -16,19 +17,22 @@ export class MailService {
     private readonly updateDataService:UpdateDataService,
   ) { }
 
-  // @Cron('0 5 10,12,15,17,20 * * *', {
-  //   name: 'enviarReportesGestion',
-  //   timeZone: 'America/Lima',
-  // })
-  // async enviarReportesDeGestion() { 
-  //   console.log('-------------------------Enviando Reportes de gestión--------------------------');
-  //   return await this.reportesToa().then((e) => console.log(e));
-  // };
+  @Cron('0 5 10,12,15,17,20 * * *', {
+    name: 'enviarReportesGestion',
+    timeZone: 'America/Lima',
+  })
+  async enviarReportesDeGestion() { 
+    console.log('-------------------------Enviando Reportes de gestión--------------------------');
+    return await this.reportesToa().then((e) => console.log(e));
+  };
   
   public async reportesToa() {    
-    const dataAverias = await this.redisService.get(cache_keys.ORDENES_AVERIAS).then((data) => JSON.parse(data));
-    const dataAltas = await this.redisService.get(cache_keys.ORDENES_ALTAS).then((data) => JSON.parse(data));
+    let dataAverias = await this.redisService.get(cache_keys.ORDENES_AVERIAS).then((data) => JSON.parse(data));
+    let dataAltas = await this.redisService.get(cache_keys.ORDENES_ALTAS).then((data) => JSON.parse(data));
     
+    dataAverias = dataAverias.filter((e) => e && e.subtipo_actividad && !bajas.includes(e.subtipo_actividad))
+    dataAltas = dataAltas.filter((e) => e && e.subtipo_actividad && !bajas.includes(e.subtipo_actividad))
+
     const detalleGponTecnicos = await this.updateDataService.ordenarDataDetalleTecnico(dataAltas, 'GPON');
     const resumen = await this.updateDataService.ordenarDataResumen(dataAltas, dataAverias);
     const tcflAverias = await this.updateDataService.ordenarDataTcflAverias(dataAverias);
@@ -45,17 +49,19 @@ export class MailService {
       const imgTcflAverias = await this.updateDataService.generarImagenMulti(tcflAverias.buckets, tcflAverias.contratas, tcflAverias.gestores, reporteTcflAverias);
       const imgTcflAltas = await this.updateDataService.generarImagenMulti(tcflAltas.buckets, tcflAltas.contratas, tcflAltas.gestores, reporteTcflAltas);
       const imgProdDirectos = await this.updateDataService.generarImagen(prodDirectos, reporteProdDirectos);
+      // 'guillermo.carvajal@liteyca.com.co',
       // 'diana.machco@liteyca.pe',
+      // 'eduardo.garcia@liteyca.pe',
       // 'astrid.marin@liteyca.pe',
       // 'astrid.rodriguez@liteyca.pe',
       // 'grissella.ramos@liteyca.pe',
       // 'karumi.amado@liteyca.pe',
       // 'edgar.garcia@liteyca.pe',
       // 'alfredo.sierra@liteyca.pe',
-      // 'julio.purizaca@liteyca.pe'
+      // 'julio.purizaca@liteyca.pe',
+      // 'ana.garcia@liteyca.pe'
       return await this.mailerService.sendMail({
         to: [
-          'overt.ambrosio@gmail.com',
           'overt.ambrosio@liteyca.pe',
           'guillermo.carvajal@liteyca.com.co',
           'diana.machco@liteyca.pe',

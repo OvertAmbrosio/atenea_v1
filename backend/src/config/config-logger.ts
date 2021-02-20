@@ -10,7 +10,7 @@ export const logger:LoggerOptions = {
     format.splat(),
     format.colorize(),
     format.json(),
-    format.printf((info) => `${info.timestamp} ${info.level}: ${info.message} - ${info.service}`)
+    format.printf((info) => `{"hora": "${info.timestamp}", "nivel": "${info.level}", "message": "${info.message}", "servicio":"${info.service}"},`)
   ),
   transports: [
     //
@@ -21,13 +21,13 @@ export const logger:LoggerOptions = {
       maxsize: 5120000,
       maxFiles: 5,
       level: 'error',
-      filename: `${__dirname}/../logs/error-log-api.log`
+      filename: `${__dirname}/../logs/error-log-api.json`
     }),
     new transports.File({
       maxsize: 5120000,
       maxFiles: 5,
       level: 'info',
-      filename: `${__dirname}/../logs/info-log-api.log`
+      filename: `${__dirname}/../logs/info-log-api.json`
     })
   ]
 };

@@ -16,4 +16,9 @@ export const ordenes_gpon_altas = [
   'Instalación Gpon New',
   'Instalación Migración HFC a Gpon',
   'Instalación Migración HFC a Gpon CC',
+  'Instalacion B2B Tradicional GPON'
+];
+
+export const bajas = [ 
+  'Baja de Acometida'
 ]

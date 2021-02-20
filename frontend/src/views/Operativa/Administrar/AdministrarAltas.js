@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs } from 'antd';
-import { CloudUploadOutlined, CheckCircleOutlined, ScheduleOutlined } from '@ant-design/icons'
+import { CloudUploadOutlined, CheckCircleOutlined, ScheduleOutlined, UnorderedListOutlined, BugOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 
 import { tipoOrdenes } from '../../../constants/tipoOrden';
 import { empleados, contratas } from '../../../constants/metodos';
@@ -10,6 +10,9 @@ import TituloContent from '../../../components/common/TituloContent';
 import Contenedor from '../../../components/common/Contenedor';
 import ActualizarOrdenes from '../../../components/operativa/administrarOrdenes/ActualizarOrdenes';
 import OrdenesPendientes from '../../../components/operativa/administrarOrdenes/OrdenesPendientes';
+import OrdenesLiquidadas from '../../../components/operativa/administrarOrdenes/OrdenesLiquidadas';
+import OrdenesExternas from '../../../components/operativa/administrarOrdenes/OrdenesExternas';
+import OrdenesAnuladas from '../../../components/operativa/administrarOrdenes/OrdenesAnuladas';
 
 
 const { TabPane } = Tabs;
@@ -65,8 +68,8 @@ export default function AdministrarAltas() {
             <TabPane
               tab={
                 <span>
-                  <CheckCircleOutlined/>
-                  Lista de Ordenes
+                  <UnorderedListOutlined />
+                  Ordenes Pendientes
                 </span>
               }
               key="2"
@@ -81,11 +84,44 @@ export default function AdministrarAltas() {
             <TabPane
               tab={
                 <span>
+                  <CheckCircleOutlined/>
+                  Ordenes Liquidadas
+                </span>
+              }
+              key="3"
+            >
+              <OrdenesLiquidadas tipo={tipoOrdenes.ALTAS}/>
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <ExclamationCircleOutlined />
+                  Ordenes Anuladas
+                </span>
+              }
+              key="4"
+            >
+              <OrdenesAnuladas tipo={tipoOrdenes.ALTAS}/>
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <BugOutlined />
+                  Otras Bandejas
+                </span>
+              }
+              key="5"
+            >
+              <OrdenesExternas tipo={tipoOrdenes.ALTAS}/>
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
                   <ScheduleOutlined/>
                   Aprobar Ordenes
                 </span>
               }
-              key="3"
+              key="6"
             >
 
             </TabPane>

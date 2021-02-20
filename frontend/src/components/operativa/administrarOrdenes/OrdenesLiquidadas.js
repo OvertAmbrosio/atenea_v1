@@ -1,22 +1,41 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
-import { Button, Dropdown, Menu, Table } from 'antd';
-import { ExportOutlined, LoadingOutlined, ReloadOutlined } from '@ant-design/icons';
-import moment from 'moment';
-import { useJsonToCsv } from 'react-json-csv';
+import { Button, Dropdown, Table, DatePicker } from 'antd';
+import { ExportOutlined, LoadingOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import cogoToast from 'cogo-toast';
 
 import { getOrdenes } from '../../../services/apiOrden';
 import { ordenes } from '../../../constants/metodos';
-import { valoresExcelPendientes } from '../../../constants/valoresOrdenes';
-import cogoToast from 'cogo-toast';
+import columnasOrdenesLiquidadas from './columnas/columnasLiquidadas';
+import { obtenerFiltroId, obtenerFiltroNombre } from '../../../libraries/obtenerFiltro';
+import ModalRegistro from './ModalsTabla/ModalRegistro';
+import ExcelOrdenesLiquidadas from '../../excelExports/ExcelOrdenesLiquidadas';
+import columnasLiquidadasGestor from '../gestionarOrdenes/columnas/columnasLiquidadasGestor';
 
-function OrdenesLiquidadas({tipo}) {
-  const [totalOrdenes, setTotalOrdenes] = useState([]);
+const { RangePicker } = DatePicker;
+
+function OrdenesLiquidadas({tipo, gestor}) {
   const [dataOrdenes, setDataOrdenes] = useState([]);
+  const [dataRegistros, setDataRegistros] = useState([]);
   const [ordenesSeleccionadas, setOrdenesSeleccionadas] = useState([]);
+  const [loadingActualizar, setLoadingActualizar] = useState(false)
   const [loadingOrdenes, setLoadingOrdenes] = useState(false);
+  const [loadingBuscar, setLoadingBuscar] = useState(false)
   const [loadingExportar, setLoadingExportar] = useState(false);
-  const { saveAsCsv } = useJsonToCsv();
+  const [loadingRegistro, setLoadingRegistro] = useState(false);
+  const [filtroDistrito, setFiltroDistrito] = useState([]);
+  const [filtroEstadoToa, setFiltroEstadoToa] = useState([]);
+  const [filtroEstadoGestor, setFiltroEstadoGestor] = useState([])
+  const [filtroContrata, setFiltroContrata] = useState([]);
+  const [filtroGestor, setFiltroGestor] = useState([]);
+  const [filtroTecnico, setFiltroTecnico] = useState([]);
+  const [filtroTecnologia, setFiltroTecnologia] = useState([]);
+  const [filtroNodo, setFiltroNodo] = useState([]);
+  const [filtroCtr, setFiltroCtr] = useState([]);
+  const [filtroTimeSlot, setFiltroTimeSlot] = useState([]);
+  const [modalRegistro, setModalRegistro] = useState(false);
+  const [fechaInicio, setFechaInicio] = useState(null);
+  const [fechaFin, setFechaFin] = useState(null);
 
   useEffect(() => {
     listarOrdenes();
@@ -25,83 +44,127 @@ function OrdenesLiquidadas({tipo}) {
 
   async function listarOrdenes() {
     setLoadingOrdenes(true);
+    setLoadingActualizar(true);
     setOrdenesSeleccionadas([]);
-    await getOrdenes(true, { metodo: ordenes.ORDENES_LIQUIDADAS, tipo })
+    await getOrdenes(true, { metodo: ordenes.ORDENES_LIQUIDADAS, tipo, fechaInicio: null, fechaFin: null })
       .then(({data}) => {
         if (data && data.length > 0) {
-          setTotalOrdenes(data);
-          setDataOrdenes(data);
-        }
-      }).catch((err) => console.log(err)).finally(() => setLoadingOrdenes(false));
+          generarFiltros(data);
+        } else { limpiarEstados() }
+      }).catch((err) => console.log(err)).finally(() => {setLoadingOrdenes(false); setLoadingActualizar(false)});
   };
 
-  async function exportarExcel(todo) {
-    setLoadingExportar(true);
-    return await getOrdenes(true, { 
-      metodo: ordenes.EXPORTAR_PENDIENTES, todo, tipo, id_ordenes: ordenesSeleccionadas, 
-    }).then(({data}) => {
-      if (data && data.length > 0) {
-        return data.map((o) => ({
-          ...o,
-          infancia_requerimiento: o.infancia && o.infancia.codigo_requerimiento ? o.infancia.codigo_requerimiento: '-',
-          infancia_tecnico_nombre: o.infancia && o.infancia.tecnico_liquidado ? o.infancia.tecnico_liquidado.nombre+' '+o.infancia.tecnico_liquidado.apellidos:'-',
-          infancia_tecnico_carnet: o.infancia && o.infancia.tecnico_liquidado ? o.infancia.tecnico_liquidado.carnet:'-',
-          infancia_tecnico_gestor: o.infancia && o.infancia.tecnico_liquidado && o.infancia.tecnico_liquidado.gestor ? o.infancia.tecnico_liquidado.gestor.nombre+' '+o.infancia.tecnico_liquidado.gestor.apellidos:'-',
-          infancia_registro: o.infancia && o.infancia.fecha_registro ? moment(o.infancia.fecha_registro).format('DD/MM/YY HH:mm'): '-',
-          infancia_liquidado: o.infancia && o.infancia.fecha_liquidado ? moment(o.infancia.fecha_liquidado).format('DD/MM/YY HH:mm'): '-',
-          infancia_externa_requerimiento: o.infancia_externa ? o.infancia_externa.codigo_requerimiento : '-',
-          infancia_externa_ctr: o.infancia_externa ? o.infancia_externa.codigo_ctr : '-',
-          infancia_externa_observacion: o.infancia_externa ? o.infancia_externa.observacion : '-',
-          contrata: o.contrata && o.contrata.nombre ? o.contrata.nombre : '-',
-          gestor: o.gestor && o.gestor.nombre ? o.gestor.nombre+' '+ o.gestor.apellidos : '-',
-          gestor_carnet: o.gestor && o.gestor.carnet ? o.gestor.carnet : '-',
-          auditor: o.auditor && o.auditor.nombre ? o.auditor.nombre+' '+o.auditor.apellidos : '-',
-          tecnico: o.tecnico && o.tecnico.nombre ? o.tecnico.nombre+' '+o.tecnico.apellidos : '-',
-          tecnico_carnet: o.tecnico && o.tecnico.carnet ? o.tecnico.carnet : '-',
-          fecha_cita: o.fecha_cita ? moment(o.fecha_cita).format('DD/MM/YY HH:mm'):'-',
-          fecha_registro: o.fecha_registro ? moment(o.fecha_registro).format('DD/MM/YY HH:mm'):'-',
-          fecha_asignado: o.fecha_asignado ? moment(o.fecha_asignado).format('DD/MM/YY HH:mm'):'-',
-          fecha_liquidado: o.fecha_liquidado ? moment(o.fecha_liquidado).format('DD/MM/YY HH:mm'):'-',
-          horas_registro: o.fecha_registro ? moment().diff(o.fecha_registro, 'hours') : '-',
-          horas_asignado: o.fecha_asignado ? moment().diff(o.fecha_asignado, 'hours') : '-',
-          orden_devuelta: o.orden_devuelta ? 'Si':'-'
-        }))
-      } else {
-        return [];
-      };
-    }).then((nuevaData) => {
-      if (nuevaData && nuevaData.length > 0) {
-        return saveAsCsv({ 
-          data: nuevaData, 
-          fields: valoresExcelPendientes, 
-          filename: `data_${tipo}_pendientes_${moment().format('DD_MM_YY_HH_mm')}`
-        })
-      } else {
-        cogoToast.warn('No se encontró datos disponibles.', { position: 'top-right' })
-      }
-    }).catch((err) => console.log(err)).finally(() => setLoadingExportar(false));
+  async function buscarOrdenes() {
+    if (fechaInicio && fechaFin) {
+      setLoadingOrdenes(true);
+      setLoadingBuscar(true);
+      setOrdenesSeleccionadas([]);
+      await getOrdenes(true, { metodo: ordenes.ORDENES_LIQUIDADAS, tipo, fechaInicio, fechaFin })
+        .then(({data}) => {
+          if (data && data.length > 0) {
+            generarFiltros(data)
+          } else { limpiarEstados() }
+        }).catch((err) => console.log(err)).finally(() => {setLoadingOrdenes(false); setLoadingBuscar(false)});
+    } else {
+      cogoToast.warn('Debes seleccionar un rango de fechas.', { position: 'top-right' });
+    };
+  };
+
+  const abrirModalRegistro = () => setModalRegistro(!modalRegistro);
+
+  async function buscarRegistro(id_orden) {
+    setLoadingRegistro(true);
+    await getOrdenes( true, { metodo: ordenes.BUSCAR_REGISTROS, id: id_orden })
+      .then(({data}) => {
+        if (data && data.length > 0) {
+          setDataRegistros(data);
+        }
+      }).catch((err) => console.log(err)).finally(() => setLoadingRegistro(false));
+  };
+
+  const abrirRegistro = async (id) => {
+    abrirModalRegistro();
+    await buscarRegistro(id);
+  };
+
+  const seleccionarFechas = (e) => {
+    if (e) {
+      setFechaInicio(e[0].format('YYYY/MM/DD'));
+      setFechaFin(e[1].format('YYYY/MM/DD'));
+    } else {
+      setFechaInicio(null);
+      setFechaFin(null);
+    };
+  };
+
+  const limpiarEstados = () => {
+    setDataOrdenes([]);
+    setFiltroDistrito([]);
+    setFiltroEstadoToa([]);
+    setFiltroEstadoGestor([]);
+    setFiltroTecnologia([]);
+    setFiltroNodo([]);
+    setFiltroContrata([]);
+  };
+
+  const generarFiltros = (data) => {
+    setDataOrdenes(data);
+    obtenerFiltroNombre(data, 'distrito').then((f) => setFiltroDistrito(f));
+    obtenerFiltroNombre(data, 'estado_toa').then((f) => setFiltroEstadoToa(f));
+    obtenerFiltroNombre(data, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
+    obtenerFiltroNombre(data, 'tipo_tecnologia').then((f) => setFiltroTecnologia(f));
+    obtenerFiltroNombre(data, 'codigo_nodo').then((f) => setFiltroNodo(f));
+    obtenerFiltroNombre(data, 'codigo_ctr').then((f) => setFiltroCtr(f));
+    obtenerFiltroNombre(data, 'tipo_agenda').then((f) => setFiltroTimeSlot(f));
+    obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f));
+    obtenerFiltroId(data, 'gestor', true).then((f) => setFiltroGestor(f));
+    obtenerFiltroId(data, 'tecnico_liquidado').then((f) => setFiltroTecnico(f));
+  };
+
+  const generarColumnas = () => {
+    if (gestor) {
+      return columnasLiquidadasGestor(
+        filtroDistrito,
+        filtroEstadoToa,
+        filtroEstadoGestor,
+        filtroContrata, 
+        filtroTecnologia,
+        filtroNodo,
+        filtroCtr,
+        filtroTecnico,
+        filtroTimeSlot,
+        abrirRegistro,
+        listarOrdenes)
+    } else {
+      return columnasOrdenesLiquidadas(
+        tipo,
+        filtroDistrito,
+        filtroEstadoToa,
+        filtroEstadoGestor,
+        filtroContrata, 
+        filtroGestor,
+        filtroTecnico,
+        filtroTecnologia,
+        filtroNodo,
+        filtroCtr,
+        filtroTimeSlot,
+        abrirRegistro,
+        listarOrdenes)
+    };
   };
 
   return (
     <div>
       <div>
-        <Button 
+        <Button
           type="primary"
-          icon={loadingOrdenes ? <LoadingOutlined spin/>:<ReloadOutlined/>}
+          icon={loadingActualizar ? <LoadingOutlined spin/>:<ReloadOutlined/>}
+          disabled={loadingActualizar}
           style={{ marginBottom: '1rem', marginRight: '.5rem' }}
           onClick={listarOrdenes}
         >Actualizar</Button>
         <Dropdown
-          overlay={
-            <Menu>
-              <Menu.Item key={1} onClick={() => exportarExcel(true)}>
-                Todo
-              </Menu.Item>
-              <Menu.Item key={2} onClick={() => exportarExcel(false)}>
-                Seleccionado
-              </Menu.Item>
-            </Menu>
-          } 
+          overlay={<ExcelOrdenesLiquidadas tipo={gestor ? 'gestor' : tipo} setLoading={setLoadingExportar} ordenesSeleccionadas={ordenesSeleccionadas} fechaInicio={fechaInicio} fechaFin={fechaFin}/>} 
           placement="bottomLeft" 
           trigger={['click']}
           arrow
@@ -109,12 +172,29 @@ function OrdenesLiquidadas({tipo}) {
           <Button
             icon={loadingExportar ? <LoadingOutlined spin/>:<ExportOutlined/>}
             style={{ marginBottom: '1rem', marginRight: '.5rem' }}
+            disabled={loadingExportar}
           >
             Exportar
           </Button>
         </Dropdown>
+        <RangePicker onChange={seleccionarFechas} style={{ marginBottom: '1rem', marginRight: '.5rem' }} />
+        <Button
+          type="primary"
+          icon={loadingBuscar ? <LoadingOutlined spin/>:<SearchOutlined/>}
+          disabled={loadingBuscar}
+          onClick={buscarOrdenes}
+        >
+          Buscar
+        </Button>
       </div>
       <Table
+        rowKey="_id"
+        rowSelection={{
+          columnWidth: 50,
+          selectedRowKeys: ordenesSeleccionadas,
+          onChange: (e) => setOrdenesSeleccionadas(e)
+        }}
+        columns={generarColumnas()}
         dataSource={dataOrdenes}
         loading={loadingOrdenes}
         size="small"
@@ -124,12 +204,15 @@ function OrdenesLiquidadas({tipo}) {
           pageSizeOptions: [50,100,200]
         }}
       />
+      {/* MODAL DETALLE PARA VER EL HISTORIAL DE CAMBIOS */}
+      <ModalRegistro visible={modalRegistro} abrir={abrirModalRegistro} loading={loadingRegistro} registros={dataRegistros}/>
     </div>
   )
 };
 
 OrdenesLiquidadas.propTypes = {
-  tipo: PropTypes.string
+  tipo: PropTypes.string,
+  gestor: PropTypes.bool
 };
 
 export default OrdenesLiquidadas;

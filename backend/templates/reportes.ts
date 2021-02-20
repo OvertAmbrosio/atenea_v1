@@ -328,6 +328,8 @@ export const reporteTcflAverias = `
         <th>En Plazo</th>
         <th>Vencidas</th>
         <th>Porcentaje</th>
+        <th>Agendadas</th>
+        <th>Total</th>
       </tr>
     </thead>
     <tbody>
@@ -337,6 +339,8 @@ export const reporteTcflAverias = `
         <td>{{en_plazo}}</td>
         <td>{{vencidas}}</td>
         <td style="{{style}}"><strong>{{porcentaje}} %</strong></td>
+        <td>{{agendadas}}</td>
+        <td>{{total}}</td>
       </tr>
       {{/each}}
     </tbody>
@@ -348,6 +352,8 @@ export const reporteTcflAverias = `
         <th>En Plazo</th>
         <th>Vencidas</th>
         <th>Porcentaje</th>
+        <th>Agendadas</th>
+        <th>Total</th>
       </tr>
     </thead>
     <tbody>
@@ -357,6 +363,8 @@ export const reporteTcflAverias = `
         <td>{{en_plazo}}</td>
         <td>{{vencidas}}</td>
         <td style="{{style}}">{{porcentaje}} %</td>
+        <td>{{agendadas}}</td>
+        <td>{{total}}</td>
       </tr>
       {{/each}}
     </tbody>
@@ -368,6 +376,8 @@ export const reporteTcflAverias = `
         <th>En Plazo</th>
         <th>Vencidas</th>
         <th>Porcentaje</th>
+        <th>Agendadas</th>
+        <th>Total</th>
       </tr>
     </thead>
     <tbody>
@@ -377,6 +387,8 @@ export const reporteTcflAverias = `
         <td>{{en_plazo}}</td>
         <td>{{vencidas}}</td>
         <td style="{{style}}">{{porcentaje}} %</td>
+        <td>{{agendadas}}</td>
+        <td>{{total}}</td>
       </tr>
       {{/each}}
     </tbody>
@@ -534,6 +546,8 @@ export const reporteTcflAltas = `
         <th>En Plazo</th>
         <th>Vencidas</th>
         <th>Porcentaje</th>
+        <th>Agendadas</th>
+        <th>Total</th>
       </tr>
     </thead>
     <tbody>
@@ -543,6 +557,8 @@ export const reporteTcflAltas = `
         <td>{{en_plazo}}</td>
         <td>{{vencidas}}</td>
         <td style="{{style}}"><strong>{{porcentaje}} %</strong></td>
+        <td>{{agendadas}}</td>
+        <td>{{total}}</td>
       </tr>
       {{/each}}
     </tbody>
@@ -554,6 +570,8 @@ export const reporteTcflAltas = `
         <th>En Plazo</th>
         <th>Vencidas</th>
         <th>Porcentaje</th>
+        <th>Agendadas</th>
+        <th>Total</th>
       </tr>
     </thead>
     <tbody>
@@ -563,6 +581,8 @@ export const reporteTcflAltas = `
         <td>{{en_plazo}}</td>
         <td>{{vencidas}}</td>
         <td style="{{style}}">{{porcentaje}} %</td>
+        <td>{{agendadas}}</td>
+        <td>{{total}}</td>
       </tr>
       {{/each}}
     </tbody>
@@ -574,6 +594,8 @@ export const reporteTcflAltas = `
         <th>En Plazo</th>
         <th>Vencidas</th>
         <th>Porcentaje</th>
+        <th>Agendadas</th>
+        <th>Total</th>
       </tr>
     </thead>
     <tbody>
@@ -583,6 +605,8 @@ export const reporteTcflAltas = `
         <td>{{en_plazo}}</td>
         <td>{{vencidas}}</td>
         <td style="{{style}}">{{porcentaje}} %</td>
+        <td>{{agendadas}}</td>
+        <td>{{total}}</td>
       </tr>
       {{/each}}
     </tbody>

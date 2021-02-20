@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
-import { Modal, Input, Upload, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { Modal, Select, Input, Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
-import convertirBase64 from '../../../libraries/convertirBase64';
+import { listaEstadosGestor } from '../../../../constants/valoresOrdenes';
+import capitalizar from '../../../../libraries/capitalizar';
+import convertirBase64 from '../../../../libraries/convertirBase64';
 
+const { Option } = Select;
 const { TextArea } = Input;
 
-function ModalDevolver({ visible, abrir, loading, devolverOrden }) {
+function ModalEstado({visible, abrir, actualizarEstado}) {
+  const [estadoSeleccionado, setEstadoSeleccionado] = useState(null);
   const [observacion, setObservacion] = useState(null);
   const [fileList, setFileList] = useState([]);
   //Estados para la previsualización de las imagenes
@@ -15,13 +19,13 @@ function ModalDevolver({ visible, abrir, loading, devolverOrden }) {
   const [previewImage, setPreviewImage] = useState('');
 
   useEffect(() => {
+    setEstadoSeleccionado(null);
     setObservacion(null);
     setFileList([]);
   }, []);
 
-  async function devolver() {
-    await devolverOrden(observacion, fileList);
-    abrir();
+  async function actualizarOrden() {
+    await actualizarEstado(estadoSeleccionado, observacion, fileList);
   };
 
   //guardar localmente las fotos
@@ -53,22 +57,30 @@ function ModalDevolver({ visible, abrir, loading, devolverOrden }) {
 
   return (
     <Modal
-      title="Desvolver Orden"
+      title="Editar estado de la orden"
       visible={visible}
+      onOk={actualizarOrden}
       onCancel={abrir}
       width={300}
       destroyOnClose
       centered
-      footer={[
-        <Button key="back" onClick={abrir}>
-          Cancelar
-        </Button>,
-        <Button key="submit" type="primary" loading={loading} onClick={devolver}>
-          Aceptar
-        </Button>,
-      ]}
     >
-      <div style={{ marginBottom: '.5rem' }}>Observación:</div>
+      <Select 
+        placeholder="Seleccionar estado"
+        defaultValue={estadoSeleccionado} 
+        onChange={e => setEstadoSeleccionado(e)}
+        style={{ width: 250, marginBottom: '.5rem' }}
+      >
+        <Option value={listaEstadosGestor.PENDIENTE}>{capitalizar(listaEstadosGestor.PENDIENTE)}</Option>
+        <Option value={listaEstadosGestor.ASIGNADO}>{capitalizar(listaEstadosGestor.ASIGNADO)}</Option>
+        <Option value={listaEstadosGestor.AGENDADO}>{capitalizar(listaEstadosGestor.AGENDADO)}</Option>
+        <Option value={listaEstadosGestor.INICIADO}>{capitalizar(listaEstadosGestor.INICIADO)}</Option>
+        <Option value={listaEstadosGestor.LIQUIDADO}>{capitalizar(listaEstadosGestor.LIQUIDADO)}</Option>
+        <Option value={listaEstadosGestor.SUSPENDIDO}>{capitalizar(listaEstadosGestor.SUSPENDIDO)}</Option>
+        <Option value={listaEstadosGestor.CANCELADO}>{capitalizar(listaEstadosGestor.CANCELADO)}</Option>
+        <Option value={listaEstadosGestor.PEXT}>{capitalizar(listaEstadosGestor.PEXT)}</Option>
+        <Option value={listaEstadosGestor.REMEDY}>{capitalizar(listaEstadosGestor.REMEDY)}</Option>
+      </Select>
       <TextArea
         placeholder="Observacion"
         defaultValue={observacion}
@@ -91,17 +103,15 @@ function ModalDevolver({ visible, abrir, loading, devolverOrden }) {
       <Modal visible={previewVisible} footer={null} onCancel={modalPreview}>
         <img alt="example" style={{ width: '100%' }} src={previewImage} />
       </Modal>
-
     </Modal>
   )
 };
 
-ModalDevolver.propTypes = {
+ModalEstado.propTypes = {
   visible: PropTypes.bool,
   abrir: PropTypes.func,
-  loading: PropTypes.bool,
-  devolverOrden: PropTypes.func
+  actualizarEstado: PropTypes.func
 };
 
-export default ModalDevolver
+export default ModalEstado
 

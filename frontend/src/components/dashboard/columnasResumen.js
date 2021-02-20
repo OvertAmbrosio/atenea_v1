@@ -1,4 +1,4 @@
-import { Table, Tooltip } from 'antd';
+import { Table, Tag, Tooltip } from 'antd';
 import Text from 'antd/lib/typography/Text';
 import capitalizar from '../../libraries/capitalizar';
 
@@ -110,4 +110,46 @@ export function columnasTotal(pageData) {
       </Table.Summary.Row>
     </>
   );
-}
+};
+
+export function columnasTotalTcfl(pageData) {
+  let totalPlazo = 0;
+  let totalVencidas = 0;
+  let totalAgendadas = 0;
+  let totalTotal = 0;
+
+  pageData.forEach(({ en_plazo, vencidas, agendadas, total }) => {
+    totalPlazo += en_plazo.length;
+    totalVencidas += vencidas.length;
+    totalAgendadas +=agendadas.length;
+    totalTotal += total.length;
+  });
+
+  let pTotal =  Math.round((totalPlazo*100) / (totalPlazo + totalVencidas) )
+
+  return (
+    <>
+      <Table.Summary.Row style={{ backgroundColor: "#F7F7F7" }}>
+        <Table.Summary.Cell><strong>Total</strong></Table.Summary.Cell>
+        <Table.Summary.Cell align="center">
+          <Text>{totalPlazo}</Text>
+        </Table.Summary.Cell>
+        <Table.Summary.Cell align="center">
+          <Text>{totalVencidas}</Text>
+        </Table.Summary.Cell>
+        <Table.Summary.Cell align="center">
+          <Text>{pTotal < 80 && pTotal > 50 ? 
+                  <Tag color="warning">{pTotal} %</Tag> : pTotal <= 50 ? 
+                  <Tag color="error">{pTotal} %</Tag> : pTotal >= 80 ? 
+                  <Tag color="success">{pTotal} %</Tag> : <Tag>0 %</Tag>}</Text>
+        </Table.Summary.Cell>
+        <Table.Summary.Cell align="center">
+          <Text>{totalAgendadas}</Text>
+        </Table.Summary.Cell>
+        <Table.Summary.Cell align="center">
+          <Text>{totalTotal}</Text>
+        </Table.Summary.Cell>
+      </Table.Summary.Row>
+    </>
+  );
+};

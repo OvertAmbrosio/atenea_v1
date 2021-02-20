@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
-import { Modal, Select, Input, DatePicker, Button } from 'antd'
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { Modal, Select, Input, DatePicker, Button } from 'antd';
+import moment from 'moment';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -22,11 +23,21 @@ function ModalAgendar({visible, abrir, buckets=[], contratas=[], gestores=[], ag
   }, [])
 
   const agendarOrden = async () => {
-    setLoadingAgendar(true)
-    await agendar(bucketSeleccionado, contrataSeleccionada, gestorSeleccionado, fechaCita, observacion);
-    setLoadingAgendar(false);
-    abrir();
+    if (fechaCita) {
+      setLoadingAgendar(true)
+      await agendar(bucketSeleccionado, contrataSeleccionada, gestorSeleccionado, fechaCita, observacion);
+      setLoadingAgendar(false);
+      abrir();
+    }
   };
+
+  const cambiarFecha = (fecha) => {
+    if (fecha) {
+      setFechaCita(fecha.utc().format('YYYY-MM-DD HH:mm'))
+    } else {
+      setFechaCita(null);
+    };
+  }
 
   return (
     <Modal
@@ -42,27 +53,12 @@ function ModalAgendar({visible, abrir, buckets=[], contratas=[], gestores=[], ag
         <Button key="back" onClick={abrir}>
           Cancelar
         </Button>,
-        <Button key="submit" type="primary" loading={loadingAgendar} onClick={agendarOrden}>
+        <Button disabled={!fechaCita ? true : false} key="submit" type="primary" loading={loadingAgendar} onClick={agendarOrden}>
           Aceptar
         </Button>,
       ]}
     >
-      <Select
-        placeholder="Seleccionar Bucket"
-        style={{ width: 300, marginBottom: '.5rem' }}
-        onChange={(e) => setBucketSeleccionado(e)}
-        defaultValue={bucketSeleccionado}
-      >
-      {
-        buckets && buckets.length > 0 ? 
-        buckets.map((b, i) => (
-          <Option value={b.value} key={i}>{b.text}</Option>
-        ))
-        :
-        <Option>Sin data</Option>
-      }
-      </Select>
-      <Select
+      {/* <Select
         placeholder="Seleccionar Contrata"
         style={{ width: 300, marginBottom: '.5rem' }}
         onChange={(e) => setContrataSeleccionada(e)}
@@ -76,7 +72,7 @@ function ModalAgendar({visible, abrir, buckets=[], contratas=[], gestores=[], ag
         :
         <Option>Sin data</Option>
       }
-      </Select>
+      </Select> */}
       <Select
         showSearch
         placeholder="Seleccionar Gestor"
@@ -98,9 +94,10 @@ function ModalAgendar({visible, abrir, buckets=[], contratas=[], gestores=[], ag
       }
       </Select>
       <DatePicker 
+        defaultValue={moment(fechaCita? fechaCita: Date.now())}
         placeholder="Seleccionar fecha de cita"
         style={{ width: 300, marginBottom: '.5rem' }}
-        onChange={(e) => setFechaCita(e.utc().format('YYYY-MM-DD HH:mm'))} 
+        onChange={cambiarFecha} 
       />
       <TextArea 
         rows={4} 

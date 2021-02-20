@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { Modal, Table, Typography, Tooltip } from 'antd';
 import moment from 'moment';
 
-import { getOrdenes } from '../../../services/apiOrden';
-import { ordenes } from '../../../constants/metodos';
-import TagEstado from './TagEstado';
+import { getOrdenes } from '../../../../services/apiOrden';
+import { ordenes } from '../../../../constants/metodos';
+import TagEstado from '../TagEstado';
 
 const { Text } = Typography;
 
@@ -40,6 +40,24 @@ function ModalReiterada({abrir, visible, codigo_cliente}) {
       dataIndex: 'codigo_requerimiento',
       width: 120,
       render: (req) => <Text copyable>{req}</Text>
+    },
+    {
+      title: 'CTR',
+      dataIndex: 'codigo_ctr',
+      width: 70,
+    },
+    {
+      title: 'Descripcion CTR',
+      dataIndex: 'descripcion_ctr',
+      width: 180,
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (cliente) => (
+        <Tooltip placement="topLeft" title={cliente}>
+          {cliente}
+        </Tooltip>
+      )
     },
     {
       title: 'Cliente',

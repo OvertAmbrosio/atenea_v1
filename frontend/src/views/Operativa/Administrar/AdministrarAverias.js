@@ -11,6 +11,7 @@ import Contenedor from '../../../components/common/Contenedor';
 import ActualizarOrdenes from '../../../components/operativa/administrarOrdenes/ActualizarOrdenes';
 import OrdenesPendientes from '../../../components/operativa/administrarOrdenes/OrdenesPendientes';
 import OrdenesLiquidadas from '../../../components/operativa/administrarOrdenes/OrdenesLiquidadas';
+import OrdenesExternas from '../../../components/operativa/administrarOrdenes/OrdenesExternas';
 // import ActualizarInfanciasExternas from '../../../components/operativa/administrarOrdenes/ActualizarInfanciasExternas';
 
 
@@ -103,7 +104,7 @@ export default function AdministrarAverias() {
               }
               key="4"
             >
-              {/* ----------------------- */}
+              <OrdenesExternas tipo={tipoOrdenes.AVERIAS}/>
             </TabPane>
             <TabPane
               tab={

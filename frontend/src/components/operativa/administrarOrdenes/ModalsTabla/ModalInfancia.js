@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Modal, Table, Typography } from 'antd';
 import moment from 'moment';
 
-import TagEstado from './TagEstado';
+import TagEstado from '../TagEstado';
 
 const { Text } = Typography;
 
@@ -17,10 +17,15 @@ function ModalInfancia({visible, abrir, loading, orden}) {
       render: (u) => u ? <Text copyable>{u}</Text> : '-'
     },
     {
+      title: 'CTR',
+      dataIndex: 'codigo_ctr',
+      width: 80,
+    },
+    {
       title: 'Tecnico',
       dataIndex: 'tecnico_liquidado',
       width: 180,
-      render: (u) => u ? u.nombre + ' ' + u.apellidos : '-'
+      render: (u, row) => u ? u.nombre + ' ' + u.apellidos : row.carnet_liquidado ? row.carnet_liquidado : '-'
     },
     {
       title: 'Carnet',

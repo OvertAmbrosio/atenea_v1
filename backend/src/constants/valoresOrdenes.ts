@@ -4,4 +4,9 @@ export const bandejas = {
   PEX: 472
 };
 
-export const bandejasLiteyca = [bandejas.CRITICOS,bandejas.LITEYCA,bandejas.PEX]
+export const bandejasLiteyca = [bandejas.CRITICOS,bandejas.LITEYCA,bandejas.PEX];
+
+export const tiposLiquidacion = {
+  ANULADA: 'N',
+  LIQUIDADAS: 'Q'
+}

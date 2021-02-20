@@ -42,7 +42,7 @@ export const OrdenSchema = new Schema({
   codigo_ctr: {
     type: Number,
     trim: true,
-    default: '-'
+    default: null
   },
   descripcion_ctr: {
     type: String,
@@ -162,6 +162,7 @@ export const OrdenSchema = new Schema({
     estado_orden: {
       type: String,
       trim: true,
+      lowercase: true,
       default: '-'
     },
     contrata_modificado: {
@@ -232,6 +233,11 @@ export const OrdenSchema = new Schema({
     trim: true,
     default: '-',
   },
+  categoria_capacidad: {
+    type: String,
+    trim: true,
+    default: '-'
+  },
   fecha_cita: {
     type: Date,
     trim: true,
@@ -272,9 +278,17 @@ export const OrdenSchema = new Schema({
     type: Types.ObjectId,
     ref: 'Empleado',
   },
+  tecnico_liteyca: {
+    type: Types.ObjectId,
+    ref: 'Empleado'
+  },
   gestor: {
     type: Types.ObjectId,
     ref: 'Empleado',
+  },
+  gestor_liteyca: {
+    type: Types.ObjectId,
+    ref: 'Empleado'
   },
   auditor: {
     type: Types.ObjectId,

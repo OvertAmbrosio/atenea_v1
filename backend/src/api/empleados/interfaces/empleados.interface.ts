@@ -19,5 +19,6 @@ export interface IEmpleado extends Document {
   readonly fecha_baja: Date,
   readonly estado_empresa: string,
   readonly nacionalidad: string,
-  readonly observacion?: string
+  readonly observacion?: string,
+  readonly columnas?: string[],
 }

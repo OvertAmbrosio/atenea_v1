@@ -1,13 +1,13 @@
 const variables = {
   // 192.168.100.90
   //https://atenea-v2.herokuapp.com/
-  urlApi: 'http://localhost:5000/api',
+  urlApi: 'https://atenea-v2.herokuapp.com/api',
   public: 'https://atenea-v2.herokuapp.com/',
   socket: 'https://atenea-v2.herokuapp.com/',
   TOKEN_STORAGE_KEY: 'atenea.authToken',
   logoPath: '/icon.png',
   logoFull: '/iconL.png',
-  version: '0.0.18',
+  version: '0.0.24',
   formatosAdmitidos: ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
 };
 

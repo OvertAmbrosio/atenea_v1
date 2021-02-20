@@ -1,6 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
-import { RedisService } from 'src/database/redis.service';
+import { Controller, Get, Res } from '@nestjs/common';
+// import { Response } from 'express';
 
+import { RedisService } from 'src/database/redis.service';
 import { AppService } from './app.service';
 
 @Controller()
@@ -19,5 +20,6 @@ export class AppController {
   liberar(){
     this.redisService.reset();
     return ("todo borrado")
-  }
-}
+  };
+
+};

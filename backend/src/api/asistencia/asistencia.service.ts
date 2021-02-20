@@ -116,7 +116,7 @@ export class AsistenciaService {
       ]
     }).populate('auditor', 'nombre apellidos carnet estado_empresa').populate('gestor', 'nombre apellidos carnet estado_empresa').populate({
       path: 'tecnico',
-      select: 'nombre apellidos contrata gestor tipo_negocio sub_tipo_negocio estado_empresa',
+      select: 'nombre apellidos contrata gestor tipo_negocio sub_tipo_negocio estado_empresa numero_documento carnet',
       populate: [{
         path: 'contrata',
         select: 'nombre'

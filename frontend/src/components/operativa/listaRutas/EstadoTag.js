@@ -19,7 +19,7 @@ function EstadoTag({estado}) {
     case estadoAsistencia.DESCANSO_MEDICO:
       return (<Tag color="geekblue">{estado}</Tag>);
     case estadoAsistencia.EXAMEN_MEDICO:
-        return (<Tag color="purple">{estado}</Tag>);
+      return (<Tag color="purple">{estado}</Tag>);
     case estadoAsistencia.VACACIONES:
       return (<Tag color="pink">{estado}</Tag>);
     case estadoAsistencia.BAJA:

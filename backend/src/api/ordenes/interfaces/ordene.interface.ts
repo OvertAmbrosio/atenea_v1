@@ -2,7 +2,7 @@ import { Document } from 'mongoose';
 
 import { IContrata } from 'src/api/contratas/interfaces/contrata.interface';
 import { IEmpleado } from 'src/api/empleados/interfaces/empleados.interface';
-import { THistorial, TInfanciasExternas } from 'src/helpers/types';
+import { THistorial } from 'src/helpers/types';
 
 export interface IOrden extends Document {
   readonly tipo?: string,
@@ -29,7 +29,6 @@ export interface IOrden extends Document {
   readonly telefono_referencia?: string,
   readonly numero_reiterada?: string,
   readonly infancia?: IOrden['_id'],
-  readonly infancia_externa?: TInfanciasExternas,
   readonly tipo_tecnologia?: string,
   ///////////////////////////////////////
   readonly historial_registro?: THistorial[],
@@ -40,6 +39,7 @@ export interface IOrden extends Document {
   //datos de toa
   readonly bucket?: string,
   readonly subtipo_actividad?: string,
+  readonly categoria_capacidad?: string,
   readonly fecha_cita?: Date,
   readonly fecha_cancelado?: Date,
   readonly tipo_agenda?: string,
@@ -49,7 +49,9 @@ export interface IOrden extends Document {
   readonly observacion_toa?: string,
   //datos de asignacion
   readonly tecnico?: IEmpleado['_id'],
+  readonly tecnico_liteyca?: IEmpleado['_id'],
   readonly gestor?: IEmpleado['_id'],
+  readonly gestor_liteyca?: IEmpleado['_id'],
   readonly auditor?: IEmpleado['_id'],
   readonly contrata?: IContrata['_id'],
   readonly observacion_gestor?: string,

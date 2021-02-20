@@ -4,6 +4,7 @@ export const rutas = {
   login: "/login",
   indicadoresGpon: "/dashboard/indicadores-gpon",
   indicadoresHfc: "/dashboard/indicadores-hfc",
+  resumenTcfl: "/dashboard/resumen-tcfl",
   listaPersonal: "/lista-personal",
   listaContratas: "/lista-contratas",
   asignarRutas: "/lista-rutas/asignar-rutas",

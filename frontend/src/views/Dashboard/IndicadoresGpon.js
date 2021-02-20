@@ -11,7 +11,6 @@ import IndicadorDevoluciones from '../../components/dashboard/IndicadorDevolucio
 import { socket } from '../../services/socket';
 
 export default function Dashboard() {
-  // var socket = window.io(variables.socket, { transports: ['websocket'], secure: true, reconnection: true });
   const [averias, setAverias] = useState([]);
   const [altas, setAltas] = useState([]);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -47,24 +46,6 @@ export default function Dashboard() {
     };
     // eslint-disable-next-line
   },[]);
-
-  // useEffect(() => {
-  //   socket.on('connect', function() {
-  //     socket.on('ordenesGraficos', ({averias, altas}) => {
-  //       const jsonAverias = new Array(JSON.parse(averias));
-  //       const jsonAltas = new Array(JSON.parse(altas));
-  //       if(jsonAverias && jsonAverias[0] && jsonAverias[0].length > 0) setAverias(jsonAverias[0]);
-  //       if(jsonAltas && jsonAltas[0] && jsonAltas[0].length > 0) setAltas(jsonAltas[0]);
-  //     });
-  //     socket.emit('obtenerOrdenes')
-  //   });
-  //   socket.on('error', (e) => {
-  //     console.log(e);
-  //     cogoToast.error('Error conectando al servidor.', { position: 'top-left' })
-  //   })
-  //   return () => socket.close();
-  //   // eslint-disable-next-line
-  // },[]);
 
   useEffect(() => {
     if (autoScroll) {

@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Modal, Select, Input, Button } from 'antd';
 import estadoAsistencia from '../../../constants/estadoAsistencia';
 import { LoadingOutlined, SaveOutlined } from '@ant-design/icons';
+import cogoToast from 'cogo-toast';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -11,11 +12,18 @@ function ModalEditarAsistencia({visible, abrir, loadingActualizar, actualizar}) 
   const [estadoSeleccionado, setEstadoSeleccionado] = useState(null);
   const [observacion, setObservacion] = useState(null);
 
+
+  useEffect(() => {
+    setEstadoSeleccionado(null);
+    setObservacion(null);
+  },[]);
+
   async function guardar() {
     if (estadoSeleccionado !== null) {
       await actualizar(estadoSeleccionado, observacion);
-      abrir();
-    };
+    } else {
+      cogoToast.warn('No hay usuario seleccionado.', { position: 'top-right' })
+    }
   }
 
   return (

@@ -4,8 +4,8 @@ import { Modal, Table } from 'antd';
 import { EyeTwoTone } from '@ant-design/icons';
 import moment from 'moment';
 
-import TagEstado from './TagEstado';
-import { CargoTag } from '../../gestionEmpleados/personal/EmpleadoTag';
+import TagEstado from '../TagEstado';
+import { CargoTag } from '../../../gestionEmpleados/personal/EmpleadoTag';
 
 function ModalDetalle({visible, abrir, loading, registros}) {
   //Estados para la previsualización de las imagenes
