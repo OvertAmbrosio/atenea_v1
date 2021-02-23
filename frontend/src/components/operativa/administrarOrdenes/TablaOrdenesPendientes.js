@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Table } from 'antd';
 
 import columnasOrdenes from './columnas/columnasOrdenes'
-import { obtenerFiltroId, obtenerFiltroNombre } from '../../../libraries/obtenerFiltro';
+import { obtenerFiltroId, obtenerFiltroNombre, obtenerFiltroFecha } from '../../../libraries/obtenerFiltro';
 import ModalDetalleOrden from './ModalsTabla/ModalDetalleOrden';
 
 function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirRegistro, listarOrdenes }) {
@@ -19,9 +19,11 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
   const [filtroTecnologia, setFiltroTecnologia] = useState([]);
   const [filtroNodo, setFiltroNodo] = useState([]);
   const [filtroTroba, setFiltroTroba] = useState([]);
+  const [filtroPai, setFiltroPai] = useState([]);
   const [filtroCtr, setFiltroCtr] = useState([]);
   const [filtroObservacion, setFiltroObservacion] = useState([]);
   const [filtroTimeSlot, setFiltroTimeSlot] = useState([]);
+  const [filtroFechaCita, setFiltroFechaCita] = useState([]);
   const [idOrdenDetalle, setIdOrdenDetalle] = useState(null);
   const [modalDetalle, setModalDetalle] = useState(false);
 
@@ -47,8 +49,10 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
       obtenerFiltroNombre(dataSource, 'tipo_tecnologia').then((f) => setFiltroTecnologia(f));
       obtenerFiltroNombre(dataSource, 'codigo_nodo').then((f) => setFiltroNodo(f));
       obtenerFiltroNombre(dataSource, 'codigo_troba').then((f) => setFiltroTroba(f));
+      obtenerFiltroNombre(dataSource, 'indicador_pai').then((f) => setFiltroPai(f));
       obtenerFiltroNombre(dataSource, 'codigo_ctr').then((f) => setFiltroCtr(f));
       obtenerFiltroNombre(dataSource, 'observacion_gestor').then((f) => setFiltroObservacion(f));
+      obtenerFiltroFecha(dataSource, 'fecha_cita').then((f) => setFiltroFechaCita(f));
       obtenerFiltroNombre(dataSource, 'tipo_agenda').then((f) => setFiltroTimeSlot(f));
       obtenerFiltroId(dataSource, 'contrata').then((f) => setFiltroContrata(f));
       obtenerFiltroId(dataSource, 'gestor_liteyca', true).then((f) => setFiltroGestorAsignado(f));
@@ -86,9 +90,11 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
           filtroTecnologia,
           filtroNodo,
           filtroTroba,
+          filtroPai,
           filtroCtr,
           filtroTimeSlot,
           filtroObservacion,
+          filtroFechaCita,
           abrirReiterada, 
           abrirInfancia,
           abrirRegistro,

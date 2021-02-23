@@ -16,7 +16,7 @@ import { estado_gestor, tipos_orden } from 'src/constants/enum';
 
 import { OrdenesGateway } from './ordenes.gateway';
 import { UpdateDataService } from '@localLibs/update-data'
-import { bandejas, bandejasLiteyca, tiposLiquidacion } from 'src/constants/valoresOrdenes';
+import { bandejas, bandejasLiteyca, nodosLiteyca, tiposLiquidacion } from 'src/constants/valoresOrdenes';
 
 @Injectable()
 export class OrdenesService {
@@ -43,6 +43,34 @@ export class OrdenesService {
       }, 120000);
     // }).catch((err) => console.log(err));
   };
+
+  cambiarBandeja(antiguoCtr:number, nuevoCtr:number):{observacion:string, estado:string, service:string} {
+    if (Number(nuevoCtr) === Number(bandejas.PEX)) {
+      return ({ 
+        observacion: 'Orden movida a planta externa.', 
+        estado: estado_gestor.PEXT, 
+        service: "subirData(servicio - o.codigo_ctr === bandejas.PEX)"
+      })
+    } else if (Number(nuevoCtr) === Number(bandejas.LITEYCA)) {
+      return ({ 
+        observacion: `Orden retorna a la bandeja Liteyca (${antiguoCtr} > ${nuevoCtr}).`, 
+        estado: estado_gestor.PENDIENTE, 
+        service: 'subirData(servicio - o.codigo_ctr === bandejas.LITEYCA)'
+      })
+    } else if (Number(nuevoCtr) === Number(bandejas.CRITICOS)) {
+      return ({ 
+        observacion: 'Orden movida a la bandeja criticos.', 
+        estado: null, 
+        service: 'subirData(servicio - o.codigo_ctr === bandejas.CRITICOS)'
+      })
+    } else {
+      return ({ 
+        observacion: `Orden movida a una bandeja externa (${antiguoCtr} > ${nuevoCtr}).`,
+        estado: null, 
+        service: 'subirData(servicio - bandeja externa)'
+      })
+    }
+  };
   //capturar la data del excel, validar si es alta o averia
   //AVERIA---
   //buscar la orden en la base de datos
@@ -64,78 +92,37 @@ export class OrdenesService {
     let errores = 0;
     const grupo_entrada = Date.now();
     return await Promise.all(createOrdenesDto.map(async(o) => {
+      const ordenBase:IOrden = await this.ordenModel.findOne({ codigo_requerimiento: String(o.codigo_requerimiento) }).select('codigo_ctr')
       if (o.tipo === tipos_orden.AVERIAS) {
-        const ordenBase:IOrden = await this.ordenModel.findOne({ codigo_requerimiento: String(o.codigo_requerimiento) }).select('codigo_ctr')
         if (ordenBase) {
           if (Number(ordenBase.codigo_ctr) !== Number(o.codigo_ctr)) {
-            if (Number(o.codigo_ctr) === Number(bandejas.PEX)) {
-              const registro:THistorial = {
-                observacion: 'Orden movida a planta externa.',
-                usuario_entrada: usuario,
-                fecha_entrada: new Date(),
-                estado_orden: estado_gestor.PEXT,
-                codigo_ctr: o.codigo_ctr
-              };
-              return await this.ordenModel.findOneAndUpdate({ codigo_requerimiento: o.codigo_requerimiento}, {
-                $set: { estado_gestor: estado_gestor.PEXT,  codigo_ctr: o.codigo_ctr,  descripcion_ctr: o.descripcion_ctr },
-                $push: { historial_registro: registro }
-              }).then(() => actualizados = actualizados +1).catch((e) => {
-                errores = errores +1;
-                this.logger.error({ message: e, service: 'subirData(servicio - o.codigo_ctr === bandejas.PEX)' })
-                return;
-              })
-            } else if (Number(o.codigo_ctr) === Number(bandejas.CRITICOS)) {
-              const registro:THistorial = {
-                observacion: 'Orden movida a la bandeja criticos.',
-                usuario_entrada: usuario,
-                fecha_entrada: new Date(),
-                codigo_ctr: o.codigo_ctr
-              };
-              return await this.ordenModel.findOneAndUpdate({ codigo_requerimiento: o.codigo_requerimiento}, {
-                $set: { codigo_ctr: o.codigo_ctr,  descripcion_ctr: o.descripcion_ctr },
-                $push: { historial_registro: registro }
-              }).then(() => actualizados = actualizados +1).catch((e) => {
-                errores = errores +1;
-                this.logger.error({ message: e, service: 'subirData(servicio - o.codigo_ctr === bandejas.CRITICOS)' })
-                return;
-              });
-            } else if (Number(o.codigo_ctr) === Number(bandejas.LITEYCA)) {
-              const registro:THistorial = {
-                observacion: `Orden retorna a la bandeja Liteyca (${ordenBase.codigo_ctr} > ${o.codigo_ctr}).`,
-                estado_orden: estado_gestor.PENDIENTE,
-                usuario_entrada: usuario,
-                fecha_entrada: new Date(),
-                codigo_ctr: o.codigo_ctr
-              };
-              return await this.ordenModel.findOneAndUpdate({ codigo_requerimiento: o.codigo_requerimiento}, {
-                $set: { codigo_ctr: o.codigo_ctr,  descripcion_ctr: o.descripcion_ctr, estado_gestor: estado_gestor.PENDIENTE },
-                $push: { historial_registro: registro }
-              }).then(() => actualizados = actualizados +1).catch((e) => {
-                errores = errores +1;
-                this.logger.error({ message: e, service: 'subirData(servicio - o.codigo_ctr === bandejas.LITEYCA)' })
-                return;
-              });
-            } else {
-              const registro:THistorial = {
-                observacion: `Orden movida a una bandeja externa (${ordenBase.codigo_ctr} > ${o.codigo_ctr}).`,
-                usuario_entrada: usuario,
-                fecha_entrada: new Date(),
-                codigo_ctr: Number(o.codigo_ctr)
-              };
-              return await this.ordenModel.findOneAndUpdate({ codigo_requerimiento: o.codigo_requerimiento}, {
-                $set: { codigo_ctr: o.codigo_ctr,  descripcion_ctr: o.descripcion_ctr },
-                $push: { historial_registro: registro }
-              }).then(() => actualizados = actualizados +1).catch((e) => {
-                errores = errores +1;
-                console.log(e);
-                this.logger.error({ message: e, service: 'subirData(servicio - bandeja externa)' })
-                return;
-              });
+            let cambioResponse = this.cambiarBandeja(ordenBase.codigo_ctr, o.codigo_ctr );
+            const historial_registro:THistorial = {
+              observacion: cambioResponse.observacion,
+              usuario_entrada: usuario,
+              fecha_entrada: new Date(),
+              codigo_ctr: o.codigo_ctr
+            };
+
+            let objUpdate:any = {
+              codigo_ctr: o.codigo_ctr,
+              descripcion_ctr: o.descripcion_ctr,
+              fecha_liquidado: null,
             }
-          } else {
-            duplicados = duplicados + 1
-            return;
-          }
+
+            if (cambioResponse.estado) {
+              historial_registro.estado_orden = cambioResponse.estado;
+              objUpdate['estado_gestor'] = cambioResponse.estado;
+            }
+            if (ordenBase.codigo_nodo !== o.codigo_nodo) objUpdate['codigo_nodo'] = o.codigo_nodo;
+
+            return await this.ordenModel.findOneAndUpdate({ _id: ordenBase._id}, {  $set: objUpdate, $push: { historial_registro }
+            }).then(() => actualizados = actualizados +1).catch((e:any) => {
+              errores = errores +1;
+              this.logger.error({ message: e, service: cambioResponse.service })
+              return;
+            })
+          } else { duplicados = duplicados + 1; return;}
         } else {
           const fechaInicio = DateTime.fromJSDate(new Date(o.fecha_registro)).plus({month: -1});
           const fechaBusqueda = new Date(Date.UTC(fechaInicio.get('year'), fechaInicio.get('month')-1, fechaInicio.get('day'), 0, 0, 0));
@@ -159,22 +146,28 @@ export class OrdenesService {
               grupo_entrada,
               codigo_ctr: o.codigo_ctr
             }]
-          }).save().then(() => nuevos = nuevos + 1).catch((e) => {
+          }).save().then((e) => {
+            if (bandejasLiteyca.includes(e.codigo_ctr)) nuevos = nuevos + 1
+          }).catch((e) => {
             errores = errores +1
             this.logger.error({ message: e, service: 'subirData(servicio - else)' })
             return;
           })
         };
       } else if (o.tipo === tipos_orden.ALTAS){
-        const ordenBase:IOrden = await this.ordenModel.findOne({ codigo_requerimiento: String(o.codigo_requerimiento) }).select('codigo_ctr');
         if (ordenBase) {
-          if (o.codigo_trabajo || o.codigo_peticion) {
-            let objUpdate = {};
-            if (o.codigo_trabajo) objUpdate['codigo_trabajo'] = o.codigo_trabajo;
-            if (o.codigo_peticion) objUpdate['codigo_peticion'] = o.codigo_peticion;
+          let objUpdate = {
+            fecha_liquidado: null
+          };
 
-            await this.ordenModel.findByIdAndUpdate({ _id: ordenBase._id }, objUpdate)
-          }
+          if (o.codigo_trabajo && String(o.codigo_trabajo).length > 1) objUpdate['codigo_trabajo'] = o.codigo_trabajo;
+          if (o.codigo_peticion && String(o.codigo_peticion).length > 1) objUpdate['codigo_peticion'] = o.codigo_peticion;
+          if (o.indicador_pai) objUpdate['indicador_pai'] = o.indicador_pai;
+          if (o.codigo_ctr && o.codigo_ctr !== ordenBase.codigo_ctr) objUpdate['codigo_ctr'] = o.codigo_ctr;
+          if (o.codigo_nodo && o.codigo_nodo !== ordenBase.codigo_nodo) objUpdate['codigo_nodo'] = o.codigo_nodo;
+          if (o.tipo_tecnologia) objUpdate['tipo_tecnologia'] = o.tipo_tecnologia;
+
+          await this.ordenModel.findByIdAndUpdate({ _id: ordenBase._id }, { $set: objUpdate });
           duplicados = duplicados +1;
           return;
         } else {
@@ -186,7 +179,11 @@ export class OrdenesService {
               observacion: 'Ordenes exportadas desde cms.',
               grupo_entrada,
             }],
-          }).save().then(() => nuevos = nuevos + 1).catch((e) => {
+          }).save().then((e) => {
+            if ( bandejasLiteyca.includes(e.codigo_ctr)) {
+              nuevos = nuevos + 1
+            }
+          }).catch((e) => {
             errores = errores + 1
             this.logger.error({ message: e, service: 'subirData(servicio - o.tipo === tipos_orden.ALTAS)' })
             return;
@@ -250,7 +247,7 @@ export class OrdenesService {
             usuario_entrada: usuario,
             estado_orden: estadoXTipoLiquidacion,
             empleado_modificado: ordenUpdate.tecnico_liquidado,
-            observacion: 'Orden liquidada desde la data exportada de cms.',
+            observacion: ordenUpdate.observacion_liquidado ? ordenUpdate.observacion_liquidado : 'Orden liquidada desde la data exportada de cms.',
             codigo_ctr: ordenUpdate.codigo_ctr
           };
           return await this.ordenModel.findOneAndUpdate({ 
@@ -392,17 +389,21 @@ export class OrdenesService {
             if (o.nombre_cliente && String(o.nombre_cliente).length > 1) objUpdate['nombre_cliente'] = o.nombre_cliente;
 
           } else {
-            if (o.tipo_agenda && String(o.tipo_agenda).length > 4) objUpdate['tipo_agenda'] = o.tipo_agenda;
-            if (o.subtipo_actividad && String(o.subtipo_actividad).length > 4) objUpdate['subtipo_actividad'] = o.subtipo_actividad;
             if (o.observacion_toa && String(o.observacion_toa).length > 1) objUpdate['observacion_toa'] = o.observacion_toa;
             if (o.estado_toa && String(o.estado_toa).length > 1) objUpdate['estado_toa'] = o.estado_toa;
+            if (o.estado_indicador_toa && String(o.estado_indicador_toa).length > 1) objUpdate['estado_indicador_toa'] = o.estado_indicador_toa;
+            if (o.subtipo_actividad && String(o.subtipo_actividad).length > 4) objUpdate['subtipo_actividad'] = o.subtipo_actividad;
+            if (o.tipo_agenda && String(o.tipo_agenda).length > 4) objUpdate['tipo_agenda'] = o.tipo_agenda;
+            if (o.motivo_no_realizado && String(o.motivo_no_realizado).length > 4) objUpdate['motivo_no_realizado'] = o.motivo_no_realizado;
+            if (o.sla_inicio && String(o.sla_inicio).length > 4) objUpdate['sla_inicio'] = o.sla_inicio;
+            if (o.sla_fin && String(o.sla_fin).length > 4) objUpdate['sla_fin'] = o.sla_fin;
             if (o.bucket && String(o.bucket).length > 3) objUpdate['bucket'] = o.bucket;
             if (o.fecha_cita && String(o.fecha_cita).length > 3) objUpdate['fecha_cita'] = new Date(String(o.fecha_cita).trim());
             if (o.direccion && String(o.direccion).length > 1) objUpdate['direccion'] = o.direccion;
             if (o.nombre_cliente && String(o.nombre_cliente).length > 1) objUpdate['nombre_cliente'] = o.nombre_cliente;
           };
 
-          return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, objUpdate);
+          return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, { $set: objUpdate });
 
         }));  
       };
@@ -429,6 +430,7 @@ export class OrdenesService {
         codigo_trabajo: 1,
         codigo_peticion: 1,
         codigo_cliente: 1,
+        indicador_pai: 1,
         distrito: 1,
         bucket: 1,
         tipo_requerimiento: 1,
@@ -528,6 +530,7 @@ export class OrdenesService {
           {fecha_liquidado: null}
         ]},
         { codigo_ctr: { $nin: bandejasLiteyca } },
+        { codigo_nodo: { $in: nodosLiteyca } },
         { tipo },
       ]
     }).select({
@@ -565,6 +568,7 @@ export class OrdenesService {
           {fecha_liquidado: null}
         ]},
         { estado_gestor: estado_gestor.ANULADO },
+        { codigo_nodo: { $in: nodosLiteyca } },
         { tipo },
       ]
     }).populate('contrata gestor tecnico tecnico_liquidado', 'nombre apellidos carnet').select({
@@ -623,6 +627,7 @@ export class OrdenesService {
         codigo_cliente: 1,
         codigo_trabajo: 1,
         codigo_peticion: 1,
+        indicador_pai: 1,
         direccion: 1,
         nombre_cliente: 1,
         tipo_requerimiento: 1,

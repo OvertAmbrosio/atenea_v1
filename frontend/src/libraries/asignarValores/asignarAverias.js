@@ -2,15 +2,13 @@ import { numeroFecha } from '../numeroFecha';
 import isEmpty from 'is-empty';
 
 import { averias, averiasDireccion, hfcLiquidadas, codigosLiquidadasEfectivas, codigosLiquidadasInefectivas, codigosLiquidadasNoCorresponde } from '../../constants/valoresOrdenes';
-import { nodosLiteyca, tipoOrdenes } from '../../constants/tipoOrden';
+import { tipoOrdenes } from '../../constants/tipoOrden';
 
 // const codctrArray = ["470","476"] ;
 
 export async function pendientesAverias(ordenes=[]){
   // eslint-disable-next-line
-  const promises = ordenes
-    .filter((e) => nodosLiteyca.includes(String(e['codnod'])))
-    .map(function(orden, indice){
+  const promises = ordenes.map(function(orden, indice){
       
     let verificado = true;
     let direccion = '';
@@ -59,9 +57,7 @@ export async function pendientesAverias(ordenes=[]){
 };
 
 export async function liquidadasAverias(ordenes=[], tecnicos=[]){
-  const promises = ordenes
-  .filter((e) => nodosLiteyca.includes(String(e['codnod'])))
-  .map((orden, indice) => {
+  const promises = ordenes.map((orden, indice) => {
 
     let verificado = true;
     let tecnico = null;

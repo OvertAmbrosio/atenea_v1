@@ -99,7 +99,7 @@ export const restPrivate = async (config, toast) => {
         Cookie.remove(variables.TOKEN_STORAGE_KEY);
         document.location.href="/login";
       } else {
-        cogoToast.warn( errData.message !== undefined ? errData.message : 'Error en la solicitud.',
+        cogoToast.warn( errData.message !== 'undefined' ? errData.message : 'Error en la solicitud.',
         { position: 'top-right'})
       }
       return {

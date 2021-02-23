@@ -26,9 +26,11 @@ export default function columnasOrdenes(
   filtroTecnologia=[],
   filtroNodo=[],
   filtroTroba=[],
+  filtroPai=[],
   filtroCtr=[],
   filtroTimeSlot=[],
   filtroObservacion=[],
+  filtroFechaCita=[],
   abrirReiterada,
   abrirInfancia,
   abrirDetalle,
@@ -92,6 +94,16 @@ export default function columnasOrdenes(
       width: 120,
       filters: filtroTecnologia ? filtroTecnologia : [],
       onFilter: (v,r) => r.tipo_tecnologia.indexOf(v) === 0,
+    },
+    {
+      averias: false,
+      altas: true,
+      title: 'PAI',
+      dataIndex: 'indicador_pai',
+      width: 60,
+      aling: 'center',
+      filters: filtroPai ? filtroPai : [],
+      onFilter: (v,r) => String(r.indicador_pai).indexOf(String(v)) === 0,
     },
     {
       averias: true,
@@ -383,6 +395,17 @@ export default function columnasOrdenes(
       title: 'Fecha Cita',
       dataIndex: 'fecha_cita',
       width: 150,
+      align: 'center',
+      filters: filtroFechaCita ? filtroFechaCita : [],
+      onFilter: (v,r) => {
+        if (v === '-') {
+          return !r.fecha_cita
+        } else if(r.fecha_cita) {
+          return moment(r.fecha_cita).format('DD/MM/YY').toString().indexOf(String(v)) === 0;
+        } else {
+          return false
+        }
+      },
       render: (fecha) => {
         if (fecha) {
           return moment(fecha).format('DD/MM/YY');
@@ -430,7 +453,7 @@ export default function columnasOrdenes(
       filters: filtroTimeSlot ? filtroTimeSlot.filter((e) => e.text) : [],
       onFilter: (v,r) => {
         if (r.tipo_agenda && v ) {
-          return  r.tipo_agenda.indexOf(v) === 0;
+          return r.tipo_agenda.indexOf(v) === 0;
         } else {
           return false;
         }

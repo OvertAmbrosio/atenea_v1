@@ -23,6 +23,7 @@ function ExcelAsistencia({ data=[], dias=[], nombre }) {
       rows.forEach((row) => {
         if (row.type === 'data') {
           row.cells.forEach((cell) => {
+            cell.value = cell.value ? String(cell.value).toUpperCase() : cell.value;
             cell.background = colorCelda(cell.value).background;
             cell.color = colorCelda(cell.value).color;
             cell.borderBottom = { size: 1 }; 

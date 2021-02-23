@@ -1,4 +1,5 @@
 export const empleados = {
+  PERFIL_USUARIO: 'perfilUsuario',
   LISTA_TODO: 'listaTodo',
   LISTA_TECNICOS_GLOBAL: 'listaTecnicosGlobal',
   LISTA_TECNICOS_GESTOR: 'listaTecnicosGestor',
@@ -14,7 +15,8 @@ export const empleados = {
   ACTUALIZAR_AUDITOR: 'actualizarAuditor',
   ACTUALIZAR_NEGOCIO: 'actualizarNegocio',
   ACTUALIZAR_SUB_NEGOCIO: 'actualizarSubNegocio',
-  ACTUALIZAR_COLUMNAS_GESTOR: 'actualizarColumnasGestor'
+  ACTUALIZAR_COLUMNAS_GESTOR: 'actualizarColumnasGestor',
+  ACTUALIZAR_CONTRASEÑA: 'actualizarContraseña'
 };
 
 export const contratas = {

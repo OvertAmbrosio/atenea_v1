@@ -70,7 +70,7 @@ type TImagenRegistro = {
 
 export type THistorial = {
   readonly fecha_entrada?: Date,
-  readonly estado_orden?: string,
+  estado_orden?: string,
   readonly contrata_modificado?: IContrata['_id'],
   readonly empleado_modificado?: IEmpleado['_id'],
   readonly usuario_entrada: IEmpleado['_id'],

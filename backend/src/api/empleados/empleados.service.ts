@@ -34,6 +34,10 @@ export class EmpleadosService {
       }
     })
   };
+  
+  async perfilUsuario(id:string):Promise<IEmpleado> {
+    return await this.empleadoModel.findById(id).select('nombre apellidos fecha_nacimiento tipo_documento numero_documento nacionalidad usuario.email usuario.imagen')
+  };
   //tabla de lista de personal para la tabla
   async listarPersonal(usuario:TPayload, page:number, limit:number) {
     //declarar opciones de la consulta
@@ -178,6 +182,26 @@ export class EmpleadosService {
     };
   };
 
+  async cambiarContraseña(id:string, password:string, newPassword1:string, newPassword2:string) {
+
+    if (newPassword1 !== newPassword2) throw new HttpException('Las contraseñas no coinciden.', HttpStatus.INTERNAL_SERVER_ERROR);
+
+    const empleado:IEmpleado = await this.empleadoModel.findById(id);
+
+    if (empleado) {      
+      const isMatch = await bcrypt.compare(password, empleado.usuario.password);
+      if (isMatch) {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(newPassword1, salt);
+        return await this.empleadoModel.findByIdAndUpdate(id, { "usuario.password": hash })
+      } else {
+        throw new HttpException('Contraseña incorrecta.', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    } else {
+      throw new HttpException('Usuario no encontrado.', HttpStatus.INTERNAL_SERVER_ERROR);
+    };
+  };
+
   async crearEmpleado(createEmpleadoDto: CreateEmpleadoDto):Promise<IEmpleado> {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash('12345678', salt);
@@ -198,45 +222,30 @@ export class EmpleadosService {
 
   async actualizarEmpleado(id: string, cargoUsuario: number, updateEmpleadoDto: UpdateEmpleadoDto) {
     const empleado = await this.empleadoModel.findById(id).select('usuario.cargo');
-    console.log(updateEmpleadoDto);
+    
+    let objUpdate = {};
+
+    if (updateEmpleadoDto.nombre) objUpdate["nombre"] = updateEmpleadoDto.nombre;
+    if (updateEmpleadoDto.apellidos) objUpdate["apellidos"] = updateEmpleadoDto.apellidos;
+    if (updateEmpleadoDto.carnet) objUpdate["carnet"] = updateEmpleadoDto.carnet;
+    if (updateEmpleadoDto.contrata) objUpdate["contrata"] = updateEmpleadoDto.contrata;
+    if (updateEmpleadoDto.tipo_documento) objUpdate["tipo_documento"] = updateEmpleadoDto.tipo_documento;
+    if (updateEmpleadoDto.numero_documento) objUpdate["numero_documento"] = updateEmpleadoDto.numero_documento;
+    if (updateEmpleadoDto.fecha_nacimiento) objUpdate["fecha_nacimiento"] = updateEmpleadoDto.fecha_nacimiento;
+    if (updateEmpleadoDto.usuario.email) objUpdate["usuario.email"] = updateEmpleadoDto.usuario.email;
+    if (updateEmpleadoDto.usuario.cargo) objUpdate["usuario.cargo"] = updateEmpleadoDto.usuario.cargo;
+    if (updateEmpleadoDto.usuario.imagen) objUpdate["usuario.imagen"] = updateEmpleadoDto.usuario.imagen;
     
     //validar que el usuario a actualizar no es uno de los jefes o administrador
-    if (empleado && empleado.usuario.cargo > cargoUsuario) {
+    if (empleado && empleado.usuario.cargo >= cargoUsuario) {
       if (empleado.usuario.cargo === tipos_usuario.GESTOR || updateEmpleadoDto.usuario.cargo === tipos_usuario.GESTOR) {
         return await this.redisService.remove(cache_keys.GESTORES)
-          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: {
-            nombre: updateEmpleadoDto.nombre,
-            apellidos: updateEmpleadoDto.apellidos,
-            carnet: updateEmpleadoDto.carnet,
-            contrata: updateEmpleadoDto.contrata,
-            tipo_documento: updateEmpleadoDto.tipo_documento,
-            numero_documento: updateEmpleadoDto.numero_documento,
-            "usuario.email": updateEmpleadoDto.usuario.email,
-            "usuario.cargo": updateEmpleadoDto.usuario.cargo
-          } }));
+          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: objUpdate }));
       } else if (empleado.usuario.cargo === tipos_usuario.TECNICO || updateEmpleadoDto.usuario.cargo === tipos_usuario.TECNICO) {
         return await this.redisService.remove(cache_keys.TECNICOS_GLOBAL)
-          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: {
-            nombre: updateEmpleadoDto.nombre,
-            apellidos: updateEmpleadoDto.apellidos,
-            carnet: updateEmpleadoDto.carnet,
-            contrata: updateEmpleadoDto.contrata,
-            tipo_documento: updateEmpleadoDto.tipo_documento,
-            numero_documento: updateEmpleadoDto.numero_documento,
-            "usuario.email": updateEmpleadoDto.usuario.email,
-            "usuario.cargo": updateEmpleadoDto.usuario.cargo
-          } }));
+          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: objUpdate }));
       } else {
-        return await this.empleadoModel.findByIdAndUpdate(id, { $set: {
-          nombre: updateEmpleadoDto.nombre,
-          apellidos: updateEmpleadoDto.apellidos,
-          carnet: updateEmpleadoDto.carnet,
-          contrata: updateEmpleadoDto.contrata,
-          tipo_documento: updateEmpleadoDto.tipo_documento,
-          numero_documento: updateEmpleadoDto.numero_documento,
-          "usuario.email": updateEmpleadoDto.usuario.email,
-          "usuario.cargo": updateEmpleadoDto.usuario.cargo
-        } });
+        return await this.empleadoModel.findByIdAndUpdate(id, { $set: objUpdate });
       };
     } else {
       throw new HttpException({

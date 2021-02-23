@@ -1,3 +1,5 @@
+import moment from "moment";
+
 /**
  * @param {array} data 
  * @param {string} field 
@@ -57,6 +59,34 @@ export async function obtenerFiltroNombre(data=[], field) {
           };
         });
   
+        return resolve(filtrosArray);
+      } catch (error) {
+        return reject(error);
+      }
+    }
+  })
+};
+
+export async function obtenerFiltroFecha(data=[], field) {
+  return new Promise((resolve, reject) => {
+    if (data.length === 0) {
+      return resolve([]);
+    } else {
+      let filtrosArray = [];
+
+      try {
+        data.forEach((e) => {
+          if (e[field] !== undefined && e[field] !== null) {
+            const i = filtrosArray.findIndex(c => c.value === moment(e[field]).format('DD/MM/YY'))
+            if (i === -1) {
+              filtrosArray.push({
+                text: moment(e[field]).format('DD/MM/YY'),
+                value: moment(e[field]).format('DD/MM/YY')
+              })
+            } 
+          };
+        });
+        filtrosArray.push({text: '-', value: '-'})
         return resolve(filtrosArray);
       } catch (error) {
         return reject(error);

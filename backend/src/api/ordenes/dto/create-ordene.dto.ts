@@ -28,14 +28,4 @@ export class CreateOrdeneDto {
   readonly tipo_tecnologia?: string;
   ///////////////////////////////////////
   readonly historial_registro: THistorial[];
-  //datos de liquidacion
-  readonly estado_liquidado?: string;
-  readonly tecnico_liquidado?: IEmpleado['_id'];
-  readonly carnet_liquidado?: string;
-  readonly nombre_liquidado?: string;
-  readonly fecha_liquidado?: Date;
-  readonly tipo_averia?: string;
-  readonly codigo_usuario_liquidado?: string;
-  readonly observacion_liquidado?: string;
-  readonly descripcion_codigo_liquidado?: string;
 }

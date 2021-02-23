@@ -8,6 +8,7 @@ import Cookie from "js-cookie";
 import variables from '../../../constants/config';
 import { AuthToken } from '../../../services/authToken';
 import { logout } from '../../../services/apiUsuario';
+import { rutas } from '../../../constants/listaRutas';
 
 export default function OpcionesUsuario() { 
   const [usuario, setUsuario] = useState(null);
@@ -47,7 +48,7 @@ export default function OpcionesUsuario() {
       >
         <Menu.Item key="Configuraciones">
           <Typography.Text type="sucess">
-            <Link to='/atenea-system/perfil-usuario'>
+            <Link to={rutas.perfilUsuario}>
               <SettingOutlined />
               Configuraciones
             </Link>

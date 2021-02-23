@@ -25,7 +25,21 @@ export class EmpleadosController {
   @Get()
   async findAll(@Query() params: TPaginateParams, @Req() req: Request): Promise<TRespuesta> {
     const usuario:TPayload|any = req.user;
-    if (params.metodo === 'listaTodo') {
+    if (params.metodo === 'perfilUsuario') {
+      return await this.empleadosService.perfilUsuario(usuario.id).then((data) => {
+        return ({
+          status: 'success',
+          message: 'Perfil obtenido correctamente.',
+          data: data
+        });
+      }).catch((error) => {
+        this.logger.error({
+          message: error.message,
+          service: 'listaTodo(perfilUsuario)'
+        })
+        return ({status: 'error', message: error.message})
+      }); 
+    } else if (params.metodo === 'listaTodo') {
       return await this.empleadosService.listarPersonal(usuario, params.page, params.limit).then((data) => {
         return ({
           status: 'success',
@@ -189,6 +203,9 @@ export class EmpleadosController {
     @Body('negocio') negocio: string,
     @Body('subNegocio') subNegocio: string,
     @Body('tecnicos') tecnicos: string[],
+    @Body('password') password: string,
+    @Body('newPassword1') newPassword1: string,
+    @Body('newPassword2') newPassword2: string,
     @Body('columnas') columnas: string[],
     @Req() req: Request 
   ): Promise<TRespuesta> {
@@ -317,6 +334,13 @@ export class EmpleadosController {
       }).catch((error) => {
         this.logger.error({message: error.message, service: 'actualizarColumnasGestor'});
         return ({status: 'error', message: 'Error guardando la configuración del usuario.'})
+      });
+    } else if (metodo === 'actualizarContraseña') {
+      return await this.empleadosService.cambiarContraseña(id, password, newPassword1, newPassword2).then(() => {
+        return ({status: 'success', message: 'Contraseña actualizada correctamente.'})
+      }).catch((error) => {
+        this.logger.error({message: error.message, service: 'actualizarContraseña'});
+        return ({status: 'error', message: error.message})
       });
     } else {
       throw new HttpException({status: 'error', message: 'Metodo incorrecto.'}, HttpStatus.FORBIDDEN);

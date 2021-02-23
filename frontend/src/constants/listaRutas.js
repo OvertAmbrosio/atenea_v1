@@ -2,6 +2,7 @@ import cargos from './cargos';
 
 export const rutas = {
   login: "/login",
+  perfilUsuario: "/perfil-usuario",
   indicadoresGpon: "/dashboard/indicadores-gpon",
   indicadoresHfc: "/dashboard/indicadores-hfc",
   resumenTcfl: "/dashboard/resumen-tcfl",
