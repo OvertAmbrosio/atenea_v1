@@ -96,8 +96,8 @@ export default function GestionarAsistencia() {
       }).then((resultado) => {
         if (resultado && resultado.length > 0) {
           setDataAsistencias(resultado);
-          obtenerFiltroId(resultado, 'gestor', true).then((f) => setFiltroGestores(f));
-          obtenerFiltroId(resultado, 'auditor', true).then((f) => setFiltroAuditores(f));
+          setFiltroGestores(obtenerFiltroId(resultado, 'gestor', true));
+          setFiltroAuditores( obtenerFiltroId(resultado, 'auditor', true));
         }
       }).catch((err) => console.log(err)).finally(() => setLoadingAsistencia(false));
     };

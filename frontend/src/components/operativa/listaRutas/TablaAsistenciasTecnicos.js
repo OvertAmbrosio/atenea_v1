@@ -64,9 +64,9 @@ export default function TablaAsistenciasTecnicos() {
       }).then((resultado) => {
         if (resultado && resultado.length > 0) {
           setDataAsistencias(resultado);
-          obtenerFiltroId(resultado, 'gestor', true).then((f) => setFiltroGestores(f));
-          obtenerFiltroId(resultado, 'auditor', true).then((f) => setFiltroAuditores(f));
-          obtenerFiltroId(resultado, 'contrata', true).then((f) => setFiltroContrata(f));
+          setFiltroGestores(obtenerFiltroId(resultado, 'gestor', true));
+          setFiltroAuditores(obtenerFiltroId(resultado, 'auditor', true));
+          setFiltroContrata(obtenerFiltroId(resultado, 'contrata', true));
           setRutasAverias(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.tipo_negocio === 'averias' && ['hfc','gpon'].includes(e.sub_tipo_negocio))));
           setRutasAltas(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.tipo_negocio === 'altas' && ['hfc','gpon'].includes(e.sub_tipo_negocio))));
           setRutasGpon(rutasAtivas(resultado.filter((e) => e.estado_empresa === estadoEmpleado.ACTIVO && e.sub_tipo_negocio === 'gpon' && e.tipo_negocio === 'altas')))
@@ -144,10 +144,13 @@ export default function TablaAsistenciasTecnicos() {
       </div>
     ),
     filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-    onFilter: (value, record) =>
-      record[dataIndex]
+    onFilter: (value, record) => {
+      console.log(value);
+      return ( record[dataIndex]
         ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
+        : '')
+    }
+     ,
     onFilterDropdownVisibleChange: visible => {
       if (visible) {
         setTimeout(() => inputBusqueda.select(), 100);

@@ -47,9 +47,9 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
     setLoadingTecnicos(true);
     await getEmpleados(true, { metodo: empleados.LISTA_TECNICOS_GLOBAL }).then(async({data}) => {
         if (data) {
-          obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f))
-          obtenerFiltroId(data, 'gestor', true).then((f) => setFiltroGestor(f))
-          obtenerFiltroId(data, 'auditor', true).then((f) => setFiltroAuditor(f))
+          setFiltroContrata(obtenerFiltroId(data, 'contrata'));
+          setFiltroGestor(obtenerFiltroId(data, 'gestor', true));
+          setFiltroAuditor(obtenerFiltroId(data, 'auditor', true));
           setDataTecnicos(data);
         }
       }).catch((error) => console.log(error)).finally(() => setLoadingTecnicos(false));

@@ -206,7 +206,11 @@ export class OrdenesService {
   async comprobarInfancias() {
     return await this.ordenModel.find({
       $and: [
-        { fecha_liquidado: null },
+        { $or: [
+          { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
+          { fecha_liquidado: null },
+        ] },
+        { codigo_ctr: { $in: bandejasLiteyca } },
         { tipo: tipos_orden.AVERIAS }
       ]
     }).select('fecha_registro codigo_cliente').then(async(ordenes:IOrden[]) => {
@@ -449,7 +453,10 @@ export class OrdenesService {
   async obtenerOrdenesPendientes(tipo: string) {
     return await this.ordenModel.find({
       $and: [
-        { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
+        { $or: [
+          { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
+          { fecha_liquidado: null },
+        ] },
         { codigo_ctr: { $in: bandejasLiteyca } },
         { tipo },
       ]
@@ -639,7 +646,10 @@ export class OrdenesService {
      
     return await this.ordenModel.find({
       $and: [
-        { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
+        { $or: [
+          { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
+          { fecha_liquidado: null },
+        ] },
         { gestor_liteyca: todo === 'false' ? null : gestor },
         { codigo_ctr: { $in: bandejasLiteyca } }
       ]

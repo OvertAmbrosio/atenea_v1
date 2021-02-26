@@ -73,20 +73,20 @@ function TablaOrdenes({ asignadas=false, data, loading, ordenesSeleccionadas, se
 
   const establacerFiltros = (data) => {
     if (data && data.length > 0) {
-      obtenerFiltroNombre(data, 'distrito').then((f) => setFiltroDistrito(f));
-      obtenerFiltroNombre(data, 'bucket').then((f) => setFiltroBucket(f));
-      obtenerFiltroNombre(data, 'estado_toa').then((f) => setFiltroEstadoToa(f));
-      obtenerFiltroNombre(data, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
-      obtenerFiltroNombre(data, 'tipo_requerimiento').then((f) => setFiltroTipoRequerimiento(f));
-      obtenerFiltroNombre(data, 'tipo_tecnologia').then((f) => setFiltroTipoTecnologia(f));
-      obtenerFiltroNombre(data, 'codigo_ctr').then((f) => setFiltroCtr(f));
-      obtenerFiltroNombre(data, 'codigo_nodo').then((f) => setFiltroNodo(f));
-      obtenerFiltroNombre(data, 'codigo_troba').then((f) => setFiltroTroba(f));
-      obtenerFiltroNombre(data, 'tipo_agenda').then((f) => setFiltroTimeSlot(f));
-      obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f));
-      obtenerFiltroId(data, 'tecnico').then((f) => setFiltroTecnico(f));
-      obtenerFiltroId(data, 'tecnico_liteyca').then((f) => setFiltroTecnicoAsignado(f));
-      obtenerFiltroNombre(data, 'tipo', true).then((f) => setFiltroTipo(f));
+      setFiltroDistrito(obtenerFiltroNombre(data, 'distrito'));
+      setFiltroBucket(obtenerFiltroNombre(data, 'bucket'));
+      setFiltroEstadoToa(obtenerFiltroNombre(data, 'estado_toa'));
+      setFiltroEstadoGestor(obtenerFiltroNombre(data, 'estado_gestor'));
+      setFiltroTipoRequerimiento(obtenerFiltroNombre(data, 'tipo_requerimiento'));
+      setFiltroTipoTecnologia(obtenerFiltroNombre(data, 'tipo_tecnologia'));
+      setFiltroCtr(obtenerFiltroNombre(data, 'codigo_ctr'));
+      setFiltroNodo(obtenerFiltroNombre(data, 'codigo_nodo'));
+      setFiltroTroba(obtenerFiltroNombre(data, 'codigo_troba'));
+      setFiltroTimeSlot(obtenerFiltroNombre(data, 'tipo_agenda'));
+      setFiltroContrata(obtenerFiltroId(data, 'contrata'));
+      setFiltroTecnico(obtenerFiltroId(data, 'tecnico'));
+      setFiltroTecnicoAsignado(obtenerFiltroId(data, 'tecnico_liteyca'));
+      setFiltroTipo(obtenerFiltroNombre(data, 'tipo', true));
     };
   };
 

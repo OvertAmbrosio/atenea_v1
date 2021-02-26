@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types';
-import { Col, Row, Statistic, Table } from 'antd';
+import { Col, Input, Row, Statistic, Table } from 'antd';
+
 
 import columnasOrdenes from './columnas/columnasOrdenes'
 import { obtenerFiltroId, obtenerFiltroNombre, obtenerFiltroFecha } from '../../../libraries/obtenerFiltro';
 import ModalDetalleOrden from './ModalsTabla/ModalDetalleOrden';
 
-function TablaOrdenes({ tipo, data=[], loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirRegistro, listarOrdenes }) {
+const { Search } = Input;
+
+function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirRegistro, listarOrdenes }) {
+  const [dataTotal, setDataTotal] = useState([]);
   const [filtroDistrito, setFiltroDistrito] = useState([]);
   const [filtroBucket, setFiltroBucket] = useState([]);
   const [filtroEstadoToa, setFiltroEstadoToa] = useState([]);
@@ -27,9 +31,16 @@ function TablaOrdenes({ tipo, data=[], loading, ordenesSeleccionadas, setOrdenes
   const [idOrdenDetalle, setIdOrdenDetalle] = useState(null);
   const [modalDetalle, setModalDetalle] = useState(false);
   const [cantidadFiltrados, setCantidadFiltrados] = useState(0);
+  //busqueda
+  let inputBusqueda = useRef(null)
 
   useEffect(() => {
-    generarFiltros(data);
+    if (data && data.length > 0) {
+      setDataTotal(data);
+      generarFiltros(data);
+    } else {
+      setDataTotal([]);
+    }
   //eslint-disable-next-line
   },[data]);
 
@@ -40,32 +51,50 @@ function TablaOrdenes({ tipo, data=[], loading, ordenesSeleccionadas, setOrdenes
     abrirModalDetalle();
   };
 
-  const generarFiltros = async (dataSource) => {
-    if (dataSource && dataSource.length > 0) {
-      setCantidadFiltrados(dataSource.length)
-      obtenerFiltroNombre(dataSource, 'distrito').then((f) => setFiltroDistrito(f));
-      obtenerFiltroNombre(dataSource, 'bucket').then((f) => setFiltroBucket(f));
-      obtenerFiltroNombre(dataSource, 'estado_toa').then((f) => setFiltroEstadoToa(f));
-      obtenerFiltroNombre(dataSource, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
-      obtenerFiltroNombre(dataSource, 'tipo_requerimiento').then((f) => setFiltroTipoReq(f));
-      obtenerFiltroNombre(dataSource, 'tipo_tecnologia').then((f) => setFiltroTecnologia(f));
-      obtenerFiltroNombre(dataSource, 'codigo_nodo').then((f) => setFiltroNodo(f));
-      obtenerFiltroNombre(dataSource, 'codigo_troba').then((f) => setFiltroTroba(f));
-      obtenerFiltroNombre(dataSource, 'indicador_pai').then((f) => setFiltroPai(f));
-      obtenerFiltroNombre(dataSource, 'codigo_ctr').then((f) => setFiltroCtr(f));
-      obtenerFiltroNombre(dataSource, 'observacion_gestor').then((f) => setFiltroObservacion(f));
-      obtenerFiltroFecha(dataSource, 'fecha_cita').then((f) => setFiltroFechaCita(f));
-      obtenerFiltroNombre(dataSource, 'tipo_agenda').then((f) => setFiltroTimeSlot(f));
-      obtenerFiltroId(dataSource, 'contrata').then((f) => setFiltroContrata(f));
-      obtenerFiltroId(dataSource, 'gestor_liteyca', true).then((f) => setFiltroGestorAsignado(f));
-      obtenerFiltroId(dataSource, 'tecnico', true).then((f) => setFiltroTecnicoToa(f));
-      obtenerFiltroId(dataSource, 'tecnico_liteyca', true).then((f) => setFiltroTecnicoAsignado(f));        
-    };
+  const generarFiltros = (dataSource) => {
+    setCantidadFiltrados(dataSource.length)
+    setFiltroDistrito(obtenerFiltroNombre(dataSource, 'distrito'));
+    setFiltroBucket(obtenerFiltroNombre(dataSource, 'bucket'));
+    setFiltroEstadoToa(obtenerFiltroNombre(dataSource, 'estado_toa'));
+    setFiltroEstadoGestor(obtenerFiltroNombre(dataSource, 'estado_gestor'));
+    setFiltroTipoReq(obtenerFiltroNombre(dataSource, 'tipo_requerimiento'));
+    setFiltroTecnologia(obtenerFiltroNombre(dataSource, 'tipo_tecnologia'));
+    setFiltroNodo(obtenerFiltroNombre(dataSource, 'codigo_nodo'));
+    setFiltroTroba(obtenerFiltroNombre(dataSource, 'codigo_troba'));
+    setFiltroPai(obtenerFiltroNombre(dataSource, 'indicador_pai'));
+    setFiltroCtr(obtenerFiltroNombre(dataSource, 'codigo_ctr'));
+    setFiltroObservacion(obtenerFiltroNombre(dataSource, 'observacion_gestor'));
+    setFiltroTimeSlot(obtenerFiltroNombre(dataSource, 'tipo_agenda'));
+    setFiltroFechaCita(obtenerFiltroFecha(dataSource, 'fecha_cita'))
+    setFiltroContrata(obtenerFiltroId(dataSource, 'contrata'));
+    setFiltroGestorAsignado(obtenerFiltroId(dataSource, 'gestor_liteyca', true));
+    setFiltroTecnicoToa(obtenerFiltroId(dataSource, 'tecnico', true));
+    setFiltroTecnicoAsignado(obtenerFiltroId(dataSource, 'tecnico_liteyca', true));    
+  };
+
+  const onChangeTable = (_, filters, __, dataSource) => {
+    generarFiltros(dataSource.currentDataSource);
+    setFiltros(filters);
+  };
+
+  function buscarRequerimiento(e) {
+    if (e && e.length > 1) {
+      setDataTotal(data.filter((o) => String(o.codigo_requerimiento).includes(e)))
+    } else {
+      setDataTotal(data);
+    }
   };
 
   return (
     <div>
       <Table
+        title={() => 
+          <Search 
+            placeholder="Requerimiento..." 
+            onSearch={buscarRequerimiento} 
+            style={{ width: 180, marginRight: '0rem', marginBottom: '.5rem' }} 
+            allowClear 
+          />}
         rowKey="_id"
         onRow={(record) => {
           return {
@@ -77,9 +106,11 @@ function TablaOrdenes({ tipo, data=[], loading, ordenesSeleccionadas, setOrdenes
           selectedRowKeys: ordenesSeleccionadas,
           onChange: (e) => setOrdenesSeleccionadas(e)
         }}
-        onChange={(_,__,___,{ currentDataSource }) => generarFiltros(currentDataSource)}
-        columns={columnasOrdenes(
+        onChange={onChangeTable}
+        columns={columnasOrdenes({
           tipo, 
+          filtros,
+          setFiltros,
           filtroDistrito,
           filtroBucket,
           filtroEstadoToa,
@@ -100,9 +131,10 @@ function TablaOrdenes({ tipo, data=[], loading, ordenesSeleccionadas, setOrdenes
           abrirReiterada, 
           abrirInfancia,
           abrirRegistro,
-          listarOrdenes)
+          listarOrdenes,
+          inputBusqueda})
         }
-        dataSource={data}
+        dataSource={dataTotal}
         loading={loading}
         size="small"
         scroll={{ y: '65vh' }}
@@ -128,6 +160,8 @@ function TablaOrdenes({ tipo, data=[], loading, ordenesSeleccionadas, setOrdenes
 };
 
 TablaOrdenes.propTypes = {
+  filtros: PropTypes.any,
+  setFiltros: PropTypes.func,
   tipo: PropTypes.string,
   data: PropTypes.array,
   loading: PropTypes.bool,

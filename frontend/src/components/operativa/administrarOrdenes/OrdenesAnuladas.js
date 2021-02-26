@@ -38,15 +38,15 @@ function OrdenesAnuladas({tipo}) {
       .then(({data}) => {
         if (data && data.length > 0) {
           setDataOrdenes(data);
-          obtenerFiltroNombre(data, 'distrito').then((f) => setFiltroDistrito(f));
-          obtenerFiltroNombre(data, 'estado_toa').then((f) => setFiltroEstadoToa(f));
-          obtenerFiltroNombre(data, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
-          obtenerFiltroNombre(data, 'tipo_tecnologia').then((f) => setFiltroTecnologia(f));
-          obtenerFiltroNombre(data, 'codigo_nodo').then((f) => setFiltroNodo(f));
-          obtenerFiltroNombre(data, 'codigo_ctr').then((f) => setFiltroCtr(f));
-          obtenerFiltroId(data, 'contrata').then((f) => setFiltroContrata(f));
-          obtenerFiltroId(data, 'gestor').then((f) => setFiltroGestor(f));
-          obtenerFiltroId(data, 'tecnico').then((f) => setFiltroTecnico(f));
+          setFiltroDistrito(obtenerFiltroNombre(data, 'distrito'));
+          setFiltroEstadoToa(obtenerFiltroNombre(data, 'estado_toa'))
+          setFiltroEstadoGestor( obtenerFiltroNombre(data, 'estado_gestor'))
+          setFiltroTecnologia(obtenerFiltroNombre(data, 'tipo_tecnologia'))
+          setFiltroNodo(obtenerFiltroNombre(data, 'codigo_nodo'))
+          setFiltroCtr(obtenerFiltroNombre(data, 'codigo_ctr'))
+          setFiltroContrata(obtenerFiltroId(data, 'contrata'))
+          setFiltroGestor(obtenerFiltroId(data, 'gestor'))
+          setFiltroTecnico(obtenerFiltroId(data, 'tecnico'))
         };
       }).catch((err) => console.log(err)).finally(() => setLoadingOrdenes(false));
   };

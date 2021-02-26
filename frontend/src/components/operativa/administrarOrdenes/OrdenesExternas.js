@@ -36,13 +36,13 @@ function OrdenesExternas({tipo}) {
       .then(({data}) => {
         if (data && data.length > 0) {
           setDataOrdenes(data);
-          obtenerFiltroNombre(data, 'distrito').then((f) => setFiltroDistrito(f));
-          obtenerFiltroNombre(data, 'estado_toa').then((f) => setFiltroEstadoToa(f));
-          obtenerFiltroNombre(data, 'estado_gestor').then((f) => setFiltroEstadoGestor(f));
-          obtenerFiltroNombre(data, 'tipo_requerimiento').then((f) => setFiltroTipoReq(f));
-          obtenerFiltroNombre(data, 'tipo_tecnologia').then((f) => setFiltroTecnologia(f));
-          obtenerFiltroNombre(data, 'codigo_nodo').then((f) => setFiltroNodo(f));
-          obtenerFiltroNombre(data, 'codigo_ctr').then((f) => setFiltroCtr(f));
+          setFiltroDistrito(obtenerFiltroNombre(data, 'distrito'));
+          setFiltroEstadoToa(obtenerFiltroNombre(data, 'estado_toa'));
+          setFiltroEstadoGestor(obtenerFiltroNombre(data, 'estado_gestor'));
+          setFiltroTipoReq(obtenerFiltroNombre(data, 'tipo_requerimiento'));
+          setFiltroTecnologia(obtenerFiltroNombre(data, 'tipo_tecnologia'));
+          setFiltroNodo(obtenerFiltroNombre(data, 'codigo_nodo'));
+          setFiltroCtr(obtenerFiltroNombre(data, 'codigo_ctr'));
         };
       }).catch((err) => console.log(err)).finally(() => setLoadingOrdenes(false));
   };

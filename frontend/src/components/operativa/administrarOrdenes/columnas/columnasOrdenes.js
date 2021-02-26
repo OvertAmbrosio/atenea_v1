@@ -1,19 +1,20 @@
 import React from 'react';
 import { Tag, Tooltip, Typography } from 'antd';
-import { PlusCircleTwoTone } from '@ant-design/icons'
+import { PlusCircleTwoTone} from '@ant-design/icons'
 import moment from 'moment';
 
 import TagEstado from '../TagEstado';
 import { tipoOrdenes } from '../../../../constants/tipoOrden';
 import PopObservacion from './PopObservacion';
-import { ordenesB2B } from '../../../../constants/valoresToa';
 import TagHoras from '../../../common/TagHoras';
+import { ordenesB2B } from '../../../../constants/valoresToa';
 
 const { Text } = Typography;
 
-
-export default function columnasOrdenes(
+export default function ColumnasOrdenes({
   tipo,
+  filtros={},
+  setFiltros,
   filtroDistrito=[],
   filtroBucket=[],
   filtroEstadoToa=[],
@@ -34,8 +35,9 @@ export default function columnasOrdenes(
   abrirReiterada,
   abrirInfancia,
   abrirDetalle,
-  listarOrdenes
-) {
+  listarOrdenes,
+  inputBusqueda=null,
+}) {
 
   const columnasGeneral = [
     {
@@ -61,9 +63,9 @@ export default function columnasOrdenes(
             </Tag>
           )
         } else {
-          return <Text copyable strong>{req}</Text>
+          return (<Text copyable strong>{req}</Text>)
         }
-      },
+      }
     },
     {
       averias: false,
@@ -96,7 +98,8 @@ export default function columnasOrdenes(
       dataIndex: 'tipo_tecnologia',
       align: 'center',
       width: 120,
-      filters: filtroTecnologia ? filtroTecnologia : [],
+      filteredValue: filtros && filtros.tipo_tecnologia ? filtros.tipo_tecnologia : null,
+      filters: filtroTecnologia ? filtroTecnologia : [{text: '', value: ''}],
       onFilter: (v,r) => r.tipo_tecnologia.indexOf(v) === 0,
     },
     {
@@ -106,7 +109,8 @@ export default function columnasOrdenes(
       dataIndex: 'indicador_pai',
       width: 60,
       aling: 'center',
-      filters: filtroPai ? filtroPai : [],
+      filteredValue: filtros && filtros.indicador_pai ? filtros.indicador_pai : null,
+      filters: filtroPai ? filtroPai : [{text: '', value: ''}],
       onFilter: (v,r) => String(r.indicador_pai).indexOf(String(v)) === 0,
     },
     {
@@ -115,7 +119,8 @@ export default function columnasOrdenes(
       title: 'CTR',
       dataIndex: 'codigo_ctr',
       width: 60,
-      filters: filtroCtr ? filtroCtr : [],
+      filteredValue: filtros && filtros.codigo_ctr ? filtros.codigo_ctr : null,
+      filters: filtroCtr ? filtroCtr : [{text: '', value: ''}],
       onFilter: (v,r) => String(r.codigo_ctr).indexOf(String(v)) === 0,
     },
     {
@@ -125,7 +130,8 @@ export default function columnasOrdenes(
       dataIndex: 'tipo_requerimiento',
       align:'center',
       width: 100,
-      filters: filtroTipoReq ? filtroTipoReq : [],
+      filteredValue: filtros && filtros.tipo_requerimiento ? filtros.tipo_requerimiento : null,
+      filters: filtroTipoReq ? filtroTipoReq : [{text: '', value: ''}],
       onFilter: (v,r) => r.tipo_requerimiento.indexOf(v) === 0
     },
     {
@@ -134,7 +140,8 @@ export default function columnasOrdenes(
       title: 'Nodo',
       dataIndex: 'codigo_nodo',
       width: 70,
-      filters: filtroNodo ? filtroNodo : [],
+      filteredValue: filtros && filtros.codigo_nodo ? filtros.codigo_nodo : null,
+      filters: filtroNodo ? filtroNodo : [{text: '', value: ''}],
       onFilter: (v,r) => r.codigo_nodo.indexOf(v) === 0,
     },
     {
@@ -152,7 +159,8 @@ export default function columnasOrdenes(
         }
         return 0;
       },
-      filters: filtroTroba ? filtroTroba : [],
+      filteredValue: filtros && filtros.codigo_troba ? filtros.codigo_troba : null,
+      filters: filtroTroba ? filtroTroba : [{text: '', value: ''}],
       onFilter: (v,r) => r.codigo_troba.indexOf(v) === 0,
     },
     {
@@ -178,6 +186,7 @@ export default function columnasOrdenes(
       dataIndex: 'infancia',
       width: 90,
       align: 'center',
+      filteredValue: filtros && filtros.infancia ? filtros.infancia : null,
       filters: [{text: 'Si', value: true}, {text: 'No', value: false}],
       onFilter: (v,r) => {
         if (v) {
@@ -215,7 +224,8 @@ export default function columnasOrdenes(
       title: 'Distrito',
       dataIndex: 'distrito',
       width: 160,
-      filters: filtroDistrito ? filtroDistrito : [],
+      filteredValue: filtros && filtros.distrito ? filtros.distrito : null,
+      filters: filtroDistrito ? filtroDistrito : [{text: '', value: ''}],
       onFilter: (v,r) => r.distrito.indexOf(v) === 0
     },
     {
@@ -242,7 +252,8 @@ export default function columnasOrdenes(
       ellipsis: {
         showTitle: false,
       },
-      filters: filtroBucket ? filtroBucket : [],
+      filteredValue: filtros && filtros.bucket ? filtros.bucket : null,
+      filters: filtroBucket ? filtroBucket : [{text: '', value: ''}],
       onFilter: (v,r) => r.bucket.indexOf(v) === 0,
       render: (bckt) => (
         <Tooltip placement="topLeft" title={bckt}>
@@ -257,7 +268,8 @@ export default function columnasOrdenes(
       dataIndex: 'estado_toa',
       width: 150,
       align: 'center',
-      filters: filtroEstadoToa ? filtroEstadoToa : [],
+      filteredValue: filtros && filtros.estado_toa ? filtros.estado_toa : null,
+      filters: filtroEstadoToa ? filtroEstadoToa : [{text: '', value: ''}],
       onFilter: (v,r) => r.estado_toa.indexOf(v) === 0,
       render: (e) => <TagEstado estado={e}/>
     },
@@ -268,7 +280,8 @@ export default function columnasOrdenes(
       dataIndex: 'estado_gestor',
       width: 150,
       align: 'center',
-      filters: filtroEstadoGestor ? filtroEstadoGestor : [],
+      filteredValue: filtros && filtros.estado_gestor ? filtros.estado_gestor : null,
+      filters: filtroEstadoGestor ? filtroEstadoGestor : [{text: '', value: ''}],
       onFilter: (v,r) => r.estado_gestor.indexOf(v) === 0,
       render: (e) => <TagEstado estado={e}/>
     },
@@ -281,7 +294,8 @@ export default function columnasOrdenes(
       ellipsis: {
         showTitle: false,
       },
-      filters: filtroContrata ? filtroContrata : [],
+      filteredValue: filtros && filtros.contrata ? filtros.contrata : null,
+      filters: filtroContrata ? filtroContrata : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
           return !r.contrata
@@ -306,7 +320,8 @@ export default function columnasOrdenes(
       ellipsis: {
         showTitle: false,
       },
-      filters: filtroGestorAsignado ? filtroGestorAsignado : [],
+      filteredValue: filtros && filtros.gestor_liteyca ? filtros.gestor_liteyca : null,
+      filters: filtroGestorAsignado ? filtroGestorAsignado : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
           return !r.gestor_liteyca
@@ -331,7 +346,8 @@ export default function columnasOrdenes(
       ellipsis: {
         showTitle: false,
       },
-      filters: filtroTecnicoToa ? filtroTecnicoToa : [],
+      filteredValue: filtros && filtros.tecnico ? filtros.tecnico : null,
+      filters: filtroTecnicoToa ? filtroTecnicoToa : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
           return !r.tecnico
@@ -356,7 +372,8 @@ export default function columnasOrdenes(
       ellipsis: {
         showTitle: false,
       },
-      filters: filtroTecnicoAsignado ? filtroTecnicoAsignado : [],
+      filteredValue: filtros && filtros.tecnico_liteyca ? filtros.tecnico_liteyca : null,
+      filters: filtroTecnicoAsignado ? filtroTecnicoAsignado : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
           return !r.tecnico_liteyca
@@ -381,7 +398,8 @@ export default function columnasOrdenes(
       ellipsis: {
         showTitle: false,
       },
-      filters: filtroObservacion ? filtroObservacion : [],
+      filteredValue: filtros && filtros.observacion_gestor ? filtros.observacion_gestor : null,
+      filters: filtroObservacion ? filtroObservacion : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
           return !r.observacion_gestor
@@ -400,7 +418,8 @@ export default function columnasOrdenes(
       dataIndex: 'fecha_cita',
       width: 150,
       align: 'center',
-      filters: filtroFechaCita ? filtroFechaCita : [],
+      filteredValue: filtros && filtros.fecha_cita ? filtros.fecha_cita : null,
+      filters: filtroFechaCita ? filtroFechaCita : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
           return !r.fecha_cita
@@ -454,7 +473,8 @@ export default function columnasOrdenes(
       width: 100,
       align: 'center',
       fixed: 'right',
-      filters: filtroTimeSlot ? filtroTimeSlot.filter((e) => e.text) : [],
+      filteredValue: filtros && filtros.tipo_agenda ? filtros.tipo_agenda : null,
+      filters: filtroTimeSlot ? filtroTimeSlot.filter((e) => e.text) : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (r.tipo_agenda && v ) {
           return r.tipo_agenda.indexOf(v) === 0;

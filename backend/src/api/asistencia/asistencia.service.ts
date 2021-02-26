@@ -40,7 +40,6 @@ export class AsistenciaService {
       })
     })
   };
-
   // generar asistencia diaria
   @Cron('0 0 6 * * *', {
     name: 'generarAsistencia',

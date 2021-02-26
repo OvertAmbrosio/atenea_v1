@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
-import { Button, Dropdown, Input } from 'antd';
-import { CloudSyncOutlined, ScheduleOutlined, LoadingOutlined, ReloadOutlined, UserSwitchOutlined, ExportOutlined, FileSyncOutlined, SyncOutlined } from '@ant-design/icons';
+import { Button, Dropdown } from 'antd';
+import { CloudSyncOutlined, ScheduleOutlined, LoadingOutlined, ReloadOutlined, UserSwitchOutlined, ExportOutlined, FileSyncOutlined, SyncOutlined, ClearOutlined } from '@ant-design/icons';
 
 import TablaOrdenesPendientes from './TablaOrdenesPendientes';
 import { getOrdenes, patchOrdenes, patchFilesOrdenes } from '../../../services/apiOrden';
@@ -15,10 +15,7 @@ import ModalRegistro from './ModalsTabla/ModalRegistro';
 import ModalInfancia from './ModalsTabla/ModalInfancia';
 import ExcelOrdenesPendientes from '../../excelExports/ExcelOrdenesPendientes';
 
-const { Search } = Input;
-
 function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
-  const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [dataRegistros, setDataRegistros] = useState([]);
   const [dataInfancia, setDataInfancia] = useState([]);
@@ -39,6 +36,7 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
   const [modalEstado, setModalEstado] = useState(false);
   const [modalRegistro, setModalRegistro] = useState(false);
   const [codigoCliente, setCodigoCliente] = useState(null);
+  const [filtros, setFiltros] = useState(null);
 
   useEffect(() => {
     listarOrdenes();
@@ -51,7 +49,6 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
     await getOrdenes(true, { metodo: ordenes.ORDENES_HOY, tipo })
       .then(({data}) => {
         if (data && data.length > 0) {
-          setTotalOrdenes(data);
           setDataOrdenes(data);
         }
       }).catch((err) => console.log(err)).finally(() => setLoadingOrdenes(false));
@@ -147,12 +144,8 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
     }
   };
 
-  function buscarRequerimiento(e) {
-    if (e && e.length > 1) {
-      setDataOrdenes(totalOrdenes.filter((o) => String(o.codigo_requerimiento).includes(e)))
-    } else {
-      setDataOrdenes(totalOrdenes);
-    }
+  function limpiarFiltros() {
+    setFiltros(null);
   };
 
   const abrirModalAgendar = () => setModalAgendar(!modalAgendar);
@@ -228,14 +221,15 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
             Exportar
           </Button>
         </Dropdown>
-        <Search 
-          placeholder="Requerimiento..." 
-          onSearch={buscarRequerimiento} 
-          style={{ width: 180, marginRight: '.5rem', marginBottom: '.5rem' }} 
-          allowClear 
-        />
+        <Button 
+          icon={<ClearOutlined />}
+          style={{ marginBottom: '1rem', marginRight: '.5rem' }}
+          onClick={limpiarFiltros}
+        >Filtros</Button>
       </div>
       <TablaOrdenesPendientes 
+        filtros={filtros}
+        setFiltros={setFiltros}
         tipo={tipo}
         data={dataOrdenes} 
         loading={loadingOrdenes} 
