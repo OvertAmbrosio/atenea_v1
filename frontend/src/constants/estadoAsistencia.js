@@ -8,6 +8,7 @@ const estadoAsistencia = {
   EXAMEN_MEDICO: 'EM',
   VACACIONES: 'V',
   BAJA: 'BAJA',
+  GUARDIA: 'GUARDIA'
 };
 
 export default estadoAsistencia;

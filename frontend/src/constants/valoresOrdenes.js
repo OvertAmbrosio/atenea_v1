@@ -129,11 +129,13 @@ export const averiasDireccion = [
 export const altas = [
   {
     cabecera: 'desdtt',
+    cabecera_2: 'distrito',
     propiedad: 'distrito',
   },
   {
     cabecera: 'codreq',
     cabecera_2: 'numreq',
+    cabecera_3: 'requerimiento',
     propiedad: 'codigo_requerimiento',
   },
   {
@@ -209,6 +211,7 @@ export const altas = [
   },
   {
     cabecera: 'indpai',
+    cabecera_2: 'estado pai',
     propiedad: 'indicador_pai',
   },
   {
@@ -236,6 +239,10 @@ export const hfcLiquidadas = [
     cabecera: 'codctr',
     cabecera_2: 'codres',
     propiedad: 'codigo_ctr'
+  },
+  {
+    cabecera: 'codnod',
+    propiedad: 'codigo_nodo'
   },
   {
     cabecera: 'desnomctr',

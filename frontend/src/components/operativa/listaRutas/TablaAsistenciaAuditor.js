@@ -125,11 +125,11 @@ export default function TablaAsistenciasAuditores() {
                   trigger="click"
                   destroyTooltipOnHide
                 >
-                  <button className="boton-none"><EstadoTag estado={a.estado}/></button>
+                  <button className="boton-none"><EstadoTag actualizar={listarAsistencias} row={row} fecha={e} estado={a.estado}/></button>
                 </Popover>
               )
             } else {
-              return (<EstadoTag estado={a && a.estado ? a.estado :'-'}/>)
+              return (<EstadoTag actualizar={listarAsistencias} row={row} fecha={e} estado={a && a.estado ? a.estado :'-'}/>)
             };
           }
         })

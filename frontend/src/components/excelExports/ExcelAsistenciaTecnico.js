@@ -52,6 +52,8 @@ function ExcelAsistenciaTecnico({ data=[], dias=[], nombre }) {
         return {background: AntColores.gold[1], color: AntColores.gold.primary};
       case estadoAsistencia.PERMISO:
         return {background: AntColores.blue[1], color: AntColores.blue.primary};
+      case estadoAsistencia.GUARDIA:
+        return {background: AntColores.cyan[1], color: AntColores.cyan.primary};
       case estadoAsistencia.SUSPENDIDO:
         return {background: AntColores.yellow[1], color: AntColores.yellow.primary};
       case estadoAsistencia.DESCANSO_MEDICO:
@@ -59,7 +61,7 @@ function ExcelAsistenciaTecnico({ data=[], dias=[], nombre }) {
       case estadoAsistencia.EXAMEN_MEDICO:
         return {background: AntColores.purple[1], color: AntColores.purple.primary};
       case estadoAsistencia.VACACIONES:
-        return {background: AntColores.cyan[1], color: AntColores.cyan.primary};
+        return {background: AntColores.orange[1], color: AntColores.orange.primary};
       case estadoAsistencia.BAJA:
         return {background: AntColores.volcano[1], color: AntColores.volcano.primary};
       default:

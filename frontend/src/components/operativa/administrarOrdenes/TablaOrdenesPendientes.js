@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
-import { Table } from 'antd';
+import { Col, Row, Statistic, Table } from 'antd';
 
 import columnasOrdenes from './columnas/columnasOrdenes'
 import { obtenerFiltroId, obtenerFiltroNombre, obtenerFiltroFecha } from '../../../libraries/obtenerFiltro';
 import ModalDetalleOrden from './ModalsTabla/ModalDetalleOrden';
 
-function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirRegistro, listarOrdenes }) {
+function TablaOrdenes({ tipo, data=[], loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirRegistro, listarOrdenes }) {
   const [filtroDistrito, setFiltroDistrito] = useState([]);
   const [filtroBucket, setFiltroBucket] = useState([]);
   const [filtroEstadoToa, setFiltroEstadoToa] = useState([]);
@@ -26,6 +26,7 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
   const [filtroFechaCita, setFiltroFechaCita] = useState([]);
   const [idOrdenDetalle, setIdOrdenDetalle] = useState(null);
   const [modalDetalle, setModalDetalle] = useState(false);
+  const [cantidadFiltrados, setCantidadFiltrados] = useState(0);
 
   useEffect(() => {
     generarFiltros(data);
@@ -41,6 +42,7 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
 
   const generarFiltros = async (dataSource) => {
     if (dataSource && dataSource.length > 0) {
+      setCantidadFiltrados(dataSource.length)
       obtenerFiltroNombre(dataSource, 'distrito').then((f) => setFiltroDistrito(f));
       obtenerFiltroNombre(dataSource, 'bucket').then((f) => setFiltroBucket(f));
       obtenerFiltroNombre(dataSource, 'estado_toa').then((f) => setFiltroEstadoToa(f));
@@ -108,6 +110,16 @@ function TablaOrdenes({ tipo, data, loading, ordenesSeleccionadas, setOrdenesSel
           defaultPageSize: 50,
           pageSizeOptions: [50,100,200]
         }}
+        footer={() => (
+          <Row gutter={16}>
+            <Col span={4}>
+              <Statistic title="Total" value={data.length} />
+            </Col>
+            <Col span={12}>
+              <Statistic title="Total Filtradas" value={cantidadFiltrados} />
+            </Col>
+          </Row>
+        )}
       />
       {/* MODAL DETALLE */}
       <ModalDetalleOrden visible={modalDetalle} abrir={abrirModalDetalle} orden={idOrdenDetalle} tipo={tipo}/>

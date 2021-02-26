@@ -1,34 +1,47 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { Modal, Select, Input, Button } from 'antd';
-import estadoAsistencia from '../../../constants/estadoAsistencia';
+import { Button, Modal, Select, Input, Typography } from 'antd'
 import { LoadingOutlined, SaveOutlined } from '@ant-design/icons';
+import moment from 'moment';
+
+import estadoAsistencia from '../../../constants/estadoAsistencia';
+import { postAsistencias } from '../../../services/apiAsistencia';
 import cogoToast from 'cogo-toast';
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { Text } = Typography;
 
-function ModalEditarAsistencia({visible, abrir, loadingActualizar, actualizar}) {
+function ModalCrearAsistencia({actualizar, row, fecha, visible, abrir}) {
+  const [loadingCrear, setLoadingCrear] = useState(false);
   const [estadoSeleccionado, setEstadoSeleccionado] = useState(null);
   const [observacion, setObservacion] = useState(null);
-
 
   useEffect(() => {
     setEstadoSeleccionado(null);
     setObservacion(null);
-  },[]);
+  }, [])
 
   async function guardar() {
-    if (estadoSeleccionado !== null) {
-      await actualizar(estadoSeleccionado, observacion);
+    if (moment(fecha).isValid() && row.idEmpleado && estadoSeleccionado) {
+      setLoadingCrear(true);
+      return await postAsistencias({id: row.idEmpleado, tipo: row.tipo, estado: estadoSeleccionado, fecha: fecha, observacion})
+        .catch((err) => console.log(err))
+        .finally(() => {
+          setLoadingCrear(false);
+          abrir()
+          actualizar()
+        })
     } else {
-      cogoToast.warn('No hay usuario seleccionado.', { position: 'top-right' })
+      cogoToast.warn('No hay una fecha valida o no se encontró el id', { position: 'top-right' })
+      console.log(fecha, row);
     }
-  }
+  };
 
   return (
     <Modal
       title="Actualizar el estado de la asistencia"
+      onCancel={abrir}
       visible={visible}
       width={350}
       centered
@@ -38,7 +51,8 @@ function ModalEditarAsistencia({visible, abrir, loadingActualizar, actualizar}) 
           Cancelar
         </Button>,
         <Button 
-          icon={loadingActualizar ? <LoadingOutlined spin/> : <SaveOutlined/>} 
+          icon={loadingCrear ? <LoadingOutlined spin/> : <SaveOutlined/>} 
+          disabled={loadingCrear}
           key="submit" 
           type="primary" 
           onClick={guardar}
@@ -47,6 +61,11 @@ function ModalEditarAsistencia({visible, abrir, loadingActualizar, actualizar}) 
         </Button>,
       ]}
     >
+      {
+        moment(fecha).isValid() ?
+        <Text type="secondary">Fecha: {moment(fecha).format('DD-MM-YY')}</Text>:
+        <Text type="danger">Fecha Invalida.</Text>
+      }<br/><br/>
       <p>Seleccionar Estado:</p>
       <Select
         placeholder="Estado"
@@ -74,14 +93,15 @@ function ModalEditarAsistencia({visible, abrir, loadingActualizar, actualizar}) 
       />
     </Modal>
   )
-};
+}
 
-ModalEditarAsistencia.propTypes = {
+ModalCrearAsistencia.propTypes = {
+  actualizar: PropTypes.func,
+  row: PropTypes.object,
+  fecha: PropTypes.any,
   visible: PropTypes.bool,
-  abrir: PropTypes.func,
-  loadingActualizar: PropTypes.bool,
-  actualizar: PropTypes.func
-};
+  abrir: PropTypes.func
+}
 
-export default ModalEditarAsistencia;
+export default ModalCrearAsistencia
 

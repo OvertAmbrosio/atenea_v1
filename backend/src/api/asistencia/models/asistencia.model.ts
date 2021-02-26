@@ -32,7 +32,8 @@ export const AsistenciaSchema = new Schema({
       estado_asistencia.PERMISO,
       estado_asistencia.SUSPENDIDO,
       estado_asistencia.VACACIONES,
-      estado_asistencia.BAJA
+      estado_asistencia.BAJA,
+      estado_asistencia.GUARDIA
     ],
     default: 'F'
   },
@@ -41,6 +42,10 @@ export const AsistenciaSchema = new Schema({
     default: false,
   },
   fecha_iniciado: {
+    type: Date,
+    default: null
+  },
+  fecha_registro: {
     type: Date,
     default: null
   },

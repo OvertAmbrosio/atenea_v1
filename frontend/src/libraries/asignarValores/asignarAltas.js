@@ -12,7 +12,11 @@ export async function pendientesAltas(ordenes=[]){
       
     let verificado = true;
     //distrito
-    if (isEmpty(String(orden[altas[0].propiedad]).trim())) {verificado = false};
+    if (
+      isEmpty(String(orden[altas[0].cabecera]).trim()) &&
+      isEmpty(String(orden[altas[0].cabecera_2]).trim()) &&
+      isEmpty(String(orden[altas[0].cabecera_3]).trim())
+    ) {verificado = false};
     //requerimiento
     if (isNaN(orden[altas[1].cabecera]) && isNaN(orden[altas[1].cabecera_2]) && isNaN(orden[altas[1].cabecera_3])) {verificado = false};
 
@@ -23,21 +27,21 @@ export async function pendientesAltas(ordenes=[]){
     };
 
     altas.forEach((v) => {
-      if (v.cabecera_2 || v.cabecera_3) {
-        if (orden[v.cabecera] !== undefined && orden[v.cabecera] !== null) {
-          valores[v.propiedad] = v.fecha ? numeroFecha(orden[v.cabecera]) : String(orden[v.cabecera]).replace(/,/g, '')
-        } else if (orden[v.cabecera_2] !== undefined && orden[v.cabecera_2] !== null) {
-          if (v.fecha) {
-            valores[v.propiedad] = unirHoraFecha(numeroFecha(orden[v.cabecera_2]), orden[v.hora]);
-          } else {
-            valores[v.propiedad] = String(orden[v.cabecera_2]).replace(/,/g, '');
-          }
+      if (orden[v.cabecera] !== undefined && orden[v.cabecera] !== null) {
+        valores[v.propiedad] = v.fecha ? numeroFecha(orden[v.cabecera]) : String(orden[v.cabecera]).replace(/,/g, '')
+      } else if (orden[v.cabecera_2] !== undefined && orden[v.cabecera_2] !== null) {
+        if (v.fecha) {
+          valores[v.propiedad] = unirHoraFecha(numeroFecha(orden[v.cabecera_2]), orden[v.hora]);
+        } else {
+          valores[v.propiedad] = String(orden[v.cabecera_2]).replace(/,/g, '');
         }
-      } else {
-        if (orden[v.cabecera] !== undefined && orden[v.cabecera] !== null) {
-          valores[v.propiedad]= v.fecha ? numeroFecha(orden[v.cabecera]) : String(orden[v.cabecera]).replace(/,/g, '')
-        };
-      };
+      } else if (orden[v.cabecera_3] !== undefined && orden[v.cabecera_3] !== null) {
+        if (v.fecha) {
+          valores[v.propiedad] = unirHoraFecha(numeroFecha(orden[v.cabecera_3]), orden[v.hora]);
+        } else {
+          valores[v.propiedad] = String(orden[v.cabecera_3]).replace(/,/g, '');
+        }
+      }
     });
     
     return (valores);

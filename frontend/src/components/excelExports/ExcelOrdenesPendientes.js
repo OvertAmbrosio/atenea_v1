@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { ExcelExport, ExcelExportColumn } from '@progress/kendo-react-excel-export';
 import { Menu } from 'antd';
@@ -12,6 +12,12 @@ import { colorEstado, colorHora } from '../../libraries/colorEstado';
 function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas=[]}) {
   const [dataOrdenes, setDataOrdenes] = useState([]);
   let exportarRef = useRef(null);
+  
+  useEffect(() => {
+    if (dataOrdenes && dataOrdenes.length > 0) {
+      guardarArchivo(exportarRef.current)
+    }
+  },[dataOrdenes]);
 
   async function exportarExcel(todo) {
     if (!todo && ordenesSeleccionadas.length <= 0) return;
@@ -30,10 +36,6 @@ function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas
           horas_registro: d.fecha_registro ? moment().diff(d.fecha_registro, 'hours') : '-',
           horas_asignado: d.fecha_asignado ? moment().diff(d.fecha_asignado, 'hours') : '-',
         })))
-      }
-    }).then(() => {
-      if (dataOrdenes && dataOrdenes.length > 0) {
-        guardarArchivo(exportarRef.current)
       }
     }).catch((err) => console.log(err))
       .finally(() => setLoading(false));
@@ -56,7 +58,7 @@ function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas
           indexEstadoGestor = row.cells.findIndex((e) => e.value === 'Estado Gestor');
           indexHoraRegistro = row.cells.findIndex((e) => e.value === 'Horas Registro');
           indexHoraAsignado = row.cells.findIndex((e) => e.value === 'Horas Asignado');
-          indexFechaCita = row.cells.findIndex((e) => e.value === 'Fecha Cita');
+          indexFechaCita = row.cells.findIndex((e) => e.value === 'Time Slot');
         };
         if (row.type === 'data') {
           row.cells.forEach((cell) => {

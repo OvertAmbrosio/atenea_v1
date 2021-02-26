@@ -34,6 +34,7 @@ export const estado_asistencia= {
   EXAMEN_MEDICO: 'EM',
   VACACIONES: 'V',
   BAJA: 'BAJA',
+  GUARDIA: 'GUARDIA'
 };
 
 export const tipo_negocio = {

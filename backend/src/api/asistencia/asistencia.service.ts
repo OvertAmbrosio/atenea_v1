@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
@@ -8,8 +8,16 @@ import { RedisService } from 'src/database/redis.service';
 import { IAsistencia } from './interfaces/asistencia.interface';
 import { TPaginateParams } from 'src/helpers/types';
 import { IEmpleado } from '../empleados/interfaces/empleados.interface';
-import { estado_empresa, tipos_usuario } from 'src/constants/enum';
+import { estado_asistencia, estado_empresa, tipos_usuario } from 'src/constants/enum';
 import { cache_keys } from 'src/config/variables';
+
+type THelperAsis = {
+  [key: string]: any,
+  tipo: string,
+  estado: string,
+  observacion: string,
+  fecha_registro: Date,
+}
 
 @Injectable()
 export class AsistenciaService {
@@ -18,54 +26,61 @@ export class AsistenciaService {
     @InjectModel('Empleado') private readonly empleadoModel: Model<IEmpleado>,
     private readonly redisService: RedisService,
   ) {};
+  //convertir lista de empleados en objetos de asistenica
+  private ordenarAsistencia(empleados:IEmpleado[], estado:string, fecha_registro:Date):THelperAsis[] {
+    return empleados.map((empleado) => {
+      const field = empleado.usuario.cargo === tipos_usuario.TECNICO ? 'tecnico' : 
+                    empleado.usuario.cargo === tipos_usuario.GESTOR ? 'gestor' : 'auditor';
+      return ({
+        [field]: empleado._id,
+        tipo: field,
+        estado,
+        observacion: 'Estado aplicado automaticamente por el sistema.',
+        fecha_registro
+      })
+    })
+  };
 
-  @Cron('0 0 5 * * *', {
+  // generar asistencia diaria
+  @Cron('0 0 6 * * *', {
     name: 'generarAsistencia',
     timeZone: 'America/Lima',
   })
   async generarAsistencia() {
-    const tecnicos = await this.empleadoModel.find({
+    const hoy = DateTime.fromJSDate(new Date()).set({hour: 0, minute: 1, second: 0, millisecond: 0});
+    const mañana = DateTime.fromJSDate(new Date()).set({hour: 23, minute: 59, second: 59, millisecond: 0});
+
+    const empleadosAsistencia:Array<THelperAsis> = await this.empleadoModel.find({
       $and:[
         { estado_empresa: { $ne: estado_empresa.INACTIVO } },
-        { 'usuario.cargo': tipos_usuario.TECNICO }
-    ]}).select('_id gestor');
-    const gestores = await this.empleadoModel.find({
-      $and:[
-        { estado_empresa: { $ne: estado_empresa.INACTIVO } },
-        { 'usuario.cargo': tipos_usuario.GESTOR }
-    ]}).select('_id');
-    const auditores = await this.empleadoModel.find({
-      $and:[
-        { estado_empresa: { $ne: estado_empresa.INACTIVO } },
-        { 'usuario.cargo': tipos_usuario.AUDITOR }
-    ]}).select('_id');
-    const nuevaAsistenciaT = tecnicos.map((e) => {
-      return ({
-        tecnico: e._id,
-        tipo: 'tecnico',
-        observacion: 'Estado aplicado automaticamente por el sistema.'
-      })
+        { 'usuario.cargo': { $in: [tipos_usuario.TECNICO, tipos_usuario.GESTOR, tipos_usuario.AUDITOR] } }
+    ]}).select('_id usuario.cargo').then((empleados:IEmpleado[]) => {
+      const estado = hoy.get('weekday') === 7 ? estado_asistencia.DESCANSO : estado_asistencia.FALTA;
+      if (empleados && empleados.length > 0) {
+        return this.ordenarAsistencia(empleados, estado, hoy.set({hour: 6}).toJSDate())
+      } else {
+        return []
+      } 
     });
-    const nuevaAsistenciaG = gestores.map((e) => {
-      return ({
-        gestor: e._id,
-        tipo: 'gestor',
-        observacion: 'Estado aplicado automaticamente por el sistema.'
-      })
-    });
-    const nuevaAsistenciaA = auditores.map((e) => {
-      return ({
-        auditor: e._id,
-        tipo: 'auditor',
-        observacion: 'Estado aplicado automaticamente por el sistema.'
-      })
-    })
-    console.log('asistencia creada - ', new Date());
-    return await this.asistenciaModel.insertMany([...nuevaAsistenciaT,...nuevaAsistenciaG,...nuevaAsistenciaA]);
+
+    return Promise.all(empleadosAsistencia.map(async(obj) => {   
+        return await this.asistenciaModel.findOne({
+          $and: [
+            { [obj.tipo]: obj[obj.tipo] },
+            { fecha_registro: { $gte: hoy.toJSDate(), $lt: mañana.toJSDate() } }
+          ] 
+        }).then(async(a:IAsistencia) => {
+          if (a) {
+            return null;
+          } else {
+            return await new this.asistenciaModel(obj).save()
+          };
+        })
+    })).then((a) => console.log('Cantidad de nuevas: ' + a.filter(e => e).length)).catch((e) => console.log(e));
   };
 
   @Cron('0 */5 7-10 * * *', {
-    name: 'guardarRutasActivas',
+    name: 'comprobarRuta',
     timeZone: 'America/Lima'  
   })
   async comprobarRuta() {
@@ -84,7 +99,7 @@ export class AsistenciaService {
           $and: [
             { tecnico: { $in: tecnicos } },
             { iniciado: { $ne: true } },
-            { createdAt: { $gte: hoy } }
+            { fecha_registro: { $gte: hoy } }
           ]
         }, { iniciado: true, fecha_iniciado: new Date() }).then((data) => {
           console.log('rutas cruzadas - ', new Date())
@@ -94,6 +109,43 @@ export class AsistenciaService {
     } catch (error) {
       console.log(error);
     };
+  };
+
+  // @Cron('*/10 * * * * *', {
+  //   name: 'prueba',
+  //   timeZone: 'America/Lima'  
+  // })
+  // async prueba() {
+  //   const hoy = DateTime.fromJSDate(new Date()).plus({day: -1}).set({hour: 0, minute: 0, second: 0, millisecond: 0});
+  //   const mañana = DateTime.fromJSDate(new Date()).plus({day: -1}).set({hour: 23, minute: 59, second: 59, millisecond: 0});
+
+  //   const query:any = { fecha_registro: "2021-02-25T00:00:00.000+00:00" }
+    
+  //   let asist = await this.asistenciaModel.find(query).sort('fecha_registro')
+    
+  // };
+
+  async crearAsistencia(usuario:string, idEmpleado: string, tipo: string, estado:string, fecha: Date, observacion?: string) {
+    const fechaJs = new Date(fecha)
+    const fechaObtenida = DateTime.fromJSDate(fechaJs).toFormat('d/MM HH:mm')
+    const hoy = DateTime.fromJSDate(fechaJs).set({hour: 0, minute: 0, second: 0, millisecond: 0});
+    const mañana = DateTime.fromJSDate(fechaJs).set({hour: 23, minute: 59, second: 59, millisecond: 0});
+    
+    return await this.asistenciaModel.findOne({
+      $and: [
+        { [tipo]: idEmpleado },
+        { fecha_registro: { $gte: hoy.toJSDate(), $lte: mañana.toJSDate() }  }
+      ]
+    }).then(async(obj:any) => {
+      if (obj) {
+        throw new HttpException('Ya existe un registro para esa fecha.', HttpStatus.NOT_FOUND);
+      } else {
+        return await new this.asistenciaModel({
+          [tipo]: idEmpleado, tipo, estado, fecha_registro: DateTime.fromJSDate(fechaJs).plus({ hour: 5}).toJSDate(), 
+          observacion: observacion ? observacion : `Asistencia creada por ${usuario} el: ${fechaObtenida}`
+        }).save()
+      }
+    })
   };
 
   async actualizarAsistencia(id:string, estado:string, observacion?:string) {
@@ -111,7 +163,7 @@ export class AsistenciaService {
 
     return await this.asistenciaModel.find({
       $and: [
-        { createdAt: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) } },
+        { fecha_registro: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) } },
         { tipo: params.tipo }
       ]
     }).populate('auditor', 'nombre apellidos carnet estado_empresa').populate('gestor', 'nombre apellidos carnet estado_empresa').populate({
@@ -156,7 +208,7 @@ export class AsistenciaService {
 
     return await this.asistenciaModel.find({
       $and: [
-        { createdAt: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) } },
+        { fecha_registro: { $gte: new Date(params.fecha_inicio), $lte: new Date(fechaFin.toISO()) } },
         { tecnico: { $in: tecnicos } },
         { tipo: 'tecnico' }
       ]

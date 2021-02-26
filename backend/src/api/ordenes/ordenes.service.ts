@@ -17,6 +17,7 @@ import { estado_gestor, tipos_orden } from 'src/constants/enum';
 import { OrdenesGateway } from './ordenes.gateway';
 import { UpdateDataService } from '@localLibs/update-data'
 import { bandejas, bandejasLiteyca, nodosLiteyca, tiposLiquidacion } from 'src/constants/valoresOrdenes';
+import { estados_toa } from 'src/constants/valoresToa';
 
 @Injectable()
 export class OrdenesService {
@@ -122,7 +123,10 @@ export class OrdenesService {
               this.logger.error({ message: e, service: cambioResponse.service })
               return;
             })
-          } else { duplicados = duplicados + 1; return;}
+          } else { 
+            duplicados = duplicados + 1; 
+            return;
+          }
         } else {
           const fechaInicio = DateTime.fromJSDate(new Date(o.fecha_registro)).plus({month: -1});
           const fechaBusqueda = new Date(Date.UTC(fechaInicio.get('year'), fechaInicio.get('month')-1, fechaInicio.get('day'), 0, 0, 0));
@@ -162,7 +166,13 @@ export class OrdenesService {
 
           if (o.codigo_trabajo && String(o.codigo_trabajo).length > 1) objUpdate['codigo_trabajo'] = o.codigo_trabajo;
           if (o.codigo_peticion && String(o.codigo_peticion).length > 1) objUpdate['codigo_peticion'] = o.codigo_peticion;
-          if (o.indicador_pai) objUpdate['indicador_pai'] = o.indicador_pai;
+          if (o.indicador_pai) {
+            if (String(o.indicador_pai).toLowerCase() === 'pendiente') {
+              objUpdate['indicador_pai'] = 1;
+            } else {
+              objUpdate['indicador_pai'] = o.indicador_pai;
+            }
+          }
           if (o.codigo_ctr && o.codigo_ctr !== ordenBase.codigo_ctr) objUpdate['codigo_ctr'] = o.codigo_ctr;
           if (o.codigo_nodo && o.codigo_nodo !== ordenBase.codigo_nodo) objUpdate['codigo_nodo'] = o.codigo_nodo;
           if (o.tipo_tecnologia) objUpdate['tipo_tecnologia'] = o.tipo_tecnologia;
@@ -240,7 +250,8 @@ export class OrdenesService {
       const ordenBase:IOrden = await this.ordenModel.findOne({ codigo_requerimiento: String(ordenUpdate.codigo_requerimiento) });
 
       let estadoXTipoLiquidacion = String(ordenUpdate.tipo_liquidacion).toUpperCase() === tiposLiquidacion.ANULADA ? estado_gestor.ANULADO : estado_gestor.LIQUIDADO
-      
+      let objUpdate = {};
+
       if (ordenBase && !ordenBase.fecha_liquidado && ordenUpdate.fecha_liquidado) {
         if (Number(ordenBase.codigo_ctr) === Number(ordenUpdate.codigo_ctr)) {
           const registroOrdenes:THistorial = {
@@ -250,22 +261,24 @@ export class OrdenesService {
             observacion: ordenUpdate.observacion_liquidado ? ordenUpdate.observacion_liquidado : 'Orden liquidada desde la data exportada de cms.',
             codigo_ctr: ordenUpdate.codigo_ctr
           };
+          objUpdate = {
+            fecha_liquidado: ordenUpdate.fecha_liquidado,
+            tecnico_liquidado: ordenUpdate.tecnico_liquidado,
+            carnet_liquidado: ordenUpdate.carnet_liquidado,
+            nombre_liquidado: ordenUpdate.nombre_liquidado,
+            tipo_averia: ordenUpdate.tipo_averia,
+            codigo_usuario_liquidado: ordenUpdate.codigo_usuario_liquidado,
+            observacion_liquidado: ordenUpdate.observacion_liquidado,
+            descripcion_codigo_liquidado: ordenUpdate.descripcion_codigo_liquidado,
+            estado_liquidado: ordenUpdate.estado_liquidado,
+            estado_gestor: estadoXTipoLiquidacion
+          };
+          if (ordenUpdate.codigo_ctr) objUpdate['codigo_ctr'] = ordenUpdate.codigo_ctr
+          if (ordenUpdate.codigo_nodo) objUpdate['codigo_nodo'] = ordenUpdate.codigo_nodo
+
           return await this.ordenModel.findOneAndUpdate({ 
             codigo_requerimiento: ordenUpdate.codigo_requerimiento
-          }, {
-            $set: {
-              fecha_liquidado: ordenUpdate.fecha_liquidado,
-              tecnico_liquidado: ordenUpdate.tecnico_liquidado,
-              carnet_liquidado: ordenUpdate.carnet_liquidado,
-              nombre_liquidado: ordenUpdate.nombre_liquidado,
-              tipo_averia: ordenUpdate.tipo_averia,
-              codigo_usuario_liquidado: ordenUpdate.codigo_usuario_liquidado,
-              observacion_liquidado: ordenUpdate.observacion_liquidado,
-              descripcion_codigo_liquidado: ordenUpdate.descripcion_codigo_liquidado,
-              estado_liquidado: ordenUpdate.estado_liquidado,
-              estado_gestor: estadoXTipoLiquidacion
-            },
-            $push: { historial_registro: registroOrdenes }
+          }, { $set: objUpdate, $push: { historial_registro: registroOrdenes }
           }).then(() => actualizados = actualizados +1 ).catch((e) => {
             errores = errores +1
             this.logger.error({ message: e, service: 'liquidarOrdenes(servicio - misma bandeja)' })
@@ -279,22 +292,25 @@ export class OrdenesService {
             observacion: 'Orden liquidadas en otra bandeja.',
             codigo_ctr: ordenUpdate.codigo_ctr
           };
+          objUpdate = {
+            codigo_ctr: ordenUpdate.codigo_ctr,
+            codigo_nodo: ordenUpdate.codigo_nodo,
+            fecha_liquidado: ordenUpdate.fecha_liquidado,
+            tecnico_liquidado: ordenUpdate.tecnico_liquidado,
+            carnet_liquidado: ordenUpdate.carnet_liquidado,
+            nombre_liquidado: ordenUpdate.nombre_liquidado,
+            tipo_averia: ordenUpdate.tipo_averia,
+            codigo_usuario_liquidado: ordenUpdate.codigo_usuario_liquidado,
+            estado_liquidado: ordenUpdate.estado_liquidado,
+            observacion_liquidado: ordenUpdate.observacion_liquidado,
+            descripcion_codigo_liquidado: ordenUpdate.descripcion_codigo_liquidado,
+            estado_gestor: estadoXTipoLiquidacion
+          }
+          if (ordenUpdate.codigo_ctr) objUpdate['codigo_ctr'] = ordenUpdate.codigo_ctr
+          if (ordenUpdate.codigo_nodo) objUpdate['codigo_nodo'] = ordenUpdate.codigo_nodo
           return await this.ordenModel.findOneAndUpdate({ 
             codigo_requerimiento: ordenUpdate.codigo_requerimiento
-          }, {
-            $set: {
-              fecha_liquidado: ordenUpdate.fecha_liquidado,
-              tecnico_liquidado: ordenUpdate.tecnico_liquidado,
-              carnet_liquidado: ordenUpdate.carnet_liquidado,
-              nombre_liquidado: ordenUpdate.nombre_liquidado,
-              tipo_averia: ordenUpdate.tipo_averia,
-              codigo_usuario_liquidado: ordenUpdate.codigo_usuario_liquidado,
-              estado_liquidado: ordenUpdate.estado_liquidado,
-              observacion_liquidado: ordenUpdate.observacion_liquidado,
-              descripcion_codigo_liquidado: ordenUpdate.descripcion_codigo_liquidado,
-              estado_gestor: estadoXTipoLiquidacion
-            },
-            $push: { historial_registro: registroOrdenes }
+          }, { $set: objUpdate, $push: { historial_registro: registroOrdenes }
           }).then(() => actualizados = actualizados +1 ).catch((e) => {
             errores = errores +1
             this.logger.error({ message: e, service: 'liquidarOrdenes(servicio - bandeja diferente)' })
@@ -308,29 +324,36 @@ export class OrdenesService {
           empleado_modificado: ordenUpdate.tecnico_liquidado,
           observacion: 'Datos de liquidación actualizado (tecnico).',
         };
+        objUpdate = {
+          tecnico_liquidado: ordenUpdate.tecnico_liquidado,
+          carnet_liquidado: ordenUpdate.carnet_liquidado,
+          nombre_liquidado: ordenUpdate.nombre_liquidado,
+          tipo_averia: ordenUpdate.tipo_averia,
+          codigo_usuario_liquidado: ordenUpdate.codigo_usuario_liquidado,
+          estado_liquidado: ordenUpdate.estado_liquidado,
+          observacion_liquidado: ordenUpdate.observacion_liquidado,
+          descripcion_codigo_liquidado: ordenUpdate.descripcion_codigo_liquidado,
+          estado_gestor: estadoXTipoLiquidacion
+        }
+        if (ordenUpdate.codigo_ctr) objUpdate['codigo_ctr'] = ordenUpdate.codigo_ctr
+        if (ordenUpdate.codigo_nodo) objUpdate['codigo_nodo'] = ordenUpdate.codigo_nodo
         return await this.ordenModel.findOneAndUpdate({ 
           codigo_requerimiento: ordenUpdate.codigo_requerimiento
         }, {
-          $set: {
-            tecnico_liquidado: ordenUpdate.tecnico_liquidado,
-            carnet_liquidado: ordenUpdate.carnet_liquidado,
-            nombre_liquidado: ordenUpdate.nombre_liquidado,
-            tipo_averia: ordenUpdate.tipo_averia,
-            codigo_usuario_liquidado: ordenUpdate.codigo_usuario_liquidado,
-            estado_liquidado: ordenUpdate.estado_liquidado,
-            observacion_liquidado: ordenUpdate.observacion_liquidado,
-            descripcion_codigo_liquidado: ordenUpdate.descripcion_codigo_liquidado,
-            estado_gestor: estadoXTipoLiquidacion
-          },
-          $push: { historial_registro: registroOrdenes }
+          $set: objUpdate, $push: { historial_registro: registroOrdenes }
         }).then(() => actualizados = actualizados +1 ).catch((e) => {
           errores = errores +1
           this.logger.error({ message: e, service: 'liquidarOrdenes(servicio - bandeja diferente)' })
           return;
         });
       } else {
-        duplicados = duplicados + 1;
-        return;
+        return await this.ordenModel.findOneAndUpdate({ 
+          codigo_requerimiento: ordenUpdate.codigo_requerimiento
+        }, { estado_gestor: estadoXTipoLiquidacion }).then(() => duplicados = duplicados + 1).catch((e) => {
+          errores = errores +1
+          this.logger.error({ message: e, service: 'liquidarOrdenes(servicio - bandeja diferente)' })
+          return;
+        });
       }
     })).then(() => ({ duplicados,  actualizados, errores }));
   };
@@ -362,7 +385,21 @@ export class OrdenesService {
       if (!ordenesJson || ordenesJson.length === 0) {
         throw new HttpException('No se encontró data(TOA) disponible para realizar el cruce.', HttpStatus.NOT_FOUND);
       } else {
-        return await Promise.all(ordenesJson.map(async(o) => {
+        let estadosCerrados = [estados_toa.SUSPENDIDO, estados_toa.CANCELADO, estados_toa.NO_REALIZADA]
+        let reqUnicos:TOrdenesToa[] = [];
+        ordenesJson.forEach((ordenBase) => {
+          if (reqUnicos.length > 0 ) {
+            let index = reqUnicos.findIndex((e) => e.requerimiento === ordenBase.requerimiento);
+            if (index > -1) {
+              if (estadosCerrados.includes(reqUnicos[index].estado) && !estadosCerrados.includes(ordenBase.estado)) {
+                reqUnicos[index] = ordenBase;
+              }
+            } else {
+              reqUnicos.push(ordenBase);
+            }
+          } else { reqUnicos.push(ordenBase) }
+        });
+        return await Promise.all(reqUnicos.filter(e => e).map(async(o) => {
           let objUpdate = {};
           if (o.tecnico && String(o.tecnico).length > 1) {      
             objUpdate = {
@@ -387,13 +424,12 @@ export class OrdenesService {
             if (o.fecha_cita && String(o.fecha_cita).length > 3) objUpdate['fecha_cita'] = new Date(String(o.fecha_cita).trim());
             if (o.direccion && String(o.direccion).length > 1) objUpdate['direccion'] = o.direccion;
             if (o.nombre_cliente && String(o.nombre_cliente).length > 1) objUpdate['nombre_cliente'] = o.nombre_cliente;
-
           } else {
             if (o.observacion_toa && String(o.observacion_toa).length > 1) objUpdate['observacion_toa'] = o.observacion_toa;
             if (o.estado_toa && String(o.estado_toa).length > 1) objUpdate['estado_toa'] = o.estado_toa;
             if (o.estado_indicador_toa && String(o.estado_indicador_toa).length > 1) objUpdate['estado_indicador_toa'] = o.estado_indicador_toa;
             if (o.subtipo_actividad && String(o.subtipo_actividad).length > 4) objUpdate['subtipo_actividad'] = o.subtipo_actividad;
-            if (o.tipo_agenda && String(o.tipo_agenda).length > 4) objUpdate['tipo_agenda'] = o.tipo_agenda;
+            if (o.tipo_agenda && String(o.tipo_agenda).length > 1) objUpdate['tipo_agenda'] = o.tipo_agenda;
             if (o.motivo_no_realizado && String(o.motivo_no_realizado).length > 4) objUpdate['motivo_no_realizado'] = o.motivo_no_realizado;
             if (o.sla_inicio && String(o.sla_inicio).length > 4) objUpdate['sla_inicio'] = o.sla_inicio;
             if (o.sla_fin && String(o.sla_fin).length > 4) objUpdate['sla_fin'] = o.sla_fin;
@@ -402,7 +438,7 @@ export class OrdenesService {
             if (o.direccion && String(o.direccion).length > 1) objUpdate['direccion'] = o.direccion;
             if (o.nombre_cliente && String(o.nombre_cliente).length > 1) objUpdate['nombre_cliente'] = o.nombre_cliente;
           };
-
+          
           return await this.ordenModel.findOneAndUpdate({codigo_requerimiento: o.requerimiento}, { $set: objUpdate });
 
         }));  
@@ -413,7 +449,7 @@ export class OrdenesService {
   async obtenerOrdenesPendientes(tipo: string) {
     return await this.ordenModel.find({
       $and: [
-        { fecha_liquidado: null },
+        { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
         { codigo_ctr: { $in: bandejasLiteyca } },
         { tipo },
       ]
@@ -529,6 +565,7 @@ export class OrdenesService {
           {fecha_liquidado: { $gte: startOfToday }},
           {fecha_liquidado: null}
         ]},
+        { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
         { codigo_ctr: { $nin: bandejasLiteyca } },
         { codigo_nodo: { $in: nodosLiteyca } },
         { tipo },
@@ -602,7 +639,7 @@ export class OrdenesService {
      
     return await this.ordenModel.find({
       $and: [
-        { fecha_liquidado: null },
+        { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
         { gestor_liteyca: todo === 'false' ? null : gestor },
         { codigo_ctr: { $in: bandejasLiteyca } }
       ]
@@ -727,7 +764,7 @@ export class OrdenesService {
     if (todo === 'true') {
       objQuery = {
         $and: [
-          { fecha_liquidado: null },
+          { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
           { tipo },
           { codigo_ctr: { $in: bandejasLiteyca } }
         ]
@@ -768,7 +805,7 @@ export class OrdenesService {
       auditor: 1,
       tecnico: 1,
       fecha_cita: 1,
-      tipo_Agenda: 1,
+      tipo_agenda: 1,
       fecha_registro: 1,
       fecha_asignado: 1,
       fecha_liquidado: 1,
@@ -856,6 +893,7 @@ export class OrdenesService {
       codigo_peticion: 1,
       nombre_cliente: 1,
       indicador_pai: 1,
+      tipo_agenda: 1,
       tipo_requerimiento: 1,
       tipo_tecnologia: 1,
       codigo_ctr: 1,
@@ -873,7 +911,6 @@ export class OrdenesService {
       auditor: 1,
       tecnico_liquidado: 1,
       fecha_cita: 1,
-      tipo_Agenda: 1,
       fecha_registro: 1,
       fecha_asignado: 1,
       fecha_liquidado: 1,
@@ -907,7 +944,7 @@ export class OrdenesService {
       objQuery = {
         $and: [
           { gestor_liteyca: gestor },
-          { fecha_liquidado: null },
+          { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
           { codigo_ctr: { $in: bandejasLiteyca } }
         ]
       }

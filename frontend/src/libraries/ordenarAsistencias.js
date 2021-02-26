@@ -10,9 +10,9 @@ export async function ordenarAsistencia(data=[]) {
       data.forEach((obj) => {
         if (nuevoArray.length > 0) {
           const aux = nuevoArray.findIndex((i) => i.nombre === obj.tecnico.nombre && i.apellidos === obj.tecnico.apellidos);
-          if (aux !== -1 && obj.createdAt ) {
+          if (aux !== -1 && obj.fecha_registro ) {
             const objetoNuevo = nuevoArray[aux];
-            const field = moment(obj.createdAt).format('DD-MM');
+            const field = moment(obj.fecha_registro).format('DD-MM');
             nuevoArray[aux] = {
               ...objetoNuevo,
               [field]: {
@@ -24,7 +24,7 @@ export async function ordenarAsistencia(data=[]) {
               }
             };
           } else {
-            const field = moment(obj.createdAt).format('DD-MM');
+            const field = moment(obj.fecha_registro).format('DD-MM');
             const objetoNuevo = {
               _id: obj._id,
               estado_empresa: obj.tecnico.estado_empresa,
@@ -34,6 +34,8 @@ export async function ordenarAsistencia(data=[]) {
               apellidos: obj.tecnico.apellidos,
               carnet: obj.tecnico.carnet,
               dni: obj.tecnico.numero_documento,
+              tipo: obj.tipo,
+              idEmpleado: obj.tecnico._id,
               gestor: {
                 nombre: obj.tecnico.gestor ? obj.tecnico.gestor.nombre : '-',
                 apellidos: obj.tecnico.gestor ? obj.tecnico.gestor.apellidos: '-',
@@ -60,7 +62,7 @@ export async function ordenarAsistencia(data=[]) {
             nuevoArray.push(objetoNuevo);
           }
         } else {
-          const field = moment(obj.createdAt).format('DD-MM');
+          const field = moment(obj.fecha_registro).format('DD-MM');
           nuevoArray = [{
             _id: obj._id,
             estado_empresa: obj.tecnico.estado_empresa,
@@ -70,6 +72,8 @@ export async function ordenarAsistencia(data=[]) {
             apellidos: obj.tecnico.apellidos,
             carnet: obj.tecnico.carnet,
             dni: obj.tecnico.numero_documento,
+            tipo: obj.tipo,
+            idEmpleado: obj.tecnico._id,
             gestor: {
               nombre: obj.tecnico.gestor ? obj.tecnico.gestor.nombre : '-',
               apellidos: obj.tecnico.gestor ? obj.tecnico.gestor.apellidos: '-',
@@ -110,9 +114,9 @@ export async function ordenarAsistenciaGestor(data=[]) {
       data.forEach((obj) => {
         if (nuevoArray.length > 0) {
           const aux = nuevoArray.findIndex((i) => i.nombre === obj.gestor.nombre && i.apellidos === obj.gestor.apellidos);
-          if (aux !== -1 && obj.createdAt ) {
+          if (aux !== -1 && obj.fecha_registro ) {
             const objetoNuevo = nuevoArray[aux];
-            const field = moment(obj.createdAt).format('DD-MM');
+            const field = moment(obj.fecha_registro).format('DD-MM');
             nuevoArray[aux] = {
               ...objetoNuevo,
               [field]: {
@@ -124,13 +128,15 @@ export async function ordenarAsistenciaGestor(data=[]) {
               }
             };
           } else {
-            const field = moment(obj.createdAt).format('DD-MM');
+            const field = moment(obj.fecha_registro).format('DD-MM');
             const objetoNuevo = {
               _id: obj._id,
               estado_empresa: obj.gestor.estado_empresa,
               nombre: obj.gestor.nombre,
               apellidos: obj.gestor.apellidos,
               observacion: obj.observacion,
+              tipo: obj.tipo,
+              idEmpleado: obj.gestor._id,
               [field]: {
                 _id: obj._id,
                 estado: obj.estado,
@@ -142,13 +148,15 @@ export async function ordenarAsistenciaGestor(data=[]) {
             nuevoArray.push(objetoNuevo);
           }
         } else {
-          const field = moment(obj.createdAt).format('DD-MM');
+          const field = moment(obj.fecha_registro).format('DD-MM');
           nuevoArray = [{
             _id: obj._id,
             estado_empresa: obj.gestor.estado_empresa,
             nombre: obj.gestor.nombre,
             apellidos: obj.gestor.apellidos,
             observacion: obj.observacion,
+            tipo: obj.tipo,
+            idEmpleado: obj.gestor._id,
             [field]: {
               _id: obj._id,
               estado: obj.estado,
@@ -174,9 +182,9 @@ export async function ordenarAsistenciaAuditor(data=[]) {
       data.forEach((obj) => {
         if (nuevoArray.length > 0) {
           const aux = nuevoArray.findIndex((i) => i.nombre === obj.auditor.nombre && i.apellidos === obj.auditor.apellidos);
-          if (aux !== -1 && obj.createdAt ) {
+          if (aux !== -1 && obj.fecha_registro ) {
             const objetoNuevo = nuevoArray[aux];
-            const field = moment(obj.createdAt).format('DD-MM');
+            const field = moment(obj.fecha_registro).format('DD-MM');
             nuevoArray[aux] = {
               ...objetoNuevo,
               [field]: {
@@ -188,13 +196,15 @@ export async function ordenarAsistenciaAuditor(data=[]) {
               }
             };
           } else {
-            const field = moment(obj.createdAt).format('DD-MM');
+            const field = moment(obj.fecha_registro).format('DD-MM');
             const objetoNuevo = {
               _id: obj._id,
               estado_empresa: obj.auditor.estado_empresa,
               nombre: obj.auditor.nombre,
               apellidos: obj.auditor.apellidos,
               observacion: obj.observacion,
+              tipo: obj.tipo,
+              idEmpleado: obj.auditor._id,
               [field]: {
                 _id: obj._id,
                 estado: obj.estado,
@@ -206,13 +216,15 @@ export async function ordenarAsistenciaAuditor(data=[]) {
             nuevoArray.push(objetoNuevo);
           }
         } else {
-          const field = moment(obj.createdAt).format('DD-MM');
+          const field = moment(obj.fecha_registro).format('DD-MM');
           nuevoArray = [{
             _id: obj._id,
             estado_empresa: obj.auditor.estado_empresa,
             nombre: obj.auditor.nombre,
             apellidos: obj.auditor.apellidos,
             observacion: obj.observacion,
+            tipo: obj.tipo,
+            idEmpleado: obj.auditor._id,
             [field]: {
               _id: obj._id,
               estado: obj.estado,

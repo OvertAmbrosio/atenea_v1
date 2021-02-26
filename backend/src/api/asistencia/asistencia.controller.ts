@@ -7,6 +7,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AsistenciaService } from './asistencia.service';
 import { tipos_usuario } from 'src/constants/enum';
 import { TPaginateParams, TRespuesta } from 'src/helpers/types';
+import { DateTime } from 'luxon';
 
 @UseGuards(JwtAuthGuard)
 @Controller('asistencia/')
@@ -62,6 +63,27 @@ export class AsistenciaController {
       }, HttpStatus.FORBIDDEN);
     }
   };
+
+  @Post()
+  async crearAsistencia(@Body() data:any, @Req() req: Request): Promise<TRespuesta> {
+    const user:any = req.user;
+    
+    return await this.asistenciaService.crearAsistencia(user.nombre, data.id, data.tipo, data.estado, data.fecha, data.observacion).then(() => {
+      return ({
+        status: 'success',
+        message: 'Asistencia actualizada con éxito.',
+      });
+    }).catch((err) => {
+      this.logger.error({
+        message: err,
+        service: 'crearAsistencia'
+      });
+      return ({
+        status: 'error',
+        message: 'Error creando la asistencia.'
+      });
+    });
+  }
 
   @Patch()
   async actualizarAsistencia(@Body() data:any , @Req() req: Request): Promise<TRespuesta> {

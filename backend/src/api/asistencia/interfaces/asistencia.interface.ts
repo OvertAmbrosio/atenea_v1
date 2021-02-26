@@ -8,6 +8,7 @@ export interface IAsistencia extends Document {
   readonly estado?: string,
   readonly iniciado?: boolean,
   readonly fecha_iniciado?: Date,
+  readonly fecha_registro?: Date,
   readonly observacion?: string,
   readonly updatedAt?: Date,
   readonly createdAt?: Date

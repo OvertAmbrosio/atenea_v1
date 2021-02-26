@@ -55,7 +55,11 @@ export default function columnasOrdenes(
       fixed: 'left',
       render: (req, row) => {
         if (row.subtipo_actividad && ordenesB2B.includes(row.subtipo_actividad)) {
-          return <Text copyable strong style={{ color: '#003055'}}><Tag color="#108ee9" style={{ fontSize: '1rem' }}>{req}</Tag></Text>
+          return (
+            <Tag color="#108ee9" style={{ fontSize: '1rem' }}>
+              <Text copyable strong style={{ color: '#ffffff !important' }}>{req}</Text>
+            </Tag>
+          )
         } else {
           return <Text copyable strong>{req}</Text>
         }

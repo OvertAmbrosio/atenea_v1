@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Tag } from 'antd';
+import moment from 'moment';
 
 import estadoAsistencia from '../../../constants/estadoAsistencia';
+import ModalCrearAsistencia from './ModalCrearAsistencia';
 
-function EstadoTag({estado}) {
+function EstadoTag({actualizar, row, fecha, estado}) {
+  const [modalCrear, setModalCrear] = useState(false);
+
+  const abrirModal = () => setModalCrear(!modalCrear);
+
   switch (estado) {
     case estadoAsistencia.FALTA:
       return (<Tag color="error">{estado}</Tag>);
@@ -12,6 +18,8 @@ function EstadoTag({estado}) {
       return (<Tag color="success">{estado}</Tag>);
     case estadoAsistencia.DESCANSO:
       return (<Tag color="gold">{estado}</Tag>);
+    case estadoAsistencia.GUARDIA:
+      return (<Tag color="cyan">{estado}</Tag>);
     case estadoAsistencia.PERMISO:
       return (<Tag color="blue">{estado}</Tag>);
     case estadoAsistencia.SUSPENDIDO:
@@ -25,11 +33,17 @@ function EstadoTag({estado}) {
     case estadoAsistencia.BAJA:
       return (<Tag color="volcano">{estado}</Tag>);
     default:
-      return (<Tag>-</Tag>)
+      return (<>
+       <Tag onClick={() => abrirModal()} style={{ cursor: 'pointer' }}>-</Tag>
+       <ModalCrearAsistencia actualizar={actualizar} row={row} fecha={moment(`${fecha}-2021`, 'DD-MM-YYYY').toDate()} visible={modalCrear} abrir={abrirModal}/>
+      </>)
   };
 };
 
 EstadoTag.propTypes = {
+  actualizar: PropTypes.func,
+  row: PropTypes.object,
+  fecha: PropTypes.string,
   estado: PropTypes.string
 };
 

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Col, DatePicker, Popover, Row, Statistic, Table, Tag } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined, ReloadOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { Button, Col, DatePicker, Input, Popover, Row, Space, Statistic, Table, Tag } from 'antd';
+import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 import { getAsistencias, patchAsistencia } from '../../../services/apiAsistencia';
@@ -13,6 +13,7 @@ import { obtenerFiltroId } from '../../../libraries/obtenerFiltro';
 import ModalEditarAsistencia from './ModalEditarAsistencia';
 import ExcelAsistenciaTecnico from '../../excelExports/ExcelAsistenciaTecnico'
 import cogoToast from 'cogo-toast';
+import Highlighter from 'react-highlight-words';
 
 export default function TablaAsistenciasTecnicos() {
   const [diaInicio, setDiaInicio] = useState(null);
@@ -30,6 +31,10 @@ export default function TablaAsistenciasTecnicos() {
   const [rutasGpon, setRutasGpon] = useState({total:0,activas:0});
   const [modalEditar, setModalEditar] = useState(false);
   const [idAsistencia, setIdAsistencia] = useState(null);
+  //busqueda
+  const [textoBusqueda, setTextoBusqueda] = useState('');
+  const [columnaBusqueda, setColumnaBusqueda] = useState('');
+  let inputBusqueda = useRef(null)
 
   useEffect(() => {
     cambiarSemana(moment())
@@ -109,6 +114,69 @@ export default function TablaAsistenciasTecnicos() {
     }
   };
 
+  const getColumnSearchProps = dataIndex => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={node => {
+            inputBusqueda = node;
+          }}
+          placeholder={`Buscar ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ width: 188, marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Buscar
+          </Button>
+          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+            Reiniciar
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
+        : '',
+    onFilterDropdownVisibleChange: visible => {
+      if (visible) {
+        setTimeout(() => inputBusqueda.select(), 100);
+      }
+    },
+    render: (nombre, row) =>
+      columnaBusqueda === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[textoBusqueda]}
+          autoEscape
+          textToHighlight={nombre ? nombre.toString() + ' ' + (row.apellidos ? row.apellidos : '') : ''}
+        />
+      ) : (
+        nombre + ' ' + (row.apellidos ? row.apellidos : '')
+      ),
+  });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setTextoBusqueda(selectedKeys[0]);
+    setColumnaBusqueda(dataIndex);
+  };
+
+  const handleReset = clearFilters => {
+    clearFilters();
+    setTextoBusqueda('');
+  };
+
   function generarColumnas() {
     let hoy = moment().format('DD-MM');
     if (diasSemana.length > 0) {
@@ -120,9 +188,9 @@ export default function TablaAsistenciasTecnicos() {
       },{
         title: 'Tecnico',
         dataIndex: 'nombre',
-        width: 230,
+        width: 250,
         ellipsis: true,
-        render: (e, row) => row.nombre + ' ' + row.apellidos
+        ...getColumnSearchProps('nombre'),
       }, {
         title: 'Gestor',
         dataIndex: 'gestor',
@@ -214,11 +282,11 @@ export default function TablaAsistenciasTecnicos() {
                   trigger="click"
                   destroyTooltipOnHide
                 >
-                  <button className="boton-none"><EstadoTag estado={a.estado}/></button>
+                  <button className="boton-none"><EstadoTag actualizar={listarAsistencias} row={row} fecha={e} estado={a.estado}/></button>
                 </Popover>
               )
             } else {
-              return (<EstadoTag estado={a && a.estado_empresa ? a.estado_empresa : row.estado_empresa === estadoEmpleado.INACTIVO ? 'BAJA' : '-'}/>)
+              return (<EstadoTag actualizar={listarAsistencias} row={row} fecha={e} estado={a && a.estado_empresa ? a.estado_empresa : row.estado_empresa === estadoEmpleado.INACTIVO ? 'BAJA' : '-'}/>)
             };
           }
         })
