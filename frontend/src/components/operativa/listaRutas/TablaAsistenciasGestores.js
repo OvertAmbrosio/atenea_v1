@@ -10,10 +10,12 @@ import EstadoTag from './EstadoTag';
 import ModalEditarAsistencia from './ModalEditarAsistencia';
 import ExcelAsistencia from '../../excelExports/ExcelAsistencia';
 
+const { RangePicker } = DatePicker;
+
 export default function TablaAsistenciasGestores() {
-  const [diaInicio, setDiaInicio] = useState(null);
-  const [diaFin, setDiaFin] = useState(null);
-  const [diasSemana, setDiasSemana] = useState([]);
+  const [diaInicio, setDiaInicio] = useState(moment().startOf('week'));
+  const [diaFin, setDiaFin] = useState(moment().endOf('week'));
+  const [listaDias, setListaDias] = useState([]);
   const [columnas, setColumnas] = useState(null);
   const [dataAsistencias, setDataAsistencias] = useState([]);
   const [loadingAsistencia, setLoadingAsistencia] = useState(false);
@@ -22,19 +24,19 @@ export default function TablaAsistenciasGestores() {
   const [idAsistencia, setIdAsistencia] = useState(null);
 
   useEffect(() => {
-    cambiarSemana(moment())
+    cambiarRango([moment().startOf('week'), moment().endOf('week')])
   //eslint-disable-next-line
-  }, []);
+  }, [])
 
   useEffect(() => {
     listarAsistencias()
   //eslint-disable-next-line
-  }, [diaInicio, diaFin]);
+  }, [diaInicio, diaFin])
   
   useEffect(() => {
     generarColumnas();
   //eslint-disable-next-line
-  }, [diasSemana]);
+  }, [listaDias]);
 
   async function listarAsistencias() {
     if (diaInicio && diaFin) {
@@ -42,8 +44,8 @@ export default function TablaAsistenciasGestores() {
       await getAsistencias({
         metodo: asistencias.LISTAR_TODO,
         tipo: 'gestor',
-        fecha_inicio: diaInicio,
-        fecha_fin: diaFin
+        fecha_inicio: diaInicio.toDate(),
+        fecha_fin: diaFin.toDate()
       }).then(async({data}) => {
         return await ordenarAsistenciaGestor(data.filter((e) => e.gestor !== null))
       }).then((resultado) => {
@@ -72,25 +74,24 @@ export default function TablaAsistenciasGestores() {
     setIdAsistencia(id);
   };
 
-  function cambiarSemana(dia) {
-    if (dia) {
-      let weekStart = dia.clone().startOf('week');
-      let weekEnd = dia.clone().endOf('week');
-      setDiaInicio(moment(weekStart).format('YYYY-MM-DD'));
-      setDiaFin(moment(weekEnd).format('YYYY-MM-DD'))
+  function cambiarRango(dias) {
+    if (dias && dias.length > 1) {
+      const diff = moment(dias[1].toDate()).diff(dias[0].toDate(), 'days');
+      setDiaInicio(dias[0]);
+      setDiaFin(dias[1])
       let days = [];
-      for (let i = 0; i <= 6; i++) {
-        days.push(moment(weekStart).add(i, 'days').format("DD-MM"));
+      for (let i = 0; i <= diff; i++) {
+        days.push(moment(dias[0].toDate()).add(i, 'days').format("DD-MM"));
       };
-      setDiasSemana(days);
+      setListaDias(days);
     } else {
-      setDiaInicio(null);
-      setDiaFin(null);
+      setDiaInicio(moment().startOf('week'));
+      setDiaFin(moment().endOf('week'));
     }
   };
 
   function generarColumnas() {
-    if (diasSemana.length > 0) {
+    if (listaDias.length > 0) {
       const firstColumn = [{
         title: '#',
         width: 50,
@@ -104,7 +105,7 @@ export default function TablaAsistenciasGestores() {
         render: (e, row) => row.nombre + ' ' + row.apellidos
       }];
 
-      const columnsAux = diasSemana.map((e) => {
+      const columnsAux = listaDias.map((e) => {
         return ({
           title: e,
           width: 100,
@@ -165,11 +166,10 @@ export default function TablaAsistenciasGestores() {
       <Row>
         <Col sm={24} style={{ marginBottom: '.5rem' }}>
           <p style={{ color: 'rgba(0,0,0,0.45)' }}>Seleccionar Fecha:</p>
-          <DatePicker 
-            defaultValue={moment()}
-            onChange={cambiarSemana} 
-            picker="week" 
+          <RangePicker
             style={{ marginRight: '.5rem' }}
+            onChange={cambiarRango}
+            value={[moment(diaInicio), moment(diaFin)]}
           />
           <Button disabled={loadingAsistencia} icon={loadingAsistencia ? <LoadingOutlined spin/>:<ReloadOutlined/>} onClick={listarAsistencias}>Actualizar</Button>
         </Col>
@@ -187,7 +187,8 @@ export default function TablaAsistenciasGestores() {
         columns={columnas !== null && columnas.length !== 0 ? columnas : columnasDefecto}
         dataSource={dataAsistencias}
         pagination={false}
-        footer={() => <ExcelAsistencia data={dataAsistencias} dias={diasSemana} nombre="gestor"/>}
+        footer={() => <ExcelAsistencia data={dataAsistencias} dias={listaDias} nombre="gestor"/>}
+        scroll={{ y: '60vh' }}
       />
       {/* MODAL PARA EDITAR LA ASISTENCIA */}
       <ModalEditarAsistencia visible={modalEditar} abrir={abrirModalEditar} loadingActualizar={loadingActualizar} actualizar={actualizarAsistencia} />

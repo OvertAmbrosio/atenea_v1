@@ -42,20 +42,10 @@ const items = [
         permisos: permisos.todos,
         children: [
           {
-            ruta: rutas.indicadoresGpon,
+            ruta: rutas.resumenGeneral,
             icon: DashboardOutlined,
-            titulo: 'Indicadores GPON'
-          },
-          {
-            ruta: rutas.indicadoresHfc,
-            icon: DashboardOutlined,
-            titulo: 'Indicadores HFC'
-          },
-          {
-            ruta: rutas.resumenTcfl,
-            icon: DashboardOutlined,
-            titulo: 'Resumen TCFL'
-          },
+            titulo: 'Resumen General'
+          }
         ]
       }
     ]
@@ -164,14 +154,13 @@ const items = [
 
 // eslint-disable-next-line
 function MenuUsuario({cargo}) {
-
   if (!cargo) {
     return (
       <Menu theme="light" mode="inline" defaultSelectedKeys={getPath()}>
         <ItemGroup title='Panel de Control'>
           <Divider/>
           <Item key="dashboard">
-            <Link to={rutas.indicadoresGpon}>
+            <Link to={rutas.resumenGeneral}>
             <DashboardOutlined />
             <span>Dashboard</span>
             </Link>
@@ -222,250 +211,6 @@ function MenuUsuario({cargo}) {
       </Menu>
     )
   };
-  // return (
-  //   <Menu theme="light" mode="inline" defaultSelectedKeys={getPath()}>
-  //     <ItemGroup title='Panel de Control'>
-  //       <Divider/>
-  //       <Item key="dashboard">
-  //         <Link to={rutas.indicadoresGpon}>
-  //         <DashboardOutlined />
-  //         <span>Dashboard</span>
-  //         </Link>
-  //       </Item>
-  //     </ItemGroup>
-  //     <ItemGroup title='Usuarios y Personal'>
-  //       <Divider/>
-  //       <Item key="lista-personal" style={{ display: !permisos.listaPersonal.includes(cargo) && 'none' }}>
-  //         <Link to={rutas.listaPersonal}>
-  //           <TeamOutlined />
-  //           <span>Lista de Personal</span>
-  //         </Link>
-  //       </Item>
-  //       <Item key="lista-contratas" style={{ display: !permisos.listaContratas.includes(cargo) && 'none' }}>
-  //         <Link to={rutas.listaContratas}>
-  //           <IdcardOutlined />
-  //           <span>Lista de Contratas</span>
-  //         </Link>
-  //       </Item>
-  //     </ItemGroup>
-  //     <ItemGroup title='Operativa'>
-  //       <Divider/>
-  //       <SubMenu //ACTUALIZAR
-  //         key="sub3"
-  //         title={
-  //           <span>
-  //             <CloudUploadOutlined />
-  //             <span>Actualizar Ordenes</span>
-  //           </span>
-  //         }
-  //       >
-  //         <Item key="actualizar-averiashfc">
-  //           <Link to='/actualizar-averiashfc'>
-  //             <CloudUploadOutlined />
-  //               Actualizar Averias HFC
-  //           </Link>
-  //         </Item>
-  //         <Item key="actualizar-altashfc">
-  //           <Link to='/actualizar-altashfc'>
-  //             <CloudUploadOutlined />
-  //             Actualizar Altas HFC
-  //           </Link>
-  //         </Item>
-  //         <Item key="actualizar-basicas">
-  //           <Link to='/actualizar-basicas'>
-  //             <CloudUploadOutlined />
-  //             Actualizar Básicas
-  //           </Link>
-  //         </Item>
-  //         <Item key="actualizar-speedy">
-  //          <Link to='/actualizar-speedy'>
-  //             <CloudUploadOutlined />
-  //             Actualizar Speedy
-  //           </Link>
-  //         </Item>
-  //       </SubMenu>
-  //       <SubMenu //ASIGNAR
-  //         key="sub4"
-  //         title={
-  //           <span>
-  //             <FileSearchOutlined />
-  //             <span>Asignar Ordenes</span>
-  //           </span>
-  //         }
-  //       >
-  //         <Item key="asignar-averiashfc">
-  //           <Link to='/asignar-averiashfc'>
-  //             <FileSearchOutlined />
-  //             Asignar Averias HFC
-  //           </Link>
-  //         </Item>
-  //         <Item key="asignar-altashfc">
-  //           <Link to='/asignar-altashfc'>
-  //             <FileSearchOutlined />
-  //             Asignar Altas HFC
-  //           </Link>
-  //         </Item>
-  //         <Item key="asignar-basicas">
-  //           <Link to='/asignar-basicas'>
-  //             <FileSearchOutlined />
-  //             Asignar Básicas
-  //           </Link>
-  //         </Item>
-  //         <Item key="asignar-speedy">
-  //           <Link to='/asignar-speedy'>
-  //             <FileSearchOutlined />
-  //             Asignar Speedy
-  //           </Link>
-  //         </Item>
-  //       </SubMenu>
-  //       <SubMenu //GESTION
-  //         key="sub5"
-  //         title={
-  //           <span>
-  //             <ScheduleOutlined />
-  //             <span>Gestionar Ordenes</span>
-  //           </span>
-  //         }
-  //       >
-  //         <Item key="gestionar-averiashfc">
-  //           <Link to='/gestionar-averiashfc'>
-  //             <ScheduleOutlined />
-  //             Gestionar Averias HFC
-  //           </Link>
-  //         </Item>
-  //         <Item key="gestionar-altashfc">
-  //           <Link to='/gestionar-altashfc'>
-  //             <ScheduleOutlined />
-  //             Gestionar Altas HFC
-  //           </Link>
-  //         </Item>
-  //         <Item key="gestionar-basicas">
-  //           <Link to='/gestionar-basicas'>
-  //             <ScheduleOutlined />
-  //             Gestionar Básicas
-  //           </Link>
-  //         </Item>
-  //         <Item key="gestionar-speedy">
-  //           <Link to='/gestionar-speedy'>
-  //             <ScheduleOutlined />
-  //             Gestionar Speedy
-  //           </Link>
-  //         </Item>
-  //       </SubMenu>
-  //       <Item key="produccion">
-  //         <Link to='/produccion'>
-  //           <BarChartOutlined />
-  //           <span>Producción</span>
-  //         </Link>
-  //       </Item>
-  //       <Item key="registro-historico">
-  //         <Link to='/registro-historico'>
-  //           <HistoryOutlined />
-  //           <span>Registro Historico</span>
-  //         </Link>
-  //       </Item>
-  //     </ItemGroup>
-      // {/* <ItemGroup title='Logística'>
-      //   <Divider/>
-      //   <Item key="gestion-articulos">
-      //     <Link to='/gestion-articulos'>
-      //       <SlidersOutlined />
-      //       <span>Gestion de Articulos</span>
-      //     </Link>
-      //   </Item>
-      //   <SubMenu
-      //     key="sub6"
-      //     title={
-      //       <span>
-      //         <GroupOutlined />
-      //         <span>Almacen Central</span>
-      //       </span>
-      //     }
-      //   >
-      //     <Item key="entrada-almacen-central">
-      //       <Link to='/entrada-almacen-central'>
-      //         <ImportOutlined />
-      //         <span>Entrada Inventario</span>
-      //       </Link>
-      //     </Item>
-      //     <Item key="salida-almacen-central">
-      //       <Link to='/salida-almacen-central'>
-      //         <ExportOutlined />
-      //         <span>Salida Inventario</span>
-      //       </Link> 
-      //     </Item>
-      //     <Item key="equipos-detalle-central">
-      //       <Link to='/equipos-detalle-central'>
-      //         <FieldTimeOutlined />
-      //         <span>Equipos Detalle</span>
-      //       </Link>
-      //     </Item>
-      //     <Item key="ferreteria-detalle-central">
-      //       <Link to='/ferreteria-detalle-central'>
-      //         <ShopOutlined />
-      //         <span>Ferreteria Detalle</span>
-      //       </Link>
-      //     </Item>
-      //   </SubMenu>
-      //   <SubMenu
-      //     key="sub7"
-      //     title={
-      //       <span>
-      //         <GoldOutlined />
-      //         <span>Almacen Primario</span>
-      //       </span>
-      //     }
-      //   >
-      //     <Item key="entrada-almacen-primario">
-      //       <Link to='/entrada-almacen-primario'>
-      //         <ImportOutlined />
-      //         Entrada Inventario
-      //       </Link>
-      //     </Item>
-      //     <Item key="salida-almacen-primario">
-      //       <Link to='/salida-almacen-primario'>
-      //         <ExportOutlined />
-      //         Salida Inventario
-      //       </Link>
-      //     </Item>
-      //     <Item key="equipos-detalle-primario">
-      //       <Link to='/equipos-detalle-primario'>
-      //         <FieldTimeOutlined />
-      //         <span>Equipos Detalle</span>
-      //       </Link>
-      //     </Item>
-      //   </SubMenu>
-      //   <SubMenu
-      //     key="sub8"
-      //     title={
-      //       <span>
-      //         <CloudServerOutlined />
-      //         <span>Almacen Secundario</span>
-      //       </span>
-      //     }
-      //   >
-      //     <Item key="lista-almacen-secundario">
-      //       <Link to='/lista-almacen-secundario'>
-      //         <TableOutlined />
-      //         Lista
-      //       </Link>
-      //     </Item>
-      //     <Item key="salida-almacen-secundario">
-      //       <Link to='/salida-almacen-secundario'>
-      //         <ExportOutlined />
-      //         Salida Inventario
-      //       </Link>
-      //     </Item>
-      //   </SubMenu>
-      //   <Item key="buscar-serie">
-      //     <Link to='/buscar-serie'>
-      //       <SearchOutlined />
-      //       <span>Buscar Serie</span>
-      //     </Link>
-      //   </Item>
-      // </ItemGroup> */}
-    // </Menu>
-  // )
 };
 
 MenuUsuario.propTypes = {

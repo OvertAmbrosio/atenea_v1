@@ -55,6 +55,7 @@ function ModalEditarAsistencia({visible, abrir, loadingActualizar, actualizar}) 
         style={{ width: 300, marginBottom: '.5rem', marginRight: '.5rem' }}
       >
         <Option value={estadoAsistencia.ASISTIO}>Asistió</Option>
+        <Option value={estadoAsistencia.TARDANZA}>Tardanza</Option>
         <Option value={estadoAsistencia.FALTA}>Falta</Option>
         <Option value={estadoAsistencia.DESCANSO}>Descanso</Option>
         <Option value={estadoAsistencia.GUARDIA}>Guardia</Option>

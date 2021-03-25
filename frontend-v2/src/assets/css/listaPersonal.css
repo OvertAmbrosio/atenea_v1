@@ -1,0 +1,22 @@
+.tabla-personal .ant-table-title {
+  padding-left: 0;
+  margin-top: .5rem;
+}
+/* SECCION TITULO DE LA TABLA */
+.header-tabla {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.busqueda {
+  margin-right: 1rem;
+  flex-direction: column;
+}
+.boton-agregar {
+  flex-direction: column;
+  justify-content: flex-end;
+  right: 0;
+}
+.boton-agregar:not(:hover) button{
+  color: rgba(0,0,0,.65) !important;
+}

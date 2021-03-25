@@ -16,7 +16,7 @@ import { estado_gestor, tipos_orden } from 'src/constants/enum';
 
 import { OrdenesGateway } from './ordenes.gateway';
 import { UpdateDataService } from '@localLibs/update-data'
-import { bandejas, bandejasLiteyca, nodosLiteyca, tiposLiquidacion } from 'src/constants/valoresOrdenes';
+import { bandejas, bandejasLiteyca, nodosLima, nodosLiteyca, tiposLiquidacion } from 'src/constants/valoresOrdenes';
 import { estados_toa } from 'src/constants/valoresToa';
 
 @Injectable()
@@ -44,6 +44,16 @@ export class OrdenesService {
       }, 120000);
     // }).catch((err) => console.log(err));
   };
+
+  // @Cron('30 47 * * * *', {
+  //   name: 'modificarOrdenes',
+  //   timeZone: 'America/Lima',
+  // })
+  // async modificarOrdenes() {
+  //   await this.ordenModel.updateMany({ "historial_registro.grupo_entrada": 1616417388734 }, {
+  //     $set: { tipo: tipos_orden.ALTAS }
+  //   }).then((e) => console.log(e));
+  // }
 
   cambiarBandeja(antiguoCtr:number, nuevoCtr:number):{observacion:string, estado:string, service:string} {
     if (Number(nuevoCtr) === Number(bandejas.PEX)) {
@@ -93,7 +103,8 @@ export class OrdenesService {
     let errores = 0;
     const grupo_entrada = Date.now();
     return await Promise.all(createOrdenesDto.map(async(o) => {
-      const ordenBase:IOrden = await this.ordenModel.findOne({ codigo_requerimiento: String(o.codigo_requerimiento) }).select('codigo_ctr')
+      const ordenBase:IOrden = await this.ordenModel.findOne({ codigo_requerimiento: String(o.codigo_requerimiento) })
+        .select('codigo_ctr estado_gestor codigo_nodo')
       if (o.tipo === tipos_orden.AVERIAS) {
         if (ordenBase) {
           if (Number(ordenBase.codigo_ctr) !== Number(o.codigo_ctr)) {
@@ -116,6 +127,7 @@ export class OrdenesService {
               objUpdate['estado_gestor'] = cambioResponse.estado;
             }
             if (ordenBase.codigo_nodo !== o.codigo_nodo) objUpdate['codigo_nodo'] = o.codigo_nodo;
+            if (ordenBase.fecha_asignado !== o.fecha_asignado) objUpdate['fecha_asignado'] = o.fecha_asignado;
 
             return await this.ordenModel.findOneAndUpdate({ _id: ordenBase._id}, {  $set: objUpdate, $push: { historial_registro }
             }).then(() => actualizados = actualizados +1).catch((e:any) => {
@@ -123,10 +135,26 @@ export class OrdenesService {
               this.logger.error({ message: e, service: cambioResponse.service })
               return;
             })
-          } else { 
-            duplicados = duplicados + 1; 
-            return;
-          }
+          } else if ( ordenBase.estado_gestor === estado_gestor.LIQUIDADO || ordenBase.estado_gestor === estado_gestor.ANULADO ) { 
+            const historial_registro:THistorial = {
+              observacion: `Orden reinyectada.(${ordenBase.estado_gestor}>${estado_gestor.PENDIENTE})`,
+              usuario_entrada: usuario,
+              fecha_entrada: new Date(),
+              estado_orden: ordenBase.estado_gestor
+            };
+            let objUpdate:any = {
+              estado_gestor: estado_gestor.PENDIENTE
+            }
+            if (ordenBase.fecha_asignado !== o.fecha_asignado) objUpdate['fecha_asignado'] = o.fecha_asignado;
+
+            return await this.ordenModel.findOneAndUpdate({ _id: ordenBase._id}, {  $set: objUpdate, $push: { historial_registro }
+            }).then(() =>  actualizados = actualizados + 1).catch((e:any) => {
+              errores = errores +1;
+              this.logger.error({ message: e, service: "esatdos liquidados" })
+              return;
+            })
+           
+          } else { duplicados = duplicados + 1}
         } else {
           const fechaInicio = DateTime.fromJSDate(new Date(o.fecha_registro)).plus({month: -1});
           const fechaBusqueda = new Date(Date.UTC(fechaInicio.get('year'), fechaInicio.get('month')-1, fechaInicio.get('day'), 0, 0, 0));
@@ -210,8 +238,10 @@ export class OrdenesService {
           { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
           { fecha_liquidado: null },
         ] },
+        { estado_gestor: { $ne: estado_gestor.ANULADO } },
+        { codigo_nodo: { $in: nodosLima } },
         { codigo_ctr: { $in: bandejasLiteyca } },
-        { tipo: tipos_orden.AVERIAS }
+        { tipo: tipos_orden.AVERIAS },
       ]
     }).select('fecha_registro codigo_cliente').then(async(ordenes:IOrden[]) => {
       return await Promise.all(ordenes.map(async (o) => {
@@ -222,6 +252,7 @@ export class OrdenesService {
         return await this.ordenModel.findOne({ 
           $and: [
             { tipo: tipos_orden.ALTAS },
+            { codigo_nodo: { $in: nodosLima } },
             { codigo_cliente: o.codigo_cliente },
             { fecha_liquidado: { $gte: fechaBusqueda } },
             { estado_gestor: estado_gestor.LIQUIDADO }
@@ -351,14 +382,31 @@ export class OrdenesService {
           return;
         });
       } else {
-        return await this.ordenModel.findOneAndUpdate({ 
-          codigo_requerimiento: ordenUpdate.codigo_requerimiento
-        }, { estado_gestor: estadoXTipoLiquidacion }).then(() => duplicados = duplicados + 1).catch((e) => {
-          errores = errores +1
-          this.logger.error({ message: e, service: 'liquidarOrdenes(servicio - bandeja diferente)' })
-          return;
-        });
-      }
+        let registroUpdate:any = {};
+        if (ordenBase && ordenBase.estado_gestor) {
+          if ( ordenBase.estado_gestor !== estadoXTipoLiquidacion) {
+            registroUpdate = {
+              historial_registro: {
+                usuario_entrada: usuario,
+                estado_orden: estadoXTipoLiquidacion,
+                empleado_modificado: ordenUpdate.tecnico_liquidado,
+                observacion: `Orden liquidada. Estado actualizado. (${ordenBase.estado_gestor}>${estadoXTipoLiquidacion})`,
+              }
+            }
+          }
+          
+          return await this.ordenModel.findOneAndUpdate({ 
+            codigo_requerimiento: ordenUpdate.codigo_requerimiento
+          }, { $set: {
+            estado_gestor: estadoXTipoLiquidacion }
+            , $push: { registroUpdate } })
+          .then(() => duplicados = duplicados + 1).catch((e) => {
+            errores = errores +1
+            this.logger.error({ message: e, service: 'liquidarOrdenes(servicio - estado diferente)' })
+            return;
+          });
+        } else { duplicados = duplicados+1 };
+      };
     })).then(() => ({ duplicados,  actualizados, errores }));
   };
   // funcion que guarda la data que envia el servidor de scraping
@@ -393,16 +441,16 @@ export class OrdenesService {
         let reqUnicos:TOrdenesToa[] = [];
         ordenesJson.forEach((ordenBase) => {
           if (reqUnicos.length > 0 ) {
-            let index = reqUnicos.findIndex((e) => e.requerimiento === ordenBase.requerimiento);
-            if (index > -1) {
-              if (estadosCerrados.includes(reqUnicos[index].estado) && !estadosCerrados.includes(ordenBase.estado)) {
-                reqUnicos[index] = ordenBase;
-              }
-            } else {
-              reqUnicos.push(ordenBase);
+            const filtrados = ordenesJson.filter((e) => e.requerimiento === ordenBase.requerimiento);
+            if (filtrados.length > 1) {
+              const pendientes = filtrados.filter((e) => !estadosCerrados.includes(e.estado_toa));
+              reqUnicos.push(...pendientes);
+            } else if (filtrados.length === 1){
+              reqUnicos.push(...filtrados);
             }
           } else { reqUnicos.push(ordenBase) }
         });
+        
         return await Promise.all(reqUnicos.filter(e => e).map(async(o) => {
           let objUpdate = {};
           if (o.tecnico && String(o.tecnico).length > 1) {      
@@ -414,7 +462,7 @@ export class OrdenesService {
               gestor: o.gestor && typeof o.gestor !== 'string' ? o.gestor._id : null,
               gestor_liquidado_toa: o.gestor_liquidado_toa && typeof o.gestor_liquidado_toa !== 'string' ? o.gestor_liquidado_toa._id : null,
               auditor: o.auditor && typeof o.auditor !== 'string' ? o.auditor._id : null,
-              contrata: o.contrata && typeof o.contrata !== 'string' ? o.contrata._id : null,
+              // contrata: o.contrata && typeof o.contrata !== 'string' ? o.contrata._id : null,
               estado_toa: o.estado,
               estado_indicador_toa: o.estado_indicador_toa,
               subtipo_actividad: o.subtipo_actividad,
@@ -429,11 +477,11 @@ export class OrdenesService {
             if (o.direccion && String(o.direccion).length > 1) objUpdate['direccion'] = o.direccion;
             if (o.nombre_cliente && String(o.nombre_cliente).length > 1) objUpdate['nombre_cliente'] = o.nombre_cliente;
           } else {
+            objUpdate['tipo_agenda'] = o.tipo_agenda;
             if (o.observacion_toa && String(o.observacion_toa).length > 1) objUpdate['observacion_toa'] = o.observacion_toa;
             if (o.estado_toa && String(o.estado_toa).length > 1) objUpdate['estado_toa'] = o.estado_toa;
             if (o.estado_indicador_toa && String(o.estado_indicador_toa).length > 1) objUpdate['estado_indicador_toa'] = o.estado_indicador_toa;
             if (o.subtipo_actividad && String(o.subtipo_actividad).length > 4) objUpdate['subtipo_actividad'] = o.subtipo_actividad;
-            if (o.tipo_agenda && String(o.tipo_agenda).length > 1) objUpdate['tipo_agenda'] = o.tipo_agenda;
             if (o.motivo_no_realizado && String(o.motivo_no_realizado).length > 4) objUpdate['motivo_no_realizado'] = o.motivo_no_realizado;
             if (o.sla_inicio && String(o.sla_inicio).length > 4) objUpdate['sla_inicio'] = o.sla_inicio;
             if (o.sla_fin && String(o.sla_fin).length > 4) objUpdate['sla_fin'] = o.sla_fin;
@@ -457,7 +505,9 @@ export class OrdenesService {
           { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
           { fecha_liquidado: null },
         ] },
-        { codigo_ctr: { $in: bandejasLiteyca } },
+        { estado_gestor: { $ne: estado_gestor.ANULADO } },
+        { codigo_nodo: { $in: nodosLima } },
+        { codigo_ctr: { $in: [bandejas.CRITICOS,bandejas.LITEYCA] } },
         { tipo },
       ]
     }).populate('contrata', 'nombre')
@@ -513,6 +563,7 @@ export class OrdenesService {
         $and: [
           { fecha_liquidado: { $gte: startOfToday } } ,
           { codigo_ctr: { $in: bandejasLiteyca } },
+          { codigo_nodo: { $in: nodosLima } },
           { estado_gestor: estado_gestor.LIQUIDADO },
           { [field]: gestor ? gestor : tipo }
         ]
@@ -573,7 +624,7 @@ export class OrdenesService {
           {fecha_liquidado: null}
         ]},
         { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
-        { codigo_ctr: { $nin: bandejasLiteyca } },
+        { codigo_ctr: { $nin: [bandejas.CRITICOS, bandejas.PEX ] } },
         { codigo_nodo: { $in: nodosLiteyca } },
         { tipo },
       ]
@@ -650,8 +701,10 @@ export class OrdenesService {
           { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
           { fecha_liquidado: null },
         ] },
-        { gestor_liteyca: todo === 'false' ? null : gestor },
-        { codigo_ctr: { $in: bandejasLiteyca } }
+        { estado_gestor: { $ne: estado_gestor.ANULADO } },
+        { gestor_liteyca: gestor },
+        { codigo_nodo: { $in: nodosLima } },
+        { codigo_ctr: { $in: [bandejas.LITEYCA, bandejas.CRITICOS] } }
       ]
     }).populate('contrata', 'nombre')
       .populate('tecnico tecnico_liteyca', 'nombre apellidos carnet')
@@ -704,10 +757,11 @@ export class OrdenesService {
   };
   //FUNCION PARA OBTENER LAS ORDENES REITERADAS
   async obtenerReiteradas(codigo_cliente: string):Promise<IOrden[]> {
+    let haceUnMes = DateTime.fromJSDate(new Date()).plus({month: -1}).toJSDate();
     return await this.ordenModel.find({
       $and: [
         { codigo_cliente },
-        { fecha_liquidado: { $ne: null } },
+        { fecha_liquidado: { $gte: haceUnMes } },
       ]
     }).populate({
       path: 'tecnico_liquidado', 
@@ -774,9 +828,14 @@ export class OrdenesService {
     if (todo === 'true') {
       objQuery = {
         $and: [
-          { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
+          { $or: [
+            { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
+            { fecha_liquidado: null },
+          ] },
+          { estado_gestor: { $ne: estado_gestor.ANULADO } },
+          { codigo_ctr: { $in: [bandejas.LITEYCA, bandejas.CRITICOS] } },
+          { codigo_nodo: { $in: nodosLima } },
           { tipo },
-          { codigo_ctr: { $in: bandejasLiteyca } }
         ]
       }
     } else {      
@@ -798,6 +857,7 @@ export class OrdenesService {
       direccion: 1,
       nombre_cliente: 1,
       indicador_pai: 1,
+      detalle_trabajo: 1,
       tipo_requerimiento: 1,
       tipo_tecnologia: 1,
       codigo_ctr: 1,
@@ -814,6 +874,7 @@ export class OrdenesService {
       gestor_liteyca: 1,
       auditor: 1,
       tecnico: 1,
+      tecnico_liteyca: 1,
       fecha_cita: 1,
       tipo_agenda: 1,
       fecha_registro: 1,
@@ -835,7 +896,7 @@ export class OrdenesService {
         }
       }
     }).populate('contrata', 'nombre')
-      .populate('gestor gestor_liteyca auditor tecnico', 'nombre apellidos carnet')
+      .populate('gestor gestor_liteyca auditor tecnico tecnico_liteyca', 'nombre apellidos carnet')
   };
 
   async obtenerLiquidadasExportar(gestor:string, todo:string, tipo:string, ids:string[], fechaInicio:Date, fechaFin:Date) {
@@ -874,7 +935,7 @@ export class OrdenesService {
       objQuery = { _id: { $in: ids } }
     } else if (fi.get('year') > 2000 && ff.get('year') > 2000) {
       let inicioUTC = new Date(Date.UTC(fi.get('year'), fi.get('month')-1, fi.get('day'), 0, 0, 0));
-      let finUTC = new Date(Date.UTC(ff.get('year'), ff.get('month')-1, ff.get('day'), 0, 0, 0));      
+      let finUTC = new Date(Date.UTC(ff.get('year'), ff.get('month')-1, ff.get('day'), 23, 59, 59));      
 
       if (gestor) {
         objQuery = {
@@ -947,15 +1008,15 @@ export class OrdenesService {
       .populate('tecnico', 'nombre apellidos carnet')
   };
 
-  async obtenerPendientesExportarGestor(gestor:string, todo:string, ids:string[]) {
-    let objQuery:any;
+  async obtenerPendientesExportarGestor(gestor:string, ids:string[], todo:string, ) {
+    let objQuery:any={};
     
     if (todo === 'true') {
       objQuery = {
         $and: [
           { gestor_liteyca: gestor },
-          { estado_gestor: { $ne: estado_gestor.LIQUIDADO } },
-          { codigo_ctr: { $in: bandejasLiteyca } }
+          { estado_gestor: { $nin: [estado_gestor.LIQUIDADO,estado_gestor.ANULADO] } },
+          { codigo_ctr: { $in: [bandejas.LITEYCA, bandejas.CRITICOS] } }
         ]
       }
     } else {      
@@ -982,6 +1043,7 @@ export class OrdenesService {
       codigo_ctr: 1,
       codigo_nodo: 1,
       codigo_troba: 1,
+      detalle_trabajo: 1,
       numero_reiterada: 1,
       infancia: 1,
       distrito: 1,
@@ -992,6 +1054,7 @@ export class OrdenesService {
       gestor: 1,
       auditor: 1,
       tecnico: 1,
+      tecnico_liteyca: 1,
       fecha_cita: 1,
       tipo_Agenda: 1,
       fecha_registro: 1,
@@ -1015,7 +1078,7 @@ export class OrdenesService {
     }).populate('contrata', 'nombre')
       .populate('gestor', 'nombre apellidos carnet')
       .populate('auditor', 'nombre apellidos carnet')
-      .populate('tecnico', 'nombre apellidos carnet')
+      .populate('tecnico tecnico_liteyca', 'nombre apellidos carnet')
   };
   //funcion para agendar una orden
   async agendarOrden(ordenes:string[], id:string, bucket?:string, contrata?:string, gestor?:string, tecnico?:string, fecha_cita?:string, observacion?: string) {
@@ -1053,14 +1116,14 @@ export class OrdenesService {
       estado_orden: estado_gestor.ASIGNADO
     };
 
-    if (contrata) {
+    if (contrata  && contrata.length > 5) {
       objUpdate['contrata'] = contrata;
     }
-    if (gestor) {
+    if (gestor  && gestor.length > 5) {
       objUpdate['gestor_liteyca'] = gestor;
       objUpdate['estado_gestor'] = estado_gestor.ASIGNADO;
     }
-    if (tecnico) {
+    if (tecnico && tecnico.length > 5) {
       objUpdate['auditor'] = auditor;
       objUpdate['tecnico_liteyca'] = tecnico;
       objUpdate['estado_gestor'] = estado_gestor.ASIGNADO;

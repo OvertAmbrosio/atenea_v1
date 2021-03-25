@@ -1,6 +1,6 @@
 import React from 'react';
-import { Tag, Tooltip, Typography } from 'antd';
-import { PlusCircleTwoTone} from '@ant-design/icons'
+import { Button, Input, Space, Tag, Tooltip, Typography } from 'antd';
+import { PlusCircleTwoTone, SearchOutlined} from '@ant-design/icons'
 import moment from 'moment';
 
 import TagEstado from '../TagEstado';
@@ -8,21 +8,18 @@ import { tipoOrdenes } from '../../../../constants/tipoOrden';
 import PopObservacion from './PopObservacion';
 import TagHoras from '../../../common/TagHoras';
 import { ordenesB2B } from '../../../../constants/valoresToa';
+import TagDias from '../../../common/TagDias';
 
 const { Text } = Typography;
 
 export default function ColumnasOrdenes({
   tipo,
-  filtros={},
-  setFiltros,
   filtroDistrito=[],
   filtroBucket=[],
   filtroEstadoToa=[],
   filtroEstadoGestor=[],
   filtroContrata=[], 
   filtroGestorAsignado=[],
-  filtroTecnicoToa=[],
-  filtroTecnicoAsignado=[],
   filtroTipoReq=[],
   filtroTecnologia=[],
   filtroNodo=[],
@@ -34,9 +31,8 @@ export default function ColumnasOrdenes({
   filtroFechaCita=[],
   abrirReiterada,
   abrirInfancia,
-  abrirDetalle,
+  abrirRegistro,
   listarOrdenes,
-  inputBusqueda=null,
 }) {
 
   const columnasGeneral = [
@@ -46,7 +42,7 @@ export default function ColumnasOrdenes({
       title: '#',
       width: 50,
       fixed: 'left',
-      render: (_,__,i) => i+1
+      render: (_,__,i) => Number(i)+1
     },
     {
       averias: true,
@@ -98,7 +94,6 @@ export default function ColumnasOrdenes({
       dataIndex: 'tipo_tecnologia',
       align: 'center',
       width: 120,
-      filteredValue: filtros && filtros.tipo_tecnologia ? filtros.tipo_tecnologia : null,
       filters: filtroTecnologia ? filtroTecnologia : [{text: '', value: ''}],
       onFilter: (v,r) => r.tipo_tecnologia.indexOf(v) === 0,
     },
@@ -109,7 +104,6 @@ export default function ColumnasOrdenes({
       dataIndex: 'indicador_pai',
       width: 60,
       aling: 'center',
-      filteredValue: filtros && filtros.indicador_pai ? filtros.indicador_pai : null,
       filters: filtroPai ? filtroPai : [{text: '', value: ''}],
       onFilter: (v,r) => String(r.indicador_pai).indexOf(String(v)) === 0,
     },
@@ -119,7 +113,6 @@ export default function ColumnasOrdenes({
       title: 'CTR',
       dataIndex: 'codigo_ctr',
       width: 60,
-      filteredValue: filtros && filtros.codigo_ctr ? filtros.codigo_ctr : null,
       filters: filtroCtr ? filtroCtr : [{text: '', value: ''}],
       onFilter: (v,r) => String(r.codigo_ctr).indexOf(String(v)) === 0,
     },
@@ -130,7 +123,6 @@ export default function ColumnasOrdenes({
       dataIndex: 'tipo_requerimiento',
       align:'center',
       width: 100,
-      filteredValue: filtros && filtros.tipo_requerimiento ? filtros.tipo_requerimiento : null,
       filters: filtroTipoReq ? filtroTipoReq : [{text: '', value: ''}],
       onFilter: (v,r) => r.tipo_requerimiento.indexOf(v) === 0
     },
@@ -140,7 +132,6 @@ export default function ColumnasOrdenes({
       title: 'Nodo',
       dataIndex: 'codigo_nodo',
       width: 70,
-      filteredValue: filtros && filtros.codigo_nodo ? filtros.codigo_nodo : null,
       filters: filtroNodo ? filtroNodo : [{text: '', value: ''}],
       onFilter: (v,r) => r.codigo_nodo.indexOf(v) === 0,
     },
@@ -159,7 +150,6 @@ export default function ColumnasOrdenes({
         }
         return 0;
       },
-      filteredValue: filtros && filtros.codigo_troba ? filtros.codigo_troba : null,
       filters: filtroTroba ? filtroTroba : [{text: '', value: ''}],
       onFilter: (v,r) => r.codigo_troba.indexOf(v) === 0,
     },
@@ -186,7 +176,6 @@ export default function ColumnasOrdenes({
       dataIndex: 'infancia',
       width: 90,
       align: 'center',
-      filteredValue: filtros && filtros.infancia ? filtros.infancia : null,
       filters: [{text: 'Si', value: true}, {text: 'No', value: false}],
       onFilter: (v,r) => {
         if (v) {
@@ -224,7 +213,6 @@ export default function ColumnasOrdenes({
       title: 'Distrito',
       dataIndex: 'distrito',
       width: 160,
-      filteredValue: filtros && filtros.distrito ? filtros.distrito : null,
       filters: filtroDistrito ? filtroDistrito : [{text: '', value: ''}],
       onFilter: (v,r) => r.distrito.indexOf(v) === 0
     },
@@ -252,7 +240,6 @@ export default function ColumnasOrdenes({
       ellipsis: {
         showTitle: false,
       },
-      filteredValue: filtros && filtros.bucket ? filtros.bucket : null,
       filters: filtroBucket ? filtroBucket : [{text: '', value: ''}],
       onFilter: (v,r) => r.bucket.indexOf(v) === 0,
       render: (bckt) => (
@@ -268,7 +255,6 @@ export default function ColumnasOrdenes({
       dataIndex: 'estado_toa',
       width: 150,
       align: 'center',
-      filteredValue: filtros && filtros.estado_toa ? filtros.estado_toa : null,
       filters: filtroEstadoToa ? filtroEstadoToa : [{text: '', value: ''}],
       onFilter: (v,r) => r.estado_toa.indexOf(v) === 0,
       render: (e) => <TagEstado estado={e}/>
@@ -280,7 +266,6 @@ export default function ColumnasOrdenes({
       dataIndex: 'estado_gestor',
       width: 150,
       align: 'center',
-      filteredValue: filtros && filtros.estado_gestor ? filtros.estado_gestor : null,
       filters: filtroEstadoGestor ? filtroEstadoGestor : [{text: '', value: ''}],
       onFilter: (v,r) => r.estado_gestor.indexOf(v) === 0,
       render: (e) => <TagEstado estado={e}/>
@@ -294,7 +279,6 @@ export default function ColumnasOrdenes({
       ellipsis: {
         showTitle: false,
       },
-      filteredValue: filtros && filtros.contrata ? filtros.contrata : null,
       filters: filtroContrata ? filtroContrata : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
@@ -318,9 +302,8 @@ export default function ColumnasOrdenes({
       dataIndex: 'gestor_liteyca',
       width: 200,
       ellipsis: {
-        showTitle: false,
+        title: true,
       },
-      filteredValue: filtros && filtros.gestor_liteyca ? filtros.gestor_liteyca : null,
       filters: filtroGestorAsignado ? filtroGestorAsignado : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
@@ -346,16 +329,39 @@ export default function ColumnasOrdenes({
       ellipsis: {
         showTitle: false,
       },
-      filteredValue: filtros && filtros.tecnico ? filtros.tecnico : null,
-      filters: filtroTecnicoToa ? filtroTecnicoToa : [{text: '', value: ''}],
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            size="small"
+            placeholder={`Buscar Tecnico`}
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ width: 188, marginBottom: 8, display: 'block' }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Search
+            </Button>
+            <Button size="small" onClick={() => clearFilters()}>
+              Reset
+            </Button>
+          </Space>
+        </div>
+      ),
+      filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
       onFilter: (v,r) => {
-        if (v === '-') {
-          return !r.tecnico
-        } else if(r.tecnico) {
-          return r.tecnico._id.indexOf(v) === 0
+        if (r["tecnico"] && r["tecnico"].apellidos) {
+          return ((r["tecnico"].nombre+' '+r["tecnico"].apellidos).toString().toLowerCase().includes(v.toLowerCase()))
         } else {
-          return false
-        }
+          return false;
+        };
       },
       render: (t) => (
         <Tooltip placement="topLeft" title={t ? t.nombre+' '+t.apellidos:'-'}>
@@ -372,16 +378,39 @@ export default function ColumnasOrdenes({
       ellipsis: {
         showTitle: false,
       },
-      filteredValue: filtros && filtros.tecnico_liteyca ? filtros.tecnico_liteyca : null,
-      filters: filtroTecnicoAsignado ? filtroTecnicoAsignado : [{text: '', value: ''}],
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            size="small"
+            placeholder={`Buscar Tecnico`}
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ width: 188, marginBottom: 8, display: 'block' }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Search
+            </Button>
+            <Button size="small" onClick={() => clearFilters()}>
+              Reset
+            </Button>
+          </Space>
+        </div>
+      ),
+      filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
       onFilter: (v,r) => {
-        if (v === '-') {
-          return !r.tecnico_liteyca
-        } else if(r.tecnico_liteyca) {
-          return r.tecnico_liteyca._id.indexOf(v) === 0
+        if (r["tecnico_liteyca"] && r["tecnico_liteyca"].apellidos) {
+          return ((r["tecnico_liteyca"].nombre+' '+r["tecnico_liteyca"].apellidos).toString().toLowerCase().includes(v.toLowerCase()))
         } else {
-          return false
-        }
+          return false;
+        };
       },
       render: (t) => (
         <Tooltip placement="topLeft" title={t ? t.nombre+' '+t.apellidos:'-'}>
@@ -398,7 +427,6 @@ export default function ColumnasOrdenes({
       ellipsis: {
         showTitle: false,
       },
-      filteredValue: filtros && filtros.observacion_gestor ? filtros.observacion_gestor : null,
       filters: filtroObservacion ? filtroObservacion : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
@@ -418,7 +446,6 @@ export default function ColumnasOrdenes({
       dataIndex: 'fecha_cita',
       width: 150,
       align: 'center',
-      filteredValue: filtros && filtros.fecha_cita ? filtros.fecha_cita : null,
       filters: filtroFechaCita ? filtroFechaCita : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (v === '-') {
@@ -473,7 +500,6 @@ export default function ColumnasOrdenes({
       width: 100,
       align: 'center',
       fixed: 'right',
-      filteredValue: filtros && filtros.tipo_agenda ? filtros.tipo_agenda : null,
       filters: filtroTimeSlot ? filtroTimeSlot.filter((e) => e.text) : [{text: '', value: ''}],
       onFilter: (v,r) => {
         if (r.tipo_agenda && v ) {
@@ -512,21 +538,27 @@ export default function ColumnasOrdenes({
     {//tcfl 72h
       averias: false,
       altas: true,
-      title: 'Horas',
-      dataIndex: 'fecha_registro',
+      title: 'Dias',
+      dataIndex: 'fecha_asignado',
       width: 80,
       align: 'center',
       fixed: 'right',
       sorter: (a, b) => {
-        if (moment().diff(a.fecha_registro, 'hours') < moment().diff(b.fecha_registro, 'hours')) {
+        if(!a.fecha_asignado) {
+          return -1
+        };
+        if(!b.fecha_asignado) {
+          return 1;
+        }
+        if (moment().diff(a.fecha_asignado, 'days') < moment().diff(b.fecha_asignado, 'days')) {
           return -1;
         }
-        if (moment().diff(a.fecha_registro, 'hours') > moment().diff(b.fecha_registro, 'hours')) {
+        if (moment().diff(a.fecha_asignado, 'days') > moment().diff(b.fecha_asignado, 'days')) {
           return 1;
         }
         return 0;
       },
-      render: (fecha, row) => <TagHoras fecha={fecha} tipo={tipoOrdenes.ALTAS} tipoAgenda={row.tipo_agenda}/>
+      render: (fecha) => <TagDias fecha={fecha}/>
     },
     {
       averias: true,
@@ -540,7 +572,7 @@ export default function ColumnasOrdenes({
         <div>
           <PlusCircleTwoTone
             style={{ fontSize: '1.5rem', marginRight: '.5rem' }}
-            onClick={() => abrirDetalle(id)}
+            onClick={() => abrirRegistro(id)}
           />
           <PopObservacion row={row} listarOrdenes={listarOrdenes}/>
         </div>

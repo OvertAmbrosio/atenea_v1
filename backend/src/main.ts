@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { IoAdapter } from '@nestjs/platform-socket.io'
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import compression from 'compression';
-import { json, urlencoded } from 'body-parser'
+import { json, urlencoded } from 'body-parser';
 
 import { AppModule } from './app.module';
 import { variables } from './config/variables';

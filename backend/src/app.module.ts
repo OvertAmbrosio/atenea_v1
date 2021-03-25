@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { ApiModule } from './api/api.module';
 import { RedisModule } from './database/redis.module';
 import { MailModule } from './mail/mail.module';
+import { OrdenesGateway } from './api/ordenes/ordenes.gateway';
 
 @Module({
   imports: [
@@ -33,6 +34,6 @@ import { MailModule } from './mail/mail.module';
     MailModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, OrdenesGateway],
 })
 export class AppModule {}

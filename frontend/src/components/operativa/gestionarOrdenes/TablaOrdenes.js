@@ -60,7 +60,7 @@ function TablaOrdenes({ asignadas=false, data, loading, ordenesSeleccionadas, se
     setModalColumnas(false);
     return await patchEmpleados(true, { columnas: keys, metodo: empleados.ACTUALIZAR_COLUMNAS_GESTOR })
       .then(() => obtenerColumnasGestor())
-  }
+  };
 
   const abrirModalDetalle = () => setModalDetalle(!modalDetalle);
   const abrirModalColumnas = () => setModalColumnas(!modalColumnas);

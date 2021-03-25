@@ -75,6 +75,7 @@ function ModalCrearAsistencia({actualizar, row, fecha, visible, abrir}) {
       >
         <Option value={estadoAsistencia.ASISTIO}>Asistió</Option>
         <Option value={estadoAsistencia.FALTA}>Falta</Option>
+        <Option value={estadoAsistencia.TARDANZA}>Tardanza</Option>
         <Option value={estadoAsistencia.DESCANSO}>Descanso</Option>
         <Option value={estadoAsistencia.GUARDIA}>Guardia</Option>
         <Option value={estadoAsistencia.PERMISO}>Permiso</Option>

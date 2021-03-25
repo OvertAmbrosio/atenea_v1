@@ -83,7 +83,7 @@ export class UpdateDataService {
     const completas:TOrdenesToa[] = data.filter((e) => e.estado_toa === estados_toa.COMPLETADO);
     const objetos = [];
     completas.forEach((e) => {
-      if (e[tipo] && !objetos.includes(e[tipo].nombre)) {
+      if (e[tipo] && e[tipo].nombre && !objetos.includes(e[tipo].nombre)) {
         objetos.push(e[tipo] ? e[tipo].nombre : null);
       }
     });
@@ -93,7 +93,7 @@ export class UpdateDataService {
         .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours < tiempo && !c.tipo_agenda && c[tipo] !== null && c[tipo].nombre === b).length;
       let vn = completas.filter((c) => DateTime.fromJSDate(new Date(c.fecha_pre_no_realizado))
         .diff(DateTime.fromJSDate(new Date(c.fecha_registro_legados)), 'hour').toObject().hours >= tiempo && !c.tipo_agenda && c[tipo] !== null && c[tipo].nombre === b).length;
-      let agendadas = data.filter((c) => c.estado_toa === estados_toa.COMPLETADO && c.tipo_agenda && c[tipo].nombre === b).length;
+      let agendadas = data.filter((c) => c.estado_toa === estados_toa.COMPLETADO && c.tipo_agenda && c[tipo] && c[tipo].nombre === b).length;
       let porcnt = Math.round((ep*100) / (ep + vn) );
 
       return({  

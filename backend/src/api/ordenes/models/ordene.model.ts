@@ -253,6 +253,12 @@ export const OrdenSchema = new Schema({
     trim: true,
     default: null
   },
+  tipo_cita: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    default: null
+  },
   motivo_no_realizado: {
     type: String,
     trim: true,

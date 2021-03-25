@@ -1,0 +1,1 @@
+export const GET_VIEWS = "GET_VIEWS";

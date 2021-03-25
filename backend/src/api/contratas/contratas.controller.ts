@@ -14,7 +14,6 @@ import { CreateContrataDto } from './dto/create-contrata.dto';
 import { UpdateContrataDto } from './dto/update-contrata.dto';
 import { tipos_usuario } from '../../constants/enum';
 
-
 @UseGuards(JwtAuthGuard)
 @Controller('contratas/')
 export class ContratasController {

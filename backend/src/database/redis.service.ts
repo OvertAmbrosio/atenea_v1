@@ -12,7 +12,7 @@ export class RedisService {
   };
 
   async set(key: string, value: string, ttl: number) {
-    await this.cache.set(key, value, ttl);
+    await this.cache.set(key, value, { ttl });
   };
 
   async remove(key: string) {

@@ -7,7 +7,7 @@ import * as AntColores from '@ant-design/colors'
 import moment from 'moment';
 
 import estadoAsistencia from '../../constants/estadoAsistencia';
-import capitalizar from '../../libraries/capitalizar'
+import capitalizar from '../../libraries/capitalizar';
 
 function ExcelAsistencia({ data=[], dias=[], nombre }) {
   let exportarRef = useRef(null);
@@ -20,8 +20,29 @@ function ExcelAsistencia({ data=[], dias=[], nombre }) {
     try {
       let options = component.workbookOptions();
       let rows = options.sheets[0].rows;
+      let indexEstado = -1
+      let indexEncontrados = [];
       rows.forEach((row) => {
+        if (row.type === 'header') {
+          indexEstado = row.cells.findIndex((e) => e.value === 'Estado');
+          row.cells.forEach((e, i) => {
+            let fecha = moment(`${e.value}-2021`,"DD-MM-YYYY");
+            if (moment().isValid()) {
+              let diferencia = (moment().diff(fecha, "days"))
+              if (diferencia >= 0) {
+                indexEncontrados.push(i);
+              }
+            }           
+          });
+        };
         if (row.type === 'data') {
+          if (indexEstado > -1 && String(row.cells[indexEstado].value).toUpperCase() === 'INACTIVO' && indexEncontrados.length > 0) {
+            indexEncontrados.forEach((e) => {
+              if (!row.cells[e].value) {
+                row.cells[e].value = "BAJA"
+              }
+            })
+          }
           row.cells.forEach((cell) => {
             cell.value = cell.value ? String(cell.value).toUpperCase() : cell.value;
             cell.background = colorCelda(cell.value).background;
@@ -31,7 +52,7 @@ function ExcelAsistencia({ data=[], dias=[], nombre }) {
             cell.borderRight = { size: 1 };
             cell.borderTop = { size: 1 };
           });
-        }
+        };
       });
       component.save(options);
     } catch (error) {
@@ -47,6 +68,8 @@ function ExcelAsistencia({ data=[], dias=[], nombre }) {
         return {background: AntColores.red[1], color: AntColores.red.primary};
       case estadoAsistencia.ASISTIO:
         return {background: AntColores.green[1], color: AntColores.green.primary};
+      case estadoAsistencia.TARDANZA:
+        return {background: AntColores.lime[1], color: AntColores.lime.primary};
       case estadoAsistencia.DESCANSO:
         return {background: AntColores.gold[1], color: AntColores.gold.primary};
       case estadoAsistencia.PERMISO:

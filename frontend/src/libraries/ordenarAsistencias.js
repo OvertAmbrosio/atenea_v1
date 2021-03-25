@@ -39,6 +39,7 @@ export async function ordenarAsistencia(data=[]) {
               gestor: {
                 nombre: obj.tecnico.gestor ? obj.tecnico.gestor.nombre : '-',
                 apellidos: obj.tecnico.gestor ? obj.tecnico.gestor.apellidos: '-',
+                carnet: obj.tecnico.gestor ? obj.tecnico.gestor.carnet: '-',
                 _id: obj.tecnico.gestor ? obj.tecnico.gestor._id: '-',
               },
               auditor: {
@@ -77,6 +78,7 @@ export async function ordenarAsistencia(data=[]) {
             gestor: {
               nombre: obj.tecnico.gestor ? obj.tecnico.gestor.nombre : '-',
               apellidos: obj.tecnico.gestor ? obj.tecnico.gestor.apellidos: '-',
+              carnet: obj.tecnico.gestor ? obj.tecnico.gestor.carnet: '-',
               _id: obj.tecnico.gestor ? obj.tecnico.gestor._id: '-',
             },
             auditor: {

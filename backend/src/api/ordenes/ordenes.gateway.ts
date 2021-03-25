@@ -32,6 +32,7 @@ export class OrdenesGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   async enviarOrdenes(client: Socket) {
     let averias = {};
     let altas = {} ;
+    let hora = new Date();
     try {
       averias = await this.redisService.get(cache_keys.ORDENES_AVERIAS).catch((err) => console.log(err))
       altas = await this.redisService.get(cache_keys.ORDENES_ALTAS).catch((err) => console.log(err))
@@ -39,12 +40,26 @@ export class OrdenesGateway implements OnGatewayInit, OnGatewayConnection, OnGat
       console.log(error);
     };
     
-    return client.emit('ordenesGraficos', {averias, altas});
+    return client.emit('ordenesGraficos', {averias, altas, hora});
+  };
+
+  @SubscribeMessage('enviarIndicadores')
+  async enviarIndicadores(client: Socket) {
+    let imagenes = [];
+
+    try {
+      imagenes = await Promise.all([1,2,3,4,5,6,7,8].map(async(e) => await this.redisService.get(`IMAGENES_imagen${e}`)))
+    } catch (error) {
+      console.log(error);
+    };
+    
+    return client.emit('indicadoresimagenes', imagenes);
   };
 
   public async enviarOdenesToa() {
     let averias = {};
-    let altas = {} ;
+    let altas = {};
+    let hora = new Date();
     try {
       averias =  await this.redisService.get(cache_keys.ORDENES_AVERIAS).catch((err) => console.log(err));
       altas =  await this.redisService.get(cache_keys.ORDENES_ALTAS).catch((err) => console.log(err));
@@ -52,19 +67,32 @@ export class OrdenesGateway implements OnGatewayInit, OnGatewayConnection, OnGat
       console.log(error);
     };
 
-    return this.server.emit('ordenesGraficos',  {averias, altas});
+    return this.server.emit('ordenesGraficos',  {averias, altas, hora});
+  };  
+
+  public async enviarEnConexionIndicadores() {
+    let imagenes = [];
+
+    try {
+      imagenes = await Promise.all([1,2,3,4,5,6,7,8].map(async(e) => await this.redisService.get(`IMAGENES_imagen${e}`)))
+    } catch (error) {
+      console.log(error);
+    };
+    
+
+    return this.server.emit('indicadoresimagenes', imagenes);
   };  
 
   public afterInit(server: Server): void {
     console.log('-------------Socket iniciado---------');
-  }
+  };
 
   public handleDisconnect(client: Socket): void {
     console.log(`Client disconnected: ${client.id}`);
-  }
+  };
 
   public handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
     return client.id
-  }
+  };
 }

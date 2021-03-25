@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Table, Button, Row, Col } from 'antd';
+import { Select, Table, Button, Row, Col, Radio, Input } from 'antd';
 import { CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useJsonToCsv } from 'react-json-csv';
 import moment from 'moment';
@@ -9,8 +9,10 @@ import { getEmpleados, patchEmpleados } from '../../../services/apiEmpleado';
 import { empleados } from '../../../constants/metodos';
 import { obtenerFiltroId } from '../../../libraries/obtenerFiltro';
 import { tipoNegocio, subTipoNegocio } from '../../../constants/tipoOrden';
+import capitalizar from '../../../libraries/capitalizar';
 
 const { Option } = Select;
+const { Search } = Input;
 
 const valoresTecnicos = {
   contrata: "Contrata",
@@ -23,6 +25,7 @@ const valoresTecnicos = {
 };
 
 function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAuditores}) {
+  const [totalTecnicos, setTotalTecnicos] = useState([]);
   const [dataTecnicos, setDataTecnicos] = useState([]);
   const [loadingTecnicos, setLoadingTecnicos] = useState(false);
   const [loadingAsignarGestor, setLoadingAsignarGestor] = useState(false);
@@ -37,6 +40,7 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
   const [filtroContrata, setFiltroContrata] = useState([]);
   const [filtroGestor, setFiltroGestor] = useState([]);
   const [filtroAuditor, setFiltroAuditor] = useState([]);
+  const [tipoBusqueda, setTipoBusqueda] = useState("nombre");
   const { saveAsCsv } = useJsonToCsv();
 
   useEffect(() => {
@@ -51,6 +55,10 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
           setFiltroGestor(obtenerFiltroId(data, 'gestor', true));
           setFiltroAuditor(obtenerFiltroId(data, 'auditor', true));
           setDataTecnicos(data);
+          setTotalTecnicos(data);
+        } else {
+          setDataTecnicos([]);
+          setTotalTecnicos([]);
         }
       }).catch((error) => console.log(error)).finally(() => setLoadingTecnicos(false));
   };
@@ -107,6 +115,15 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
         filename: `data_personal_${moment().format('DD_MM_YY_HH_mm')}`
       })
     }
+  };
+
+  const realizarBusqueda = (e) => {
+    const valor = e.target.value;
+    if (String(valor).length > 0 && tipoBusqueda && totalTecnicos.length > 0) {
+      setDataTecnicos(totalTecnicos.filter((e) =>String(e[tipoBusqueda]).toLowerCase().indexOf(String(valor).toLowerCase()) === 0))
+    } else {
+      setDataTecnicos(totalTecnicos)
+    };
   };
 
   const columnas = [
@@ -317,6 +334,20 @@ function TablaTecnicos({gestores=[], loadingGestores, auditores=[], loadingAudit
         </Col>
       </Row>
       <Table
+        title={() => <div>
+          <Radio.Group size="small" value={tipoBusqueda} onChange={(e) => setTipoBusqueda(e.target.value)}>
+            <Radio value="nombre">Nombre</Radio>
+            <Radio value="apellidos">Apellidos</Radio>
+            <Radio value="carnet">Carnet</Radio>
+          </Radio.Group>
+          <Search 
+            onChange={realizarBusqueda}
+            placeholder={`Buscar ${capitalizar(tipoBusqueda)}`} 
+            allowClear
+            size="small" 
+            style={{ width: 200 }}
+          />
+        </div>}
         rowKey="_id"
         size="small"
         dataSource={dataTecnicos}

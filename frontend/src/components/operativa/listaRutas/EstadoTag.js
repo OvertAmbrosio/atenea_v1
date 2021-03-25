@@ -16,6 +16,8 @@ function EstadoTag({actualizar, row, fecha, estado}) {
       return (<Tag color="error">{estado}</Tag>);
     case estadoAsistencia.ASISTIO:
       return (<Tag color="success">{estado}</Tag>);
+    case estadoAsistencia.TARDANZA:
+      return (<Tag color="lime">{estado}</Tag>);
     case estadoAsistencia.DESCANSO:
       return (<Tag color="gold">{estado}</Tag>);
     case estadoAsistencia.GUARDIA:

@@ -11,6 +11,28 @@ export const tiposLiquidacion = {
   LIQUIDADAS: 'Q'
 };
 
+export const nodosLima = [
+  "MA",
+  "SM",
+  "SJ",
+  "PN",
+  "MR",
+  "SV",
+  "VN",
+  "D4",
+  "D5",
+  "P0",
+  "PB",
+  "SU",
+  "W5",
+  "W6",
+  "MAU2",
+  "MAU3",
+  "SJU1",
+  "SJU2",
+  "SJU3",
+]
+
 export const nodosLiteyca = [
   "MA",
   "SM",

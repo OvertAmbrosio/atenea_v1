@@ -15,6 +15,13 @@ function ModalAsignar({tipo=false, visible, abrir, contratas=[], gestores=[], te
   const [tipoAsignar, setTipoAsignar] = useState(1);
 
   useEffect(() => {
+    setContrataSeleccionada(null);
+    setGestorSeleccionado(null);
+    setTecnicoIndexSeleccionado(null);
+    setObservacion(null);
+  },[]);
+
+  useEffect(() => {
     ordenarListaTecnicos();
   //eslint-disable-next-line
   }, [tecnicos])
@@ -51,12 +58,12 @@ function ModalAsignar({tipo=false, visible, abrir, contratas=[], gestores=[], te
         await asignar({contrata: contrataSeleccionada, observacion});
       } else if (tipoAsignar === 2 && gestorSeleccionado) {
         await asignar({gestor: gestorSeleccionado, observacion});
-      } else if (tipoAsignar === 2 && tecnicoIndexSeleccionado && tecnicos.length > 0 && tecnicoIndexSeleccionado >= 0) {
+      } else if (tipoAsignar === 3 && tecnicoIndexSeleccionado && tecnicos.length > 0 && tecnicoIndexSeleccionado >= 0) {
         const index = tecnicoIndexSeleccionado;
         const aux = {
-          tecnico_liteyca: tecnicos[index] ? tecnicos[index]._id: null,
+          tecnico: tecnicos[index] ? tecnicos[index]._id: null,
           auditor: tecnicos[index] && tecnicos[index].auditor ? tecnicos[index].auditor._id : null,
-          gestor_liteyca: tecnicos[index] && tecnicos[index].gestor ? tecnicos[index].gestor._id : null,
+          gestor: tecnicos[index] && tecnicos[index].gestor ? tecnicos[index].gestor._id : null,
           contrata: tecnicos[index] && tecnicos[index].contrata ? tecnicos[index].contrata._id : null,
           observacion
         };
@@ -100,6 +107,7 @@ function ModalAsignar({tipo=false, visible, abrir, contratas=[], gestores=[], te
         onCancel={abrir}
         onOk={asignarOrden}
         width={550}
+        afterClose={() => setObservacion(null)}
         destroyOnClose
         centered
       >
@@ -139,6 +147,7 @@ function ModalAsignar({tipo=false, visible, abrir, contratas=[], gestores=[], te
         }
         <TextArea 
           placeholder="Observación"
+          value={observacion}
           onChange={(e) => setObservacion(e.target.value)}
           rows={5} 
           style={{ width: 500 }}

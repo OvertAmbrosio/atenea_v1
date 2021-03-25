@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, Col, DatePicker, Input, Popover, Row, Space, Statistic, Table, Tag } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import cogoToast from 'cogo-toast';
+import Highlighter from 'react-highlight-words';
 
 import { getAsistencias, patchAsistencia } from '../../../services/apiAsistencia';
 import { asistencias } from '../../../constants/metodos';
@@ -12,13 +14,13 @@ import EstadoTag from './EstadoTag';
 import { obtenerFiltroId } from '../../../libraries/obtenerFiltro';
 import ModalEditarAsistencia from './ModalEditarAsistencia';
 import ExcelAsistenciaTecnico from '../../excelExports/ExcelAsistenciaTecnico'
-import cogoToast from 'cogo-toast';
-import Highlighter from 'react-highlight-words';
+
+const { RangePicker } = DatePicker;
 
 export default function TablaAsistenciasTecnicos() {
-  const [diaInicio, setDiaInicio] = useState(null);
-  const [diaFin, setDiaFin] = useState(null);
-  const [diasSemana, setDiasSemana] = useState([]);
+  const [diaInicio, setDiaInicio] = useState(moment().startOf('week'));
+  const [diaFin, setDiaFin] = useState(moment().endOf('week'));
+  const [listaDias, setListaDias] = useState([]);
   const [columnas, setColumnas] = useState(null);
   const [dataAsistencias, setDataAsistencias] = useState([]);
   const [loadingAsistencia, setLoadingAsistencia] = useState(false);
@@ -37,7 +39,7 @@ export default function TablaAsistenciasTecnicos() {
   let inputBusqueda = useRef(null)
 
   useEffect(() => {
-    cambiarSemana(moment())
+    cambiarRango([moment().startOf('week'), moment().endOf('week')])
   //eslint-disable-next-line
   }, [])
 
@@ -49,7 +51,7 @@ export default function TablaAsistenciasTecnicos() {
   useEffect(() => {
     generarColumnas();
   //eslint-disable-next-line
-  }, [diasSemana, filtroGestores]);
+  }, [listaDias, filtroGestores]);
 
   async function listarAsistencias() {
     if (diaInicio && diaFin) {
@@ -57,8 +59,8 @@ export default function TablaAsistenciasTecnicos() {
       await getAsistencias({
         metodo: asistencias.LISTAR_TODO,
         tipo: 'tecnico',
-        fecha_inicio: diaInicio,
-        fecha_fin: diaFin
+        fecha_inicio: diaInicio.toDate(),
+        fecha_fin: diaFin.toDate()
       }).then(async({data}) => {
         return await ordenarAsistencia(data.filter((e) => e.tecnico !== null))
       }).then((resultado) => {
@@ -97,20 +99,19 @@ export default function TablaAsistenciasTecnicos() {
     setIdAsistencia(id);
   };
 
-  function cambiarSemana(dia) {
-    if (dia) {
-      let weekStart = dia.clone().startOf('week');
-      let weekEnd = dia.clone().endOf('week');
-      setDiaInicio(moment(weekStart).format('YYYY-MM-DD'));
-      setDiaFin(moment(weekEnd).format('YYYY-MM-DD'))
+  function cambiarRango(dias) {
+    if (dias && dias.length > 1) {
+      const diff = moment(dias[1].toDate()).diff(dias[0].toDate(), 'days');
+      setDiaInicio(dias[0]);
+      setDiaFin(dias[1])
       let days = [];
-      for (let i = 0; i <= 6; i++) {
-        days.push(moment(weekStart).add(i, 'days').format("DD-MM"));
+      for (let i = 0; i <= diff; i++) {
+        days.push(moment(dias[0].toDate()).add(i, 'days').format("DD-MM"));
       };
-      setDiasSemana(days);
+      setListaDias(days);
     } else {
-      setDiaInicio(null);
-      setDiaFin(null);
+      setDiaInicio(moment().startOf('week'));
+      setDiaFin(moment().endOf('week'));
     }
   };
 
@@ -145,7 +146,6 @@ export default function TablaAsistenciasTecnicos() {
     ),
     filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
     onFilter: (value, record) => {
-      console.log(value);
       return ( record[dataIndex]
         ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
         : '')
@@ -182,7 +182,7 @@ export default function TablaAsistenciasTecnicos() {
 
   function generarColumnas() {
     let hoy = moment().format('DD-MM');
-    if (diasSemana.length > 0) {
+    if (listaDias.length > 0) {
       const firstColumn = [{
         title: '#',
         width: 50,
@@ -264,7 +264,7 @@ export default function TablaAsistenciasTecnicos() {
           }
         }
       }]
-      const columnsAux = diasSemana.map((e) => {
+      const columnsAux = listaDias.map((e) => {
         return ({
           title: e,
           width: 60,
@@ -344,11 +344,10 @@ export default function TablaAsistenciasTecnicos() {
       <Row>
         <Col sm={24} style={{ marginBottom: '.5rem' }}>
           <p style={{ color: 'rgba(0,0,0,0.45)' }}>Seleccionar Fecha:</p>
-          <DatePicker 
-            onChange={cambiarSemana}
-            defaultValue={moment()}
-            picker="week" 
+          <RangePicker
             style={{ marginRight: '.5rem' }}
+            onChange={cambiarRango}
+            value={[moment(diaInicio), moment(diaFin)]}
           />
           <Button disabled={loadingAsistencia} icon={loadingAsistencia ? <LoadingOutlined spin/>:<ReloadOutlined/>} onClick={listarAsistencias}>Actualizar</Button>
         </Col>
@@ -390,7 +389,7 @@ export default function TablaAsistenciasTecnicos() {
           defaultPageSize: 50
         }}
         scroll={{ x: '1100px', y: '70vh' }}
-        footer={() => <ExcelAsistenciaTecnico data={dataAsistencias} dias={diasSemana} nombre="tecnico"/>}
+        footer={() => <ExcelAsistenciaTecnico data={dataAsistencias} dias={listaDias} nombre="tecnico"/>}
       />
       {/* MODAL PARA EDITAR LA ASISTENCIA */}
       <ModalEditarAsistencia visible={modalEditar} abrir={abrirModalEditar} loadingActualizar={loadingActualizar} actualizar={actualizarAsistencia} />

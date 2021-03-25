@@ -13,7 +13,6 @@ function ExcelAsistenciaTecnico({ data=[], dias=[], nombre }) {
   let exportarRef = useRef(null);
 
   const exportarExcel = () => {
-    console.log(data);
     guardarArchivo(exportarRef.current)
   };
 
@@ -21,8 +20,29 @@ function ExcelAsistenciaTecnico({ data=[], dias=[], nombre }) {
     try {
       let options = component.workbookOptions();
       let rows = options.sheets[0].rows;
+      let indexEstado = -1
+      let indexEncontrados = [];
       rows.forEach((row) => {
+        if (row.type === 'header') {
+          indexEstado = row.cells.findIndex((e) => e.value === 'Estado');
+          row.cells.forEach((e, i) => {
+            let fecha = moment(`${e.value}-2021`,"DD-MM-YYYY");
+            if (moment().isValid()) {
+              let diferencia = (moment().diff(fecha, "days"))
+              if (diferencia >= 0) {
+                indexEncontrados.push(i);
+              }
+            }           
+          });
+        };
         if (row.type === 'data') {
+          if (indexEstado > -1 && String(row.cells[indexEstado].value).toUpperCase() === 'INACTIVO' && indexEncontrados.length > 0) {
+            indexEncontrados.forEach((e) => {
+              if (!row.cells[e].value) {
+                row.cells[e].value = "BAJA"
+              }
+            })
+          }
           row.cells.forEach((cell) => {
             cell.value = cell.value ? String(cell.value).toUpperCase() : cell.value;
             cell.background = colorCelda(cell.value).background;
@@ -48,6 +68,8 @@ function ExcelAsistenciaTecnico({ data=[], dias=[], nombre }) {
         return {background: AntColores.red[1], color: AntColores.red.primary};
       case estadoAsistencia.ASISTIO:
         return {background: AntColores.green[1], color: AntColores.green.primary};
+      case estadoAsistencia.TARDANZA:
+        return {background: AntColores.lime[1], color: AntColores.lime.primary};
       case estadoAsistencia.DESCANSO:
         return {background: AntColores.gold[1], color: AntColores.gold.primary};
       case estadoAsistencia.PERMISO:
@@ -88,14 +110,15 @@ function ExcelAsistenciaTecnico({ data=[], dias=[], nombre }) {
         <ExcelExportColumn field="nombre" title="Nombre" locked={true} width={170} headerCellOptions={headerOptions} />
         <ExcelExportColumn field="apellidos" title="Apellidos" locked={true} width={150} headerCellOptions={headerOptions} />
         <ExcelExportColumn field="carnet" title="Carnet" locked={true} width={150} headerCellOptions={headerOptions} />
-        <ExcelExportColumn field="dni" title="DNI" locked={true} width={150} headerCellOptions={headerOptions} />
+        <ExcelExportColumn field="dni" title="DNI" width={150} headerCellOptions={headerOptions} />
         <ExcelExportColumn field="estado_empresa" title="Estado" width={90} headerCellOptions={headerOptions} />
         <ExcelExportColumn field="cargo" title="Cargo" width={90} headerCellOptions={headerOptions}/>
-        <ExcelExportColumn field="contrata.nombre" title="Contrata" width={170} locked={true} headerCellOptions={headerOptions} />
-        <ExcelExportColumn field="auditor.apellidos" title="Auditor" width={170} locked={true} headerCellOptions={headerOptions} />
-        <ExcelExportColumn field="gestor.apellidos" title="Gestor" width={170} locked={true} headerCellOptions={headerOptions} />
-        <ExcelExportColumn field="tipo_negocio" title="Negocio" width={90} locked={true} headerCellOptions={headerOptions} />
-        <ExcelExportColumn field="sub_tipo_negocio" title="Sub Negocio" width={90} locked={true} headerCellOptions={headerOptions} />
+        <ExcelExportColumn field="contrata.nombre" title="Contrata" width={170} headerCellOptions={headerOptions} />
+        <ExcelExportColumn field="auditor.apellidos" title="Auditor" width={170} headerCellOptions={headerOptions} />
+        <ExcelExportColumn field="gestor.apellidos" title="Gestor" width={170} headerCellOptions={headerOptions} />
+        <ExcelExportColumn field="gestor.carnet" title="Gestor Carnet" width={170} headerCellOptions={headerOptions} />
+        <ExcelExportColumn field="tipo_negocio" title="Negocio" width={90} headerCellOptions={headerOptions} />
+        <ExcelExportColumn field="sub_tipo_negocio" title="Sub Negocio" width={90} headerCellOptions={headerOptions} />
         {
           dias && dias.length > 0 ?
             dias.map((d, i) => (

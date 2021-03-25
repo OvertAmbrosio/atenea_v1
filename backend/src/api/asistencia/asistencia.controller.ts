@@ -83,12 +83,23 @@ export class AsistenciaController {
         message: 'Error creando la asistencia.'
       });
     });
-  }
+  };
 
   @Patch()
   async actualizarAsistencia(@Body() data:any , @Req() req: Request): Promise<TRespuesta> {
     const user:any = req.user;
-    return await this.asistenciaService.actualizarAsistencia(data.id, data.estado, data.observacion).then(() => {
+    const hoy = DateTime.fromJSDate(new Date(), { zone: 'America/Lima' })
+    const hora = hoy.get('hour');
+    const dia = hoy.get('day');
+    console.log(hora);
+    
+    if (user.cargo === tipos_usuario.GESTOR && hora > 10) {
+      return ({
+        status: 'error',
+        message: 'La asistencia solo se puede actualizar hasta las 9:00.'
+      });
+    }
+    return await this.asistenciaService.actualizarAsistencia(user.cargo, dia, data.id, data.estado, data.observacion).then(() => {
       this.logger.info({
         service: `El gestor -${user.id}- actualizo al tecnico -${data.tecnico}- con el estado -${data.estado}-`
       })

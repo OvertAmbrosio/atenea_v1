@@ -7,7 +7,7 @@ import moment from 'moment';
 import capitalizar from '../../libraries/capitalizar'
 import { getOrdenes } from '../../services/apiOrden';
 import { tipoOrdenes } from '../../constants/tipoOrden';
-import { colorEstado, colorHora } from '../../libraries/colorEstado';
+import { colorDia, colorEstado, colorHora } from '../../libraries/colorEstado';
 
 function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas=[]}) {
   const [dataOrdenes, setDataOrdenes] = useState([]);
@@ -35,6 +35,7 @@ function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas
           fecha_asignado: d.fecha_asignado ? moment(d.fecha_asignado).format('DD/MM/YY HH:mm'):'-',
           horas_registro: d.fecha_registro ? moment().diff(d.fecha_registro, 'hours') : '-',
           horas_asignado: d.fecha_asignado ? moment().diff(d.fecha_asignado, 'hours') : '-',
+          dias_asignado: d.fecha_asignado ? moment().diff(d.fecha_asignado, 'days') : '-',
         })))
       }
     }).catch((err) => console.log(err))
@@ -50,6 +51,7 @@ function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas
       let indexEstadoGestor = -1;
       let indexHoraRegistro = -1;
       let indexHoraAsignado = -1;
+      let indexDiaAsignado = -1;
       let indexFechaCita = -1;
       rows.forEach((row) => {
         if (row.type === 'header') {
@@ -58,6 +60,7 @@ function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas
           indexEstadoGestor = row.cells.findIndex((e) => e.value === 'Estado Gestor');
           indexHoraRegistro = row.cells.findIndex((e) => e.value === 'Horas Registro');
           indexHoraAsignado = row.cells.findIndex((e) => e.value === 'Horas Asignado');
+          indexDiaAsignado = row.cells.findIndex((e) => e.value === 'Dias Asignado');
           indexFechaCita = row.cells.findIndex((e) => e.value === 'Time Slot');
         };
         if (row.type === 'data') {
@@ -88,6 +91,11 @@ function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas
             row.cells[indexHoraAsignado].background = colorHora(row.cells[indexHoraAsignado].value, row.cells[indexTipo].value, row.cells[indexFechaCita].value).background;
             row.cells[indexHoraAsignado].color = colorHora(row.cells[indexHoraAsignado].value, row.cells[indexTipo].value, row.cells[indexFechaCita].value).color;
             row.cells[indexHoraAsignado].textAlign = 'center';
+          }
+          if (indexDiaAsignado > -1 && indexFechaCita > -1) {
+            row.cells[indexDiaAsignado].background = colorDia(row.cells[indexDiaAsignado].value, row.cells[indexFechaCita].value).background;
+            row.cells[indexDiaAsignado].color = colorDia(row.cells[indexDiaAsignado].value, row.cells[indexFechaCita].value).color;
+            row.cells[indexDiaAsignado].textAlign = 'center';
           }
         }
       });
@@ -139,9 +147,9 @@ function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas
         <ExcelExportColumn field="contrata.nombre" title="Contrata" width={250} headerCellOptions={headerOptions}/>
         <ExcelExportColumn field="gestor_liteyca.nombre" title="Gestor Asignado" width={250} headerCellOptions={headerOptions}/>
         <ExcelExportColumn field="auditor.nombre" title="Auditor" width={250} headerCellOptions={headerOptions}/>
-        <ExcelExportColumn field="tecnico.nombre" title="Tecnico Nombre" width={200} headerCellOptions={headerOptions}/>
-        <ExcelExportColumn field="tecnico.apellidos" title="Tecnico Apellidos" width={200} headerCellOptions={headerOptions}/>
-        <ExcelExportColumn field="tecnico.carnet" title="Tecnico Carnet" width={120} headerCellOptions={headerOptions}/>
+        <ExcelExportColumn field="tecnico_liteyca.nombre" title="Tecnico Nombre" width={200} headerCellOptions={headerOptions}/>
+        <ExcelExportColumn field="tecnico_liteyca.apellidos" title="Tecnico Apellidos" width={200} headerCellOptions={headerOptions}/>
+        <ExcelExportColumn field="tecnico_liteyca.carnet" title="Tecnico Carnet" width={120} headerCellOptions={headerOptions}/>
         <ExcelExportColumn field="estado_toa" title="Estado Toa" width={120} headerCellOptions={headerOptions}/>
         <ExcelExportColumn field="estado_gestor" title="Estado Gestor" width={120} headerCellOptions={headerOptions}/>
         <ExcelExportColumn field="tipo_agenda" title="Time Slot" width={100} headerCellOptions={headerOptions}/>
@@ -150,6 +158,8 @@ function ExcelOrdenesPendientes({ metodo, tipo, setLoading, ordenesSeleccionadas
         {tipo === 'gestor' || tipo === tipoOrdenes.ALTAS ?  <ExcelExportColumn field="fecha_asignado" title="Fecha Asignado" width={150} headerCellOptions={headerOptions}/> : null}
         {tipo === 'gestor' || tipo === tipoOrdenes.AVERIAS ?  <ExcelExportColumn field="horas_registro" title="Horas Registro" width={90} headerCellOptions={headerOptions}/> : null}
         {tipo === 'gestor' || tipo === tipoOrdenes.ALTAS ?  <ExcelExportColumn field="horas_asignado" title="Horas Asignado" width={90} headerCellOptions={headerOptions}/> : null}
+        {tipo === 'gestor' || tipo === tipoOrdenes.ALTAS ?  <ExcelExportColumn field="dias_asignado" title="Dias Asignado" width={90} headerCellOptions={headerOptions}/> : null}
+        <ExcelExportColumn field="detalle_trabajo" title="Detalle Ttrabajo" width={340} headerCellOptions={headerOptions}/>
         <ExcelExportColumn field="observacion_gestor" title="Observacion Gestor" width={340} headerCellOptions={headerOptions}/>
         <ExcelExportColumn field="observacion_toa" title="Observacion Toa" width={340} headerCellOptions={headerOptions}/>
         {tipo !== 'gestor' ? <ExcelExportColumn field="tipo" title="Negocio" locked={true} width={90} headerCellOptions={headerOptions} /> : null}

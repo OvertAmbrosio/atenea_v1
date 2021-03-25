@@ -6,7 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { CreateEmpleadoDto } from './dto/create-empleado.dto';
 import { UpdateEmpleadoDto } from './dto/update-empleado.dto';
 import { IEmpleado } from './interfaces/empleados.interface';
-import { tipos_usuario, estado_empresa, tipo_negocio, sub_tipo_negocio, tipos_negocios, sub_tipos_negocios } from '../../constants/enum';
+import { tipos_usuario, estado_empresa, tipos_negocios, sub_tipos_negocios } from '../../constants/enum';
 import { cache_keys, variables } from '../../config/variables';
 import { TPayload } from 'src/helpers/types';
 import { RedisService } from 'src/database/redis.service';
@@ -16,7 +16,11 @@ export class EmpleadosService {
   constructor(
     @InjectModel('Empleado') private readonly empleadoModel: PaginateModel<IEmpleado>,
     private readonly redisService: RedisService
-  ) {}
+  ) {};
+
+  async prueba() {
+    return await this.empleadoModel.find({ "usuario.cargo": tipos_usuario.AUDITOR, contrata: "5fbd1b984e03303234cb5fc0"})
+  };
 
   async checkUsuario(password: string, username:string): Promise<IEmpleado> {    
     return await this.empleadoModel.findOne({ 
@@ -80,18 +84,29 @@ export class EmpleadosService {
     };
   };
   //funcion para traer los gestores para la lista del select de las tablas 
-  async listarGestores(): Promise<IEmpleado> {
+  async listarGestores(cargo:number): Promise<IEmpleado[]> {
     return await this.redisService.get(cache_keys.GESTORES).then(async(gestores) => {
       if (gestores) {
-        return JSON.parse(gestores)
+        let jsonGestores:Array<any> = JSON.parse(gestores);
+        if (cargo === tipos_usuario.GESTOR) {
+          return jsonGestores.filter((e) => e.carnet == "LY0771")
+        } else {
+          return jsonGestores
+        };
       } else {
         return await this.empleadoModel.find({
           'usuario.cargo': tipos_usuario.GESTOR,
           estado_empresa: { $ne: estado_empresa.INACTIVO }
-        }).select('nombre apellidos').sort('apellidos').then(async(data) => {
+        }).select('nombre apellidos carnet').sort('apellidos').then(async(data) => {
           const string = JSON.stringify(data);
-          return await this.redisService.set(cache_keys.GESTORES, string, variables.redis_ttl)
-            .then(() => data);
+
+          await this.redisService.set(cache_keys.GESTORES, string, variables.redis_ttl)
+
+          if (cargo === tipos_usuario.GESTOR) {
+            return data.filter((e) => e.carnet == "LY0771")
+          } else {
+            return data
+          };
         })
       };
     });
@@ -239,14 +254,16 @@ export class EmpleadosService {
     //validar que el usuario a actualizar no es uno de los jefes o administrador
     if (empleado && empleado.usuario.cargo >= cargoUsuario) {
       if (empleado.usuario.cargo === tipos_usuario.GESTOR || updateEmpleadoDto.usuario.cargo === tipos_usuario.GESTOR) {
-        return await this.redisService.remove(cache_keys.GESTORES)
-          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: objUpdate }));
-      } else if (empleado.usuario.cargo === tipos_usuario.TECNICO || updateEmpleadoDto.usuario.cargo === tipos_usuario.TECNICO) {
-        return await this.redisService.remove(cache_keys.TECNICOS_GLOBAL)
-          .then(async() => await this.empleadoModel.findByIdAndUpdate(id, { $set: objUpdate }));
-      } else {
-        return await this.empleadoModel.findByIdAndUpdate(id, { $set: objUpdate });
-      };
+        await this.redisService.remove(cache_keys.GESTORES)
+      }
+      if (empleado.usuario.cargo === tipos_usuario.TECNICO || updateEmpleadoDto.usuario.cargo === tipos_usuario.TECNICO) {
+        await this.redisService.remove(cache_keys.TECNICOS_GLOBAL)
+      }
+      if (empleado.usuario.cargo === tipos_usuario.AUDITOR || updateEmpleadoDto.usuario.cargo === tipos_usuario.AUDITOR) {
+        await this.redisService.remove(cache_keys.AUDITORES)
+      }
+
+      return await this.empleadoModel.findByIdAndUpdate(id, { $set: objUpdate });
     } else {
       throw new HttpException({
         message: 'No puedes editar usuarios con cargos superiores.'
@@ -270,15 +287,10 @@ export class EmpleadosService {
 
   async actualizarPermisos(_id: string, nuevoCargo: number): Promise<IEmpleado> {
     return this.empleadoModel.findByIdAndUpdate(_id, { $set: { 'usuario.cargo': nuevoCargo } }).then(async(data) => {
-      if (data.usuario.cargo === tipos_usuario.GESTOR) {
-        return await this.redisService.remove(cache_keys.GESTORES)
-          .then(() => data);
-      } else if (data.usuario.cargo === tipos_usuario.TECNICO) {
-        return await this.redisService.remove(cache_keys.TECNICOS_GLOBAL)
-          .then(() => data);
-      } else {
-        return data;
-      };
+      if (data.usuario.cargo === tipos_usuario.GESTOR || nuevoCargo === tipos_usuario.GESTOR) await this.redisService.remove(cache_keys.GESTORES)
+      if (data.usuario.cargo === tipos_usuario.TECNICO || nuevoCargo === tipos_usuario.TECNICO) await this.redisService.remove(cache_keys.TECNICOS_GLOBAL)
+    
+      return data;
     })
   };
 
@@ -383,5 +395,5 @@ export class EmpleadosService {
   //guardar las preferencias de las columnas mostradas
   async actualizarColumnasGestor(user:string, columnas: string[]) {
     return await this.empleadoModel.findByIdAndUpdate(user, { columnas }).select('columnas')
-  }
+  };
 }

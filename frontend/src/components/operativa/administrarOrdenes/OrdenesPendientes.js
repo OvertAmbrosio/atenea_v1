@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
-import { Button, Dropdown } from 'antd';
+import { Button, Dropdown, Row, Switch } from 'antd';
 import { CloudSyncOutlined, ScheduleOutlined, LoadingOutlined, ReloadOutlined, UserSwitchOutlined, ExportOutlined, FileSyncOutlined, SyncOutlined, ClearOutlined } from '@ant-design/icons';
 
 import TablaOrdenesPendientes from './TablaOrdenesPendientes';
@@ -14,8 +14,17 @@ import ModalEstado from './ModalsTabla/ModalEstado';
 import ModalRegistro from './ModalsTabla/ModalRegistro';
 import ModalInfancia from './ModalsTabla/ModalInfancia';
 import ExcelOrdenesPendientes from '../../excelExports/ExcelOrdenesPendientes';
+import { tipoOrdenes } from '../../../constants/tipoOrden';
+import { estadosToa } from '../../../constants/valoresToa';
+
+const cerradas = [
+  String(estadosToa.CANCELADO).toUpperCase(),
+  String(estadosToa.NO_REALIZADA).toUpperCase(),
+  String(estadosToa.COMPLETADO).toUpperCase()
+]
 
 function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
+  const [totalOrdenes, setTotalOrdenes] = useState([]);
   const [dataOrdenes, setDataOrdenes] = useState([]);
   const [dataRegistros, setDataRegistros] = useState([]);
   const [dataInfancia, setDataInfancia] = useState([]);
@@ -37,11 +46,21 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
   const [modalRegistro, setModalRegistro] = useState(false);
   const [codigoCliente, setCodigoCliente] = useState(null);
   const [filtros, setFiltros] = useState(null);
+  const [filtrarCerradas, setFiltrarCerradas] = useState(true);
 
   useEffect(() => {
     listarOrdenes();
   // eslint-disable-next-line
   },[]);
+
+  useEffect(() => {
+    if (tipo === tipoOrdenes.ALTAS && totalOrdenes.length > 0) {
+      const aux = filtrarCerradas ? totalOrdenes.filter((e) => !cerradas.includes(String(e.estado_toa).toUpperCase()))
+        : totalOrdenes.filter((e) => cerradas.includes(String(e.estado_toa).toUpperCase()))
+      setDataOrdenes(aux)
+    }
+  //eslint-disable-next-line
+  },[filtrarCerradas])
 
   async function listarOrdenes() {
     setLoadingOrdenes(true);
@@ -49,7 +68,11 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
     await getOrdenes(true, { metodo: ordenes.ORDENES_HOY, tipo })
       .then(({data}) => {
         if (data && data.length > 0) {
-          setDataOrdenes(data);
+          const dataAux = tipo !== tipoOrdenes.ALTAS ? data 
+            : filtrarCerradas ? data.filter((e) => !cerradas.includes(String(e.estado_toa).toUpperCase())) 
+            : data.filter((e) => cerradas.includes(String(e.estado_toa).toUpperCase())) 
+          setTotalOrdenes(data);
+          setDataOrdenes(dataAux);
         }
       }).catch((err) => console.log(err)).finally(() => setLoadingOrdenes(false));
   };
@@ -115,11 +138,10 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
 
   async function asignarOrdenes(data) {
     if (ordenesSeleccionadas && ordenesSeleccionadas.length > 0) {
-      const auxData = data;
       setLoadingAsignar(true);
       abrirModalAsignar();
       await patchOrdenes({
-        metodo: ordenes.ASIGNAR_ORDEN, ordenes: ordenesSeleccionadas, ...auxData
+        metodo: ordenes.ASIGNAR_ORDEN, ordenes: ordenesSeleccionadas, ...data
       }).then(async() => await listarOrdenes()).catch((err) => console.log(err)).finally(() => setLoadingAsignar(false));
     }
   };
@@ -144,9 +166,9 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
     }
   };
 
-  function limpiarFiltros() {
-    setFiltros(null);
-  };
+  // function limpiarFiltros() {
+  //   setFiltros(null);
+  // };
 
   const abrirModalAgendar = () => setModalAgendar(!modalAgendar);
   const abrirModalAsignar = () => setModalAsignar(!modalAsignar);
@@ -172,7 +194,7 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
 
   return (
     <div>
-      <div>
+      <Row>
         <Button 
           type="primary"
           icon={loadingOrdenes ? <LoadingOutlined spin/>:<ReloadOutlined/>}
@@ -221,12 +243,24 @@ function OrdenesPendientes({ contratas, gestores, tecnicos, tipo }) {
             Exportar
           </Button>
         </Dropdown>
-        <Button 
+        {/* <Button 
           icon={<ClearOutlined />}
           style={{ marginBottom: '1rem', marginRight: '.5rem' }}
           onClick={limpiarFiltros}
-        >Filtros</Button>
-      </div>
+        >Filtros</Button> */}
+      </Row>
+      {
+        tipo === tipoOrdenes.ALTAS ? 
+        ( <Row style={{ margin: ".5rem 0" }}>
+          <Switch
+            checkedChildren="Pendientes" 
+            unCheckedChildren="Cerradas" 
+            checked={filtrarCerradas}
+            onChange={(e) => setFiltrarCerradas(e)}
+          />
+        </Row>):null
+      }
+     
       <TablaOrdenesPendientes 
         filtros={filtros}
         setFiltros={setFiltros}

@@ -1,0 +1,10 @@
+export const niveles = {
+  ROOT: 0,
+  ADMINISTRADOR: 1,
+  JEFES_AREA: 2,
+  JEFES_PERSONAL: 3,
+  JEFES_MINI_PERSONAL: 4,
+  BACK_OFFICE: 5,
+  OPERATIVO: 6,
+  FUERA_SISTEMA: 7,
+};

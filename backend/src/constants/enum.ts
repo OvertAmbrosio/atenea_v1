@@ -27,6 +27,7 @@ export const tipos_orden = {
 export const estado_asistencia= {
   FALTA: 'F',
   ASISTIO: 'A',
+  TARDANZA: 'T',
   DESCANSO: 'D',
   PERMISO: 'P',
   SUSPENDIDO: 'S',
@@ -61,8 +62,12 @@ export const estado_gestor = {
   INICIADO: 'iniciado',
   LIQUIDADO: 'liquidado',
   SUSPENDIDO: 'suspendido',
+  CANCELADO: 'cancelado',
+  NO_REALIZADO: 'no_realizado',
   MASIVO: 'masivo',
   PEXT: 'pext',
   REMEDY: 'remedy',
   ANULADO: 'anulado'
 };
+
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
 import { Col, Input, Row, Statistic, Table } from 'antd';
 
@@ -9,7 +9,7 @@ import ModalDetalleOrden from './ModalsTabla/ModalDetalleOrden';
 
 const { Search } = Input;
 
-function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSeleccionadas, setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirRegistro, listarOrdenes }) {
+function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSeleccionadas=[], setOrdenesSeleccionadas, abrirReiterada, abrirInfancia, abrirRegistro, listarOrdenes }) {
   const [dataTotal, setDataTotal] = useState([]);
   const [filtroDistrito, setFiltroDistrito] = useState([]);
   const [filtroBucket, setFiltroBucket] = useState([]);
@@ -17,8 +17,6 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
   const [filtroEstadoGestor, setFiltroEstadoGestor] = useState([])
   const [filtroContrata, setFiltroContrata] = useState([]);
   const [filtroGestorAsignado, setFiltroGestorAsignado] = useState([]);
-  const [filtroTecnicoToa, setFiltroTecnicoToa] = useState([]);
-  const [filtroTecnicoAsignado, setFiltroTecnicoAsignado] = useState([]);
   const [filtroTipoReq, setFiltroTipoReq] = useState([]);
   const [filtroTecnologia, setFiltroTecnologia] = useState([]);
   const [filtroNodo, setFiltroNodo] = useState([]);
@@ -31,8 +29,6 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
   const [idOrdenDetalle, setIdOrdenDetalle] = useState(null);
   const [modalDetalle, setModalDetalle] = useState(false);
   const [cantidadFiltrados, setCantidadFiltrados] = useState(0);
-  //busqueda
-  let inputBusqueda = useRef(null)
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -43,6 +39,10 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
     }
   //eslint-disable-next-line
   },[data]);
+
+  useEffect(() => {
+    if (!filtros) setCantidadFiltrados(0);
+  }, [filtros])
 
   const abrirModalDetalle = () => setModalDetalle(!modalDetalle);
 
@@ -68,8 +68,7 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
     setFiltroFechaCita(obtenerFiltroFecha(dataSource, 'fecha_cita'))
     setFiltroContrata(obtenerFiltroId(dataSource, 'contrata'));
     setFiltroGestorAsignado(obtenerFiltroId(dataSource, 'gestor_liteyca', true));
-    setFiltroTecnicoToa(obtenerFiltroId(dataSource, 'tecnico', true));
-    setFiltroTecnicoAsignado(obtenerFiltroId(dataSource, 'tecnico_liteyca', true));    
+    setFiltroGestorAsignado(obtenerFiltroId(dataSource, 'gestor_liteyca', true));
   };
 
   const onChangeTable = (_, filters, __, dataSource) => {
@@ -91,6 +90,7 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
         title={() => 
           <Search 
             placeholder="Requerimiento..." 
+            size="small"
             onSearch={buscarRequerimiento} 
             style={{ width: 180, marginRight: '0rem', marginBottom: '.5rem' }} 
             allowClear 
@@ -109,7 +109,6 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
         onChange={onChangeTable}
         columns={columnasOrdenes({
           tipo, 
-          filtros,
           setFiltros,
           filtroDistrito,
           filtroBucket,
@@ -117,8 +116,6 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
           filtroEstadoGestor,
           filtroContrata,
           filtroGestorAsignado,
-          filtroTecnicoToa,
-          filtroTecnicoAsignado,
           filtroTipoReq,
           filtroTecnologia,
           filtroNodo,
@@ -131,8 +128,7 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
           abrirReiterada, 
           abrirInfancia,
           abrirRegistro,
-          listarOrdenes,
-          inputBusqueda})
+          listarOrdenes})
         }
         dataSource={dataTotal}
         loading={loading}
@@ -149,6 +145,9 @@ function TablaOrdenes({ filtros, setFiltros, tipo, data=[], loading, ordenesSele
             </Col>
             <Col span={12}>
               <Statistic title="Total Filtradas" value={cantidadFiltrados} />
+            </Col>
+            <Col span={12}>
+              <Statistic title="Ordenes Seleccionadas" value={ordenesSeleccionadas.length} />
             </Col>
           </Row>
         )}

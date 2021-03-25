@@ -25,6 +25,7 @@ export const AsistenciaSchema = new Schema({
     trim: true,
     enum: [
       estado_asistencia.ASISTIO,
+      estado_asistencia.TARDANZA,
       estado_asistencia.DESCANSO,
       estado_asistencia.DESCANSO_MEDICO,
       estado_asistencia.EXAMEN_MEDICO,

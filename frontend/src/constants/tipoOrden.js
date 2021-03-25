@@ -1,6 +1,8 @@
 export const tipoOrdenes = {
   AVERIAS: 'averiashfc',
   ALTAS: 'altashfc',
+  RUTINAS: 'rutinas',
+  BAJAS: 'bajas',
   SPEEDY: 'speedy',
   BASICAS: 'basicas'
 };

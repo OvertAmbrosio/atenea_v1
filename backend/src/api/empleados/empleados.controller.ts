@@ -12,16 +12,56 @@ import { UpdateEmpleadoDto } from './dto/update-empleado.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TPaginateParams, TPayload, TRespuesta } from 'src/helpers/types';
 import { tipos_usuario } from 'src/constants/enum';
-import { userInfo } from 'os';
 
-@UseGuards(JwtAuthGuard)
 @Controller('empleados/')
 export class EmpleadosController {
   constructor(
     private readonly empleadosService: EmpleadosService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {}
+
+  @Get("prueba")
+  async prueba() {
+    return await this.empleadosService.prueba();
+  }
+
+  @Get('tecnicos')
+  async tecnicosGlobal(): Promise<TRespuesta> {
+    return this.empleadosService.listarTecnicosGlobal().then((data) => {
+      return ({
+        status: 'success',
+        message: 'Empleados obtenidos correctamente.',
+        data: data
+      })
+    }).catch((err) => {
+      this.logger.error({message: err.message, service: 'listaTecnicosGlobal'});
+      return ({
+        status: 'error',
+        message: err.message,
+        data: []
+      })
+    });
+  };
+
+  @Get('gestores')
+  async gestoresGlobal(): Promise<TRespuesta> {
+    return this.empleadosService.listarGestores(0).then((data) => {
+      return ({
+        status: 'success',
+        message: 'Gestores obtenidos correctamente.',
+        data
+      })
+    }).catch((err) => {
+      this.logger.error({message: err.message, service: 'listaGestores'});
+      return ({
+        status: 'error',
+        message: err.message,
+        data: []
+      })
+    });
+  };
   //metodo para traer todo el personal dependiendo del cargo
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Query() params: TPaginateParams, @Req() req: Request): Promise<TRespuesta> {
     const usuario:TPayload|any = req.user;
@@ -84,7 +124,7 @@ export class EmpleadosController {
         })
       })
     } else if (params.metodo === 'listaGestores') {
-      return this.empleadosService.listarGestores().then((data) => {
+      return this.empleadosService.listarGestores(usuario.cargo).then((data) => {
         return ({
           status: 'success',
           message: 'Gestores obtenidos correctamente.',
@@ -133,6 +173,7 @@ export class EmpleadosController {
     }
   };
 
+  @UseGuards(JwtAuthGuard)
   @Get('buscar')
   async buscarEmpleado(@Query('value') value: string, @Query('field') field: string, @Req() req: Request): Promise<TRespuesta> {
     const usuario: any = req.user;
@@ -151,6 +192,7 @@ export class EmpleadosController {
     });
   };
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createEmpleadoDto: CreateEmpleadoDto, @Req() req: Request) {
     const usuario:any = req.user;
@@ -176,6 +218,7 @@ export class EmpleadosController {
     };
   };
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateEmpleadoDto: UpdateEmpleadoDto, @Req() req: Request) {
     const usuario: any = req.user;
@@ -191,6 +234,7 @@ export class EmpleadosController {
     });
   };
   //metodo que se encarga de la configuracion del usuario
+  @UseGuards(JwtAuthGuard)
   @Patch()
   async actualizarEmpleado(
     @Body('id') id: string, 

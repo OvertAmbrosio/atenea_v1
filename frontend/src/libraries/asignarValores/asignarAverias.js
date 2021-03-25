@@ -58,7 +58,6 @@ export async function pendientesAverias(ordenes=[]){
 
 export async function liquidadasAverias(ordenes=[], tecnicos=[]){
   const promises = ordenes.map((orden, indice) => {
-
     let verificado = true;
     let tecnico = null;
     let efectivas = codigosLiquidadasEfectivas.includes(String(orden['tipave']));
@@ -76,6 +75,7 @@ export async function liquidadasAverias(ordenes=[], tecnicos=[]){
     const valores = {
       key: indice,
       verificado,
+      tipo_liquidacion: orden['edoxot'],
       tecnico_liquidado: tecnico,
       estado_liquidado: efectivas ? 'efectiva' : inEfectivas ? 'inefectiva' : noCorresponde ? 'no_corresponde' : '-',
     };

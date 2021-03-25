@@ -51,6 +51,7 @@ function OrdenesPendientesGestor({gestores=[], tecnicos=[]}) {
 
   async function listarOrdenes() {
     setLoadingOrdenes(true);
+    setOrdenesSeleccionadas([]);
     return await getOrdenes(true, { metodo: ordenesMetodo.ORDENES_HOY_GESTOR, todo: true })
       .then(({data}) => {
         if(data) setListaOrdenes(data);

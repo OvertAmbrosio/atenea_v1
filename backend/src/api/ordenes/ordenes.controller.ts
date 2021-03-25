@@ -53,6 +53,7 @@ export class OrdenesController {
       });
     };
   };
+  
 
   @Post('actividades')
   async postActividades(
@@ -83,6 +84,32 @@ export class OrdenesController {
         message: 'Todo mal'
       })
     });
+  };
+
+  @Post('agendas')
+  async postAgendas(@Body() data: Array<any>): Promise<TRespuesta> {
+    try {
+      if (data && data.length > 0) {
+        console.log(data[0]);
+        return ({
+          message: 'Data recibida.',
+          status: 'success'
+        });
+      } else {
+        console.log(data);
+        return ({
+          message: 'Error recibiendo la data (vacio).',
+          status: 'warn',
+          data
+        })
+      };
+    } catch (error) {
+      console.log(error);
+      return ({
+        message: error,
+        status: 'error'
+      })
+    };
   };
 
   @Get()
@@ -285,7 +312,7 @@ export class OrdenesController {
         });
       });
     } else if (metodo === 'exportarPendientesGestor') {
-      return await this.ordenesService.obtenerPendientesExportarGestor(user.id, todo, id_ordenes).then((res) => {
+      return await this.ordenesService.obtenerPendientesExportarGestor(user.id, id_ordenes, todo ).then((res) => {
         return ({
           status: 'success',
           message: `Registros encontrados correctamente.`,

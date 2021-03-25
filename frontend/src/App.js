@@ -11,6 +11,7 @@ import Login from './views/Login';
 import Layout from './components/layout';
 import routes from './routes';
 import PrivateRoute from './components/layout/PrivateRoute';
+import SubirIndicadores from './views/SubirIndicadores';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
       <Router>
         <Switch>
           <Route exact path="/" component={Index} />
+          <Route exact path="/indicadores" component={SubirIndicadores} />
           <Route exact path={rutas.login} component={Login}/>
           <Layout>
           {routes.map((route, index) => (

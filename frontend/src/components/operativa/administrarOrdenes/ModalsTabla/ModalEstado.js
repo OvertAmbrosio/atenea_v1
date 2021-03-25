@@ -62,6 +62,7 @@ function ModalEstado({visible, abrir, actualizarEstado}) {
       onOk={actualizarOrden}
       onCancel={abrir}
       width={300}
+      afterClose={() => setObservacion(null)}
       destroyOnClose
       centered
     >
@@ -78,12 +79,13 @@ function ModalEstado({visible, abrir, actualizarEstado}) {
         <Option value={listaEstadosGestor.LIQUIDADO}>{capitalizar(listaEstadosGestor.LIQUIDADO)}</Option>
         <Option value={listaEstadosGestor.SUSPENDIDO}>{capitalizar(listaEstadosGestor.SUSPENDIDO)}</Option>
         <Option value={listaEstadosGestor.CANCELADO}>{capitalizar(listaEstadosGestor.CANCELADO)}</Option>
+        <Option value={listaEstadosGestor.NO_REALIZADO}>{capitalizar(listaEstadosGestor.NO_REALIZADO)}</Option>
         <Option value={listaEstadosGestor.PEXT}>{capitalizar(listaEstadosGestor.PEXT)}</Option>
         <Option value={listaEstadosGestor.REMEDY}>{capitalizar(listaEstadosGestor.REMEDY)}</Option>
       </Select>
       <TextArea
         placeholder="Observacion"
-        defaultValue={observacion}
+        value={observacion}
         rows={4}
         onChange={(e) => setObservacion(e.target.value)}
         style={{ marginBottom: '.5rem' }}
@@ -113,5 +115,5 @@ ModalEstado.propTypes = {
   actualizarEstado: PropTypes.func
 };
 
-export default ModalEstado
+export default ModalEstado;
 

@@ -41,7 +41,7 @@ export class AsistenciaService {
     })
   };
   // generar asistencia diaria
-  @Cron('0 0 6 * * *', {
+  @Cron('0 0 6 * * 1-6', {
     name: 'generarAsistencia',
     timeZone: 'America/Lima',
   })
@@ -54,9 +54,44 @@ export class AsistenciaService {
         { estado_empresa: { $ne: estado_empresa.INACTIVO } },
         { 'usuario.cargo': { $in: [tipos_usuario.TECNICO, tipos_usuario.GESTOR, tipos_usuario.AUDITOR] } }
     ]}).select('_id usuario.cargo').then((empleados:IEmpleado[]) => {
-      const estado = hoy.get('weekday') === 7 ? estado_asistencia.DESCANSO : estado_asistencia.FALTA;
       if (empleados && empleados.length > 0) {
-        return this.ordenarAsistencia(empleados, estado, hoy.set({hour: 6}).toJSDate())
+        return this.ordenarAsistencia(empleados, estado_asistencia.FALTA, hoy.set({hour: 6}).toJSDate())
+      } else {
+        return []
+      } 
+    });
+
+    return Promise.all(empleadosAsistencia.map(async(obj) => {   
+        return await this.asistenciaModel.findOne({
+          $and: [
+            { [obj.tipo]: obj[obj.tipo] },
+            { fecha_registro: { $gte: hoy.toJSDate(), $lt: mañana.toJSDate() } }
+          ] 
+        }).then(async(a:IAsistencia) => {
+          if (a) {
+            return null;
+          } else {
+            return await new this.asistenciaModel(obj).save()
+          };
+        })
+    })).then((a) => console.log('Cantidad de nuevas: ' + a.filter(e => e).length)).catch((e) => console.log(e));
+  };
+  // generar asistencia domingos
+  @Cron('0 0 6 * * 5', {
+    name: 'generarDescansos',
+    timeZone: 'America/Lima',
+  })
+  async generarDescansos() {
+    const hoy = DateTime.fromJSDate(new Date()).plus({day: 2}).set({hour: 0, minute: 1, second: 0, millisecond: 0});
+    const mañana = DateTime.fromJSDate(new Date()).plus({day: 2}).set({hour: 23, minute: 59, second: 59, millisecond: 0});
+    
+    const empleadosAsistencia:Array<THelperAsis> = await this.empleadoModel.find({
+      $and:[
+        { estado_empresa: { $ne: estado_empresa.INACTIVO } },
+        { 'usuario.cargo': { $in: [tipos_usuario.TECNICO, tipos_usuario.GESTOR, tipos_usuario.AUDITOR] } }
+    ]}).select('_id usuario.cargo').then((empleados:IEmpleado[]) => {
+      if (empleados && empleados.length > 0) {
+        return this.ordenarAsistencia(empleados, estado_asistencia.DESCANSO, hoy.set({hour: 6}).toJSDate())
       } else {
         return []
       } 
@@ -118,9 +153,7 @@ export class AsistenciaService {
   //   const hoy = DateTime.fromJSDate(new Date()).plus({day: -1}).set({hour: 0, minute: 0, second: 0, millisecond: 0});
   //   const mañana = DateTime.fromJSDate(new Date()).plus({day: -1}).set({hour: 23, minute: 59, second: 59, millisecond: 0});
 
-  //   const query:any = { fecha_registro: "2021-02-25T00:00:00.000+00:00" }
-    
-  //   let asist = await this.asistenciaModel.find(query).sort('fecha_registro')
+  //  console.log(hoy.plus({day: 4}).toJSDate());
     
   // };
 
@@ -147,13 +180,25 @@ export class AsistenciaService {
     })
   };
 
-  async actualizarAsistencia(id:string, estado:string, observacion?:string) {
-    return await this.asistenciaModel.findByIdAndUpdate({
-      _id: id
-    }, {
-      estado,
-      observacion: observacion ? observacion : '-'
-    })
+  async actualizarAsistencia(cargo:number, dia:number, id:string, estado:string, observacion?:string) {
+
+    return await this.asistenciaModel.findById(id).then(async(obj:IAsistencia) => {
+      if (obj) {
+        const diaAsistencia = DateTime.fromJSDate(obj.fecha_registro).get('day');
+        if (cargo === tipos_usuario.GESTOR && dia !== diaAsistencia) {
+          throw new HttpException('No tienes permisos para actualizar dias anteriores.', HttpStatus.BAD_REQUEST)
+        } else {
+          return await this.asistenciaModel.findByIdAndUpdate({
+            _id: id
+          }, {
+            estado,
+            observacion: observacion ? observacion : '-'
+          })
+        };
+      } else {
+        throw new HttpException('No se encuentra el id.', HttpStatus.BAD_REQUEST)
+      };
+    });
   };
 
   async listarTodoAsistencia(params: TPaginateParams): Promise<IAsistencia[]> {
@@ -173,7 +218,7 @@ export class AsistenciaService {
         select: 'nombre'
       }, {
         path: 'gestor',
-        select: 'nombre apellidos'
+        select: 'nombre apellidos carnet'
       }, {
         path: 'auditor',
         select: 'nombre apellidos'
